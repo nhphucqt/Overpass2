@@ -27,11 +27,22 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-file(GLOB SRCS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
+file(GLOB SRCS CONFIGURE_DEPENDS 
+    ${CMAKE_SOURCE_DIR}/src/*.cpp 
+    ${CMAKE_SOURCE_DIR}/src/framework/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/activities/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
+)
 
 add_executable(game ${SRCS})
 target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(game PRIVATE cxx_std_17)
+target_include_directories(game PRIVATE 
+    ${CMAKE_SOURCE_DIR}/include 
+    ${CMAKE_SOURCE_DIR}/include/framework
+    ${CMAKE_SOURCE_DIR}/include/activities
+    ${CMAKE_SOURCE_DIR}/include/gui
+)
 
 if(WIN32)
     add_custom_command(
