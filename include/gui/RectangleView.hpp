@@ -10,8 +10,6 @@ private:
 
 public:
     RectangleView();
-    RectangleView(Viewable* parent);
-    RectangleView(Viewable* parent, sf::Vector2f dimens);
 
 protected:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
