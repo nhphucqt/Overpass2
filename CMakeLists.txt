@@ -42,6 +42,7 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/framework
     ${CMAKE_SOURCE_DIR}/include/activities
     ${CMAKE_SOURCE_DIR}/include/gui
+    ${CMAKE_SOURCE_DIR}/include/entity
 )
 
 if(WIN32)
