@@ -2,17 +2,15 @@
 #define RECTANGLE_VIEW_HPP
 
 #include <Viewable.hpp>
-#include <random>
 
 class RectangleView: public Viewable {
 private:
-    sf::RectangleShape rect;
+    sf::RectangleShape mRect;
 
 public:
-    RectangleView();
-
-protected:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    RectangleView(int width, int height);
+    sf::Vector2f getSize();
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
     
 
