@@ -31,6 +31,10 @@ sf::Vector2f Entity::center() {
     return sf::Vector2f(sprite.getGlobalBounds().getSize().x/2, sprite.getGlobalBounds().getSize().y/2);
 }
 
+Entity::EntityType Entity::getType() {
+    return TYPE;
+}
+
 void Entity::move(sf::Time delta) {
     sprite.move(velocity * delta.asSeconds());
 }
@@ -143,3 +147,15 @@ bool Vehicle::collides() {
 void Vehicle::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
 	target.draw(sprite, states);
 }
+
+Log::Log(sf::Texture texture, LogType log): Entity(texture), logType(log) {}
+
+Log::LogType Log::getLogType() {
+    return logType;
+}
+
+void Log::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
+	target.draw(sprite, states);
+}
+
+// TODO: research about how to move an entity properly.

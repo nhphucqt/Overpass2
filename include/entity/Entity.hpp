@@ -4,7 +4,10 @@
 #include "../framework/ViewGroup.hpp"
 
 class Entity: ViewGroup {
+    public:
+        enum class EntityType {Entity, Obstacle, TrafficLight, Vehicle, Log};
     private:
+        const EntityType TYPE = EntityType::Entity;
         // void draw(sf::RenderTarget& target, sf::RenderStates states) const;
         sf::Vector2f velocity;
     protected:
@@ -19,11 +22,13 @@ class Entity: ViewGroup {
         bool checkCollision(Entity& other);
         sf::FloatRect getGlobalBounds();
         sf::Vector2f center();
+        EntityType getType();
 };
 
 // obstacles are entities that player cannot touch, including normal "vehicles"
 class Obstacle: Entity {
     private:
+        const EntityType TYPE = EntityType::Obstacle;
         bool isAnimal; // animals move even when traffic light is red
     public:
         Obstacle(sf::Texture texture, bool animal = false);
@@ -39,6 +44,7 @@ class TrafficLight: Entity {
     public:
         enum class TrafficColor {Red, Yellow, Green};
     private:
+        const EntityType TYPE = EntityType::TrafficLight;
         TrafficColor current;
         sf::Time red;
         sf::Time yellow;
@@ -56,9 +62,10 @@ class TrafficLight: Entity {
         void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 
-// vehicles are entities that can be ridden on: logs, animals, player's vehicles, etc
+// vehicles are entities that can be ridden on on land: animals, player's vehicles, etc
 class Vehicle: Entity {
     private:
+        const EntityType TYPE = EntityType::Vehicle;
         int health; // times of collision before destroyed
         sf::Time interval; // interval of existance
     public:
@@ -71,6 +78,18 @@ class Vehicle: Entity {
         void move(sf::Time delta); // make small steps, should be used in a loop, distance moved = delta * velocity
         void move();
         void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+};
+
+// the only entity that is not destroyed in river
+class Log: Entity {
+    public:
+        enum class LogType {Harmful, Harmless}; // crocodile is a harmful log
+        Log(sf::Texture texture, LogType log = LogType::Harmless);
+        void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+        LogType getLogType();
+    private:
+        const EntityType TYPE = EntityType::Log;
+        LogType logType;
 };
 
 #endif
