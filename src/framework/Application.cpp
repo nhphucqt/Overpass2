@@ -14,6 +14,7 @@ void Application::addLauncher(Activity::Ptr launcher) {
     activityManager.startActivity(std::move(launcher), Intent::Builder().build());
 }
 
-void Application::run() {
+void Application::run()
+{
     activityManager.run(mWindow);
 }
