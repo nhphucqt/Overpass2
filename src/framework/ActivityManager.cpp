@@ -2,7 +2,13 @@
 #include <iostream>
 #include <ActivityManager.hpp>
 
-void ActivityManager::attachActivity(ActivityChild activity) {
+void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
+    activity->setIntent(std::move(intent));
+    activity->onCreate();
+    attachActivity(std::move(activity));
+}
+
+void ActivityManager::attachActivity(ActivityPtr activity) {
     assert(activity != nullptr);
     activity->setActivityManager(this);
     activity->onAttach();
@@ -12,11 +18,17 @@ void ActivityManager::attachActivity(ActivityChild activity) {
     activityStack.push(std::move(activity));
 }
 
-void ActivityManager::popStack() {
+void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data) {
     assert(!activityStack.empty());
+    getCurrentActivity()->onPause();
+    // may do something
+    getCurrentActivity()->onDestroy();
     activityStack.pop();
     if (!activityStack.empty()) {
         getCurrentActivity()->onResume();
+        if (requestCode != Intent::NO_REQUEST_CODE) {
+            getCurrentActivity()->onActivityResult(requestCode, resultCode, std::move(data));
+        }
     }
 }
 
