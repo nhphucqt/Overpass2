@@ -2,6 +2,7 @@
 #include <string>
 
 #include <DemoActivity.hpp>
+#include <ActivityFactory.hpp>
 #include <RectangleView.hpp>
 #include <TextView.hpp>
 
@@ -38,7 +39,7 @@ void DemoActivity::onEvent(sf::Event& event) {
                 .setRequestCode(123)
                 .putExtra("id", id + 1)
                 .build();
-            startActivity<DemoActivity>(std::move(intent));
+            startActivity(ActivityFactory<DemoActivity>::createInstance(), std::move(intent));
         }
     } else if (event.type == sf::Event::MouseButtonPressed) {
         sf::Vector2i pos = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);

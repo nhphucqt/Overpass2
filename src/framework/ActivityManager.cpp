@@ -2,7 +2,13 @@
 #include <iostream>
 #include <ActivityManager.hpp>
 
-void ActivityManager::attachActivity(ActivityChild activity) {
+void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
+    activity->setIntent(std::move(intent));
+    activity->onCreate();
+    attachActivity(std::move(activity));
+}
+
+void ActivityManager::attachActivity(ActivityPtr activity) {
     assert(activity != nullptr);
     activity->setActivityManager(this);
     activity->onAttach();

@@ -3,7 +3,8 @@
 
 int main() {
     Application app(800, 600, "Application");
-    app.addLauncher<DemoActivity>();
+    Activity::Ptr launcher = std::make_unique<DemoActivity>();
+    app.addLauncher(std::move(launcher));
     app.run();
     return 0;
 }

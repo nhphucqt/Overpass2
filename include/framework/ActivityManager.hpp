@@ -13,21 +13,14 @@ class ActivityManager {
 friend class Application;
 
 public:
-    typedef std::unique_ptr<Activity> ActivityChild;
+    typedef std::unique_ptr<Activity> ActivityPtr;
 
 private:
-    std::stack<ActivityChild> activityStack;
+    std::stack<ActivityPtr> activityStack;
 
 public:
-    template<typename T>
-    void startActivity(Intent::Ptr intent) {
-        std::unique_ptr<Activity> activity = std::make_unique<T>();
-        activity->setIntent(std::move(intent));
-        activity->onCreate();
-        attachActivity(std::move(activity));
-    }
-
-    void attachActivity(ActivityChild activity);
+    void startActivity(ActivityPtr activity, Intent::Ptr intent);
+    void attachActivity(ActivityPtr activity);
     void finishActivity(int requestCode, int resultCode, Intent::Ptr data);
     bool isEmpty() const;
     Activity* getCurrentActivity();

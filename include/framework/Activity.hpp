@@ -12,6 +12,9 @@ class ActivityManager;
 class Activity: public ViewGroup {
 friend class ActivityManager;
 
+public: 
+    typedef std::unique_ptr<Activity> Ptr;
+
 public:
     enum ResultCode {
         RESULT_OK,
@@ -42,15 +45,9 @@ protected:
     virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const;
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data);
 
-    template<typename T>
-    void startActivity(Intent::Ptr intent) {
-        mManager->startActivity<T>(std::move(intent));
-    }
+    void startActivity(Ptr activity, Intent::Ptr intent);
 
-    template<typename T>
-    void startActivity() {
-        startActivity<T>(Intent::Builder().build());
-    }
+    void startActivity(Ptr activity);
 
     Intent* getIntent();
 

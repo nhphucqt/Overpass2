@@ -16,10 +16,8 @@ private:
 public:
     Application(int windowWidth, int windowHeight, std::string windowTitle); 
 
-    template<typename T>
-    void addLauncher() {
-        activityManager.startActivity<T>(Intent::Builder().build());
-    }
+    void addLauncher(Activity::Ptr launcher, Intent::Ptr intent);
+    void addLauncher(Activity::Ptr launcher);
 
     void run();
 };

@@ -19,6 +19,14 @@ void Activity::setActivityManager(ActivityManager* manager) {
     mManager = manager;
 }
 
+void Activity::startActivity(Ptr activity, Intent::Ptr intent) {
+    mManager->startActivity(std::move(activity), std::move(intent));
+}
+
+void Activity::startActivity(Ptr activity) {
+    startActivity(std::move(activity), Intent::Builder().build());
+}
+
 void Activity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
     onDraw(target, states);
 }
