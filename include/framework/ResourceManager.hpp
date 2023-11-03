@@ -9,9 +9,7 @@
 #include <map>
 #include <memory>
 
-template <typename Resource, typename Identifier>
-class ResourceManager
-{
+template <typename Resource, typename Identifier> class ResourceManager {
 public:
   void load(Identifier id, const std::string &filename);
   Resource &get(Identifier id);

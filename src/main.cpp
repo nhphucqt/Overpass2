@@ -1,8 +1,5 @@
-#include "ResourceID.hpp"
-#include "SoundPlayer.hpp"
 #include <Application.hpp>
 #include <DemoActivity.hpp>
-#include <MusicPlayer.hpp>
 
 int main()
 {
