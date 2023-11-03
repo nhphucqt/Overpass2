@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <ActivityManager.hpp>
+#include <ActivityFinishReturn.hpp>
 
 void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent)
 {
@@ -36,6 +37,7 @@ void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Pt
             getCurrentActivity()->onActivityResult(requestCode, resultCode, std::move(data));
         }
     }
+    throw ActivityFinishReturn();
 }
 
 void ActivityManager::clearStack()
@@ -69,13 +71,15 @@ void ActivityManager::run(sf::RenderWindow &mWindow)
     {
         timeSinceLastUpdate += clock.restart();
         sf::Event event;
-        while (mWindow.pollEvent(event))
-        {
-            getCurrentActivity()->onEvent(event);
-            if (isEmpty())
-            {
-                mWindow.close();
-                return;
+        while (mWindow.pollEvent(event)) {
+            try {
+                getCurrentActivity()->publish(event);
+                getCurrentActivity()->onEvent(event);
+            } catch (ActivityFinishReturn& e) {
+                if (isEmpty()) {
+                    mWindow.close();
+                    return;
+                }
             }
             if (event.type == sf::Event::Closed)
             {

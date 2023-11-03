@@ -6,10 +6,12 @@
 #include <ViewGroup.hpp>
 #include <Intent.hpp>
 #include <ActivityManager.hpp>
+#include <EventPublisher.hpp>
 
 class ActivityManager;
 
-class Activity: public ViewGroup {
+class Activity: public ViewGroup, 
+                public EventPublisher {
 friend class ActivityManager;
 
 public: 
@@ -29,12 +31,12 @@ private:
 
 public:
     Activity();
-    ~Activity();
+    virtual ~Activity();
 
     ActivityManager* getActivityManager();
 
 protected:
-    virtual void onEvent(sf::Event& event);
+    virtual void onEvent(const sf::Event& event);
     virtual void onUpdate();
     virtual void onCreate();
     virtual void onAttach();

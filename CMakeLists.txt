@@ -29,6 +29,7 @@ FetchContent_MakeAvailable(SFML)
 file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/src/framework/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/framework/exceptions/*.cpp
     ${CMAKE_SOURCE_DIR}/src/activities/*.cpp
     ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
 )
@@ -39,6 +40,7 @@ target_compile_features(game PRIVATE cxx_std_17)
 target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/include/framework
+    ${CMAKE_SOURCE_DIR}/include/framework/exceptions
     ${CMAKE_SOURCE_DIR}/include/activities
     ${CMAKE_SOURCE_DIR}/include/gui
 )
