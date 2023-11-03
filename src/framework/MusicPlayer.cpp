@@ -3,7 +3,7 @@
 MusicPlayer::MusicPlayer() : mMusic(), mFilenames(), mVolume(100.0f)
 {
   // Example
-  mFilenames[MusicID::testMusic] = "res/musics/hypnotic-heartbeat-atmosphere-freqman-cliche-hypnotic-6068.ogg";
+  mFilenames[MusicID::testMusic] = "res/musics/fellowship.mp3";
   // mFilenames[MusicID::MissionTheme] = "[path to mission theme]";
 }
 

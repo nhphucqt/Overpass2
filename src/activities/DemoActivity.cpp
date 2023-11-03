@@ -9,12 +9,10 @@
 void DemoActivity::onCreate()
 {
     Intent *intent = getIntent();
-    if (intent != nullptr)
-    {
+    if (intent != nullptr) {
         id = intent->getExtra<int>("id", 0);
     }
-    else
-    {
+    else {
         id = 0;
     }
     std::cout << "DemoActivity #" << id << " constructor" << std::endl;
@@ -91,11 +89,13 @@ void DemoActivity::onAttach()
 
 void DemoActivity::onResume()
 {
+    mPlayer.setPaused(false);
     std::cout << "DemoActivity #" << id << " onResume" << std::endl;
 }
 
 void DemoActivity::onPause()
 {
+    mPlayer.setPaused(true);
     std::cout << "DemoActivity #" << id << " onPause" << std::endl;
 }
 
