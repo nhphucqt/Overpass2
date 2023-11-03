@@ -21,7 +21,7 @@ void ActivityManager::attachActivity(ActivityPtr activity)
     activityStack.push(std::move(activity));
 }
 
-void ActivityManager::popStack()
+void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data)
 {
     assert(!activityStack.empty());
     getCurrentActivity()->onPause();
