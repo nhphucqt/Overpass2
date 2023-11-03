@@ -17,10 +17,12 @@ enum class FontID
 
 enum class SoundBufferID
 {
+    testSound
 };
 
 enum class MusicID
 {
+    testMusic
 };
 
 typedef ResourceManager<sf::Texture, TextureID> TextureManager;

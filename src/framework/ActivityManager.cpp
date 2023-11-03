@@ -2,74 +2,91 @@
 #include <iostream>
 #include <ActivityManager.hpp>
 
-void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
+void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent)
+{
     activity->setIntent(std::move(intent));
     activity->onCreate();
     attachActivity(std::move(activity));
 }
 
-void ActivityManager::attachActivity(ActivityPtr activity) {
+void ActivityManager::attachActivity(ActivityPtr activity)
+{
     assert(activity != nullptr);
     activity->setActivityManager(this);
     activity->onAttach();
-    if (!activityStack.empty()) {
+    if (!activityStack.empty())
+    {
         getCurrentActivity()->onPause();
     }
     activityStack.push(std::move(activity));
 }
 
-void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data) {
+void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data)
+{
     assert(!activityStack.empty());
     getCurrentActivity()->onPause();
     // may do something
     getCurrentActivity()->onDestroy();
     activityStack.pop();
-    if (!activityStack.empty()) {
+    if (!activityStack.empty())
+    {
         getCurrentActivity()->onResume();
-        if (requestCode != Intent::NO_REQUEST_CODE) {
+        if (requestCode != Intent::NO_REQUEST_CODE)
+        {
             getCurrentActivity()->onActivityResult(requestCode, resultCode, std::move(data));
         }
     }
 }
 
-void ActivityManager::clearStack() {
-    while (!activityStack.empty()) {
+void ActivityManager::clearStack()
+{
+    while (!activityStack.empty())
+    {
         getCurrentActivity()->finish();
     }
 }
 
-bool ActivityManager::isEmpty() const {
+bool ActivityManager::isEmpty() const
+{
     return activityStack.empty();
 }
 
-Activity* ActivityManager::getCurrentActivity() {
+Activity *ActivityManager::getCurrentActivity()
+{
     return activityStack.top().get();
 }
 
-void ActivityManager::run(sf::RenderWindow& mWindow) {
-    if (isEmpty()) {
+void ActivityManager::run(sf::RenderWindow &mWindow)
+{
+    if (isEmpty())
+    {
         throw std::runtime_error("Activity stack is empty");
     }
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
     sf::Time timePerFrame = sf::seconds(1.f / 60.f);
-    while (mWindow.isOpen()) {
+    while (mWindow.isOpen())
+    {
         timeSinceLastUpdate += clock.restart();
         sf::Event event;
-        while (mWindow.pollEvent(event)) {
+        while (mWindow.pollEvent(event))
+        {
             getCurrentActivity()->onEvent(event);
-            if (isEmpty()) {
+            if (isEmpty())
+            {
                 mWindow.close();
                 return;
             }
-            if (event.type == sf::Event::Closed) {
+            if (event.type == sf::Event::Closed)
+            {
                 std::cout << " >> Window closed" << std::endl;
                 clearStack();
                 mWindow.close();
                 return;
             }
         }
-        while (timeSinceLastUpdate > timePerFrame) {
+        while (timeSinceLastUpdate > timePerFrame)
+        {
             timeSinceLastUpdate -= timePerFrame;
             getCurrentActivity()->onUpdate();
             assert(!activityStack.empty());

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <cassert>
 
 template <typename Resource, typename Identifier>
 class ResourceManager
