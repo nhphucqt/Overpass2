@@ -10,7 +10,7 @@ private:
     RectangleView* mRect;
 
 protected:
-    virtual void onEvent(sf::Event& event) override;
+    virtual void onEvent(const sf::Event& event) override;
     virtual void onCreate() override;
     virtual void onUpdate() override;
     virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const override;

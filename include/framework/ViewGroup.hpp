@@ -13,6 +13,7 @@ private:
     std::list<ViewChild> childViews;
 
 public:
+    virtual ~ViewGroup() = default;
 
     void attachView(ViewChild view);
     ViewChild detachView(const Viewable& view);

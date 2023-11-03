@@ -13,7 +13,8 @@ private:
 
 public:
     Viewable();
-
+    virtual ~Viewable() = default;
+    
     Viewable* getParent();
     void setParent(Viewable* parent);
 };

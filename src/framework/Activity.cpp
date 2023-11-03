@@ -1,4 +1,5 @@
 #include <Activity.hpp>
+#include <iostream>
 
 Activity::Activity() {
     mManager = nullptr;
@@ -31,7 +32,7 @@ void Activity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) co
     onDraw(target, states);
 }
 
-void Activity::onEvent(sf::Event& event) {
+void Activity::onEvent(const sf::Event& event) {
     // Do nothing
 }
 
