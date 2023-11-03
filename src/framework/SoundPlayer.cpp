@@ -3,7 +3,7 @@
 SoundPlayer::SoundPlayer()
     : mSoundBuffers(), mSounds()
 {
-    // mSoundBuffer.load(SoundBufferID::ObjectID, "[path to object sound]");
+    mSoundBuffers.load(SoundBufferID::testSound, "res/sounds/door-open-sound-effect-94368.ogg");
     // ...
 }
 

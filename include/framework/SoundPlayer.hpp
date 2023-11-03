@@ -5,6 +5,7 @@
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
 #include <list>
+#include <cassert>
 
 class SoundPlayer : private sf::NonCopyable
 {
