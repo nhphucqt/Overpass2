@@ -3,7 +3,6 @@
 
 #include <ResourceID.hpp>
 #include <SFML/Audio.hpp>
-#include <cassert>
 
 class MusicPlayer : private sf::NonCopyable {
 public:
