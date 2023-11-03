@@ -7,7 +7,8 @@
 #include <cassert>
 #include <list>
 
-class SoundPlayer : private sf::NonCopyable {
+class SoundPlayer : private sf::NonCopyable
+{
 public:
   SoundPlayer();
   void play(SoundBufferID effect);

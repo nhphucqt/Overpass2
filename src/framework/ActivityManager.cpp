@@ -2,62 +2,77 @@
 #include <iostream>
 #include <ActivityManager.hpp>
 
-void ActivityManager::attachActivity(ActivityChild activity) {
+void ActivityManager::attachActivity(ActivityChild activity)
+{
     assert(activity != nullptr);
     activity->setActivityManager(this);
     activity->onAttach();
-    if (!activityStack.empty()) {
+    if (!activityStack.empty())
+    {
         getCurrentActivity()->onPause();
     }
     activityStack.push(std::move(activity));
 }
 
-void ActivityManager::popStack() {
+void ActivityManager::popStack()
+{
     assert(!activityStack.empty());
     activityStack.pop();
-    if (!activityStack.empty()) {
+    if (!activityStack.empty())
+    {
         getCurrentActivity()->onResume();
     }
 }
 
-void ActivityManager::clearStack() {
-    while (!activityStack.empty()) {
+void ActivityManager::clearStack()
+{
+    while (!activityStack.empty())
+    {
         getCurrentActivity()->finish();
     }
 }
 
-bool ActivityManager::isEmpty() const {
+bool ActivityManager::isEmpty() const
+{
     return activityStack.empty();
 }
 
-Activity* ActivityManager::getCurrentActivity() {
+Activity *ActivityManager::getCurrentActivity()
+{
     return activityStack.top().get();
 }
 
-void ActivityManager::run(sf::RenderWindow& mWindow) {
-    if (isEmpty()) {
+void ActivityManager::run(sf::RenderWindow &mWindow)
+{
+    if (isEmpty())
+    {
         throw std::runtime_error("Activity stack is empty");
     }
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
     sf::Time timePerFrame = sf::seconds(1.f / 60.f);
-    while (mWindow.isOpen()) {
+    while (mWindow.isOpen())
+    {
         timeSinceLastUpdate += clock.restart();
         sf::Event event;
-        while (mWindow.pollEvent(event)) {
+        while (mWindow.pollEvent(event))
+        {
             getCurrentActivity()->onEvent(event);
-            if (isEmpty()) {
+            if (isEmpty())
+            {
                 mWindow.close();
                 return;
             }
-            if (event.type == sf::Event::Closed) {
+            if (event.type == sf::Event::Closed)
+            {
                 std::cout << " >> Window closed" << std::endl;
                 clearStack();
                 mWindow.close();
                 return;
             }
         }
-        while (timeSinceLastUpdate > timePerFrame) {
+        while (timeSinceLastUpdate > timePerFrame)
+        {
             timeSinceLastUpdate -= timePerFrame;
             getCurrentActivity()->onUpdate();
             assert(!activityStack.empty());

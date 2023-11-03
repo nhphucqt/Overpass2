@@ -5,7 +5,8 @@
 #include <SFML/Audio.hpp>
 #include <cassert>
 
-class MusicPlayer : private sf::NonCopyable {
+class MusicPlayer : private sf::NonCopyable
+{
 public:
   MusicPlayer();
   void play(MusicID theme);
