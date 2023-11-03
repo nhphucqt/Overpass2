@@ -3,34 +3,29 @@
 #include <ActivityManager.hpp>
 #include <ActivityFinishReturn.hpp>
 
-void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent)
-{
+void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
     activity->setIntent(std::move(intent));
     activity->onCreate();
     attachActivity(std::move(activity));
 }
 
-void ActivityManager::attachActivity(ActivityPtr activity)
-{
+void ActivityManager::attachActivity(ActivityPtr activity) {
     assert(activity != nullptr);
     activity->setActivityManager(this);
     activity->onAttach();
-    if (!activityStack.empty())
-    {
+    if (!activityStack.empty()) {
         getCurrentActivity()->onPause();
     }
     activityStack.push(std::move(activity));
 }
 
-void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data)
-{
+void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data) {
     assert(!activityStack.empty());
     getCurrentActivity()->onPause();
     // may do something
     getCurrentActivity()->onDestroy();
     activityStack.pop();
-    if (!activityStack.empty())
-    {
+    if (!activityStack.empty()) {
         getCurrentActivity()->onResume();
         if (requestCode != Intent::NO_REQUEST_CODE)
         {
@@ -40,28 +35,26 @@ void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Pt
     throw ActivityFinishReturn();
 }
 
-void ActivityManager::clearStack()
-{
-    while (!activityStack.empty())
-    {
-        getCurrentActivity()->finish();
+void ActivityManager::clearStack() {
+    while (!activityStack.empty()) {
+        try {
+            getCurrentActivity()->finish();
+        } catch (ActivityFinishReturn& e) {
+            // do nothing
+        }
     }
 }
 
-bool ActivityManager::isEmpty() const
-{
+bool ActivityManager::isEmpty() const {
     return activityStack.empty();
 }
 
-Activity *ActivityManager::getCurrentActivity()
-{
+Activity *ActivityManager::getCurrentActivity() {
     return activityStack.top().get();
 }
 
-void ActivityManager::run(sf::RenderWindow &mWindow)
-{
-    if (isEmpty())
-    {
+void ActivityManager::run(sf::RenderWindow &mWindow) {
+    if (isEmpty()) {
         throw std::runtime_error("Activity stack is empty");
     }
     sf::Clock clock;
@@ -81,8 +74,7 @@ void ActivityManager::run(sf::RenderWindow &mWindow)
                     return;
                 }
             }
-            if (event.type == sf::Event::Closed)
-            {
+            if (event.type == sf::Event::Closed) {
                 std::cout << " >> Window closed" << std::endl;
                 clearStack();
                 mWindow.close();
