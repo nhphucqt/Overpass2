@@ -1,5 +1,6 @@
 #include <cassert>
 #include <ViewGroup.hpp>
+#include <iostream>
 
 void ViewGroup::attachView(ViewChild view) {
     view->setParent(this);

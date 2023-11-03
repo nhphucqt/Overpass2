@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 #include <SFML/Graphics.hpp>
-#include <ActivityManager.hpp>
 #include <Activity.hpp>
+#include <ActivityManager.hpp>
 
 class Application {
 
@@ -14,7 +14,11 @@ private:
     ActivityManager activityManager;
 
 public:
-    Application(int windowWidth, int windowHeight, std::string windowTitle, std::unique_ptr<Activity> launcher); 
+    Application(int windowWidth, int windowHeight, std::string windowTitle); 
+
+    void addLauncher(Activity::Ptr launcher, Intent::Ptr intent);
+    void addLauncher(Activity::Ptr launcher);
+
     void run();
 };
 
