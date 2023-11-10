@@ -1,4 +1,4 @@
-#include "MusicPlayer.hpp"
+#include <MusicPlayer.hpp>
 
 MusicPlayer::MusicPlayer() : mMusic(), mFilenames(), mVolume(100.0f)
 {
