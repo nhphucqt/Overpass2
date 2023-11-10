@@ -1,7 +1,9 @@
 #include <TextView.hpp>
 #include <cassert>
+// #include <iostream>
 
 TextView::TextView(std::string text) {
+    // std::cerr << "TextView constructor" << std::endl;
     this->text.setString(text);
     assert(this->font.loadFromFile("./res/fonts/Consolas-Bold.ttf"));
     this->text.setFont(font);

@@ -1,26 +1,42 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
 #include <RectangleView.hpp>
 
+RectangleView::RectangleView(int width, int height): mRect(sf::Vector2f(width, height)) {
+    int x = rand() % (800 - width);
+    int y = rand() % (600 - height);
+    setPosition(x, y);
+    mRect.setPosition(0, 0);
+    mRect.setFillColor(sf::Color::Red);
 
-RectangleView::RectangleView(): Viewable() {
-    std::mt19937 rng(time(nullptr));
-    int x = rng() % 700;
-    int y = rng() % 500;
-    rect = sf::RectangleShape(sf::Vector2f(100, 100));
-    rect.setPosition(x, y);
-    rect.setFillColor(sf::Color::Red);
+    sf::Vector2f pos = getPosition();
 }
 
-RectangleView::RectangleView(Viewable* parent): Viewable(parent) {
-    rect = sf::RectangleShape(sf::Vector2f(100, 100));
-    rect.setFillColor(sf::Color::Red);
-}
-
-RectangleView::RectangleView(Viewable* parent, sf::Vector2f dimens): Viewable(parent, dimens) {
-    rect = sf::RectangleShape(dimens);
-    rect.setFillColor(sf::Color::Red);
+sf::Vector2f RectangleView::getSize() {
+    return mRect.getSize();
 }
 
 void RectangleView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     states.transform *= getTransform();
-    target.draw(rect, states);
+    target.draw(mRect, states);
+}
+
+void RectangleView::setFillColor(sf::Color color) {
+    mRect.setFillColor(color);
+}
+
+bool RectangleView::isOnMouseButtonPressed(const sf::Event& event) const {
+    sf::Vector2i pos = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
+    sf::Vector2f position = getPosition();
+    sf::Vector2f size = mRect.getSize();
+    return pos.x >= position.x && pos.x <= position.x + size.x
+        && pos.y >= position.y && pos.y <= position.y + size.y;
+}
+
+bool RectangleView::isOnMouseButtonReleased(const sf::Event& event) const {
+    sf::Vector2i pos = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
+    sf::Vector2f position = getPosition();
+    sf::Vector2f size = mRect.getSize();
+    return pos.x >= position.x && pos.x <= position.x + size.x
+        && pos.y >= position.y && pos.y <= position.y + size.y;
 }

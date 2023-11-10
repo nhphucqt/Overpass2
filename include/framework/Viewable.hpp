@@ -10,17 +10,13 @@ friend class ViewGroup;
 
 private:
     Viewable* parent;
-    sf::Vector2f dimens;
 
 public:
     Viewable();
-    Viewable(Viewable* parent);
-    Viewable(Viewable* parent, sf::Vector2f dimens);
-
+    virtual ~Viewable() = default;
+    
     Viewable* getParent();
     void setParent(Viewable* parent);
-    sf::Vector2f getDimens();
-    void setDimens(sf::Vector2f dimens);
 };
 
 #endif
