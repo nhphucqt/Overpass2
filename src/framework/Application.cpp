@@ -4,7 +4,7 @@
 #include <Application.hpp>
 
 Application::Application(int windowWidth, int windowHeight, std::string windowTitle)
-    : mWindow(sf::VideoMode(windowWidth, windowHeight), "Application") {}
+    : mWindow(sf::VideoMode(windowWidth, windowHeight), windowTitle) {}
 
 void Application::addLauncher(Activity::Ptr launcher, Intent::Ptr intent)
 {

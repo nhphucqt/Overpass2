@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ActivityManager.hpp>
 #include <ActivityFinishReturn.hpp>
+#include <AppConfig.hpp>
 
 void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
     activity->setIntent(std::move(intent));
@@ -59,7 +60,7 @@ void ActivityManager::run(sf::RenderWindow &mWindow) {
     }
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
-    sf::Time timePerFrame = sf::seconds(1.f / 60.f);
+    sf::Time timePerFrame = sf::seconds(1.f / AppConfig::getInstance().get<int>(ConfigKey::FPS));
     while (mWindow.isOpen())
     {
         timeSinceLastUpdate += clock.restart();

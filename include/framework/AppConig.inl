@@ -50,6 +50,6 @@ inline AppConfig::~AppConfig()
 inline AppConfig::AppConfig()
 {
     set(ConfigKey::AppName, std::string("Overpass"));
-    set(ConfigKey::WindowSize, std::pair<int, int>(1280, 720));
+    set(ConfigKey::WindowSize, std::pair<int, int>(1400, 900));
     set(ConfigKey::FPS, int(60));
 }
