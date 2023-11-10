@@ -9,26 +9,42 @@
 void DemoActivity::onCreate()
 {
     Intent *intent = getIntent();
-    if (intent != nullptr)
-    {
+    if (intent != nullptr) {
         id = intent->getExtra<int>("id", 0);
     }
-    else
-    {
+    else {
         id = 0;
     }
     std::cout << "DemoActivity #" << id << " constructor" << std::endl;
+
     std::unique_ptr<RectangleView> rect = std::make_unique<RectangleView>(100, 100);
+    rect->setOnMouseButtonPressed(this, [&](EventListener* listener, const sf::Event& event) {
+        std::cout << " >> Exit" << std::endl;
+        Intent::Ptr result = Intent::Builder()
+            .putExtra("data", "Hello from Activity #" + std::to_string(id))
+            .build();
+        setResult(RESULT_OK, std::move(result));
+        finish();
+    });
     mRect = rect.get();
     attachView(std::move(rect));
+
+    std::unique_ptr<RectangleView> rect2 = std::make_unique<RectangleView>(200, 200);
+    rect2->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
+    rect2->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+        RectangleView* rect = dynamic_cast<RectangleView*>(listener);
+        rect->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
+    });
+    attachView(std::move(rect2));
+
+
     std::unique_ptr<TextView> text = std::make_unique<TextView>("This the #" + std::to_string(id) + " Activity!");
     text->setPosition(50, 50);
     attachView(std::move(text));
     mPlayer.play(MusicID::testMusic);
 }
 
-void DemoActivity::onEvent(sf::Event &event)
-{
+void DemoActivity::onEvent(const sf::Event& event) {
     // std::cout << "DemoActivity #" << id << " onEvent" << std::endl;
     if (event.type == sf::Event::KeyPressed)
     {
@@ -53,24 +69,12 @@ void DemoActivity::onEvent(sf::Event &event)
             startActivity(ActivityFactory<DemoActivity>::createInstance(), std::move(intent));
         }
     }
-    else if (event.type == sf::Event::MouseButtonPressed)
-    {
-        sf::Vector2i pos = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
-        if (pos.x >= mRect->getPosition().x && pos.x <= mRect->getPosition().x + mRect->getSize().x && pos.y >= mRect->getPosition().y && pos.y <= mRect->getPosition().y + mRect->getSize().y)
-        {
-            std::cout << " >> Exit" << std::endl;
-            Intent::Ptr result = Intent::Builder()
-                                     .putExtra("data", "Hello from Activity #" + std::to_string(id))
-                                     .build();
-            setResult(RESULT_OK, std::move(result));
-            finish();
-        }
-    }
 }
 
 void DemoActivity::onUpdate()
 {
     // std::cout << "DemoActivity #" << id << " onUpdate" << std::endl;
+    mRect->move(1,1);
 }
 
 void DemoActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -85,11 +89,13 @@ void DemoActivity::onAttach()
 
 void DemoActivity::onResume()
 {
+    mPlayer.setPaused(false);
     std::cout << "DemoActivity #" << id << " onResume" << std::endl;
 }
 
 void DemoActivity::onPause()
 {
+    mPlayer.setPaused(true);
     std::cout << "DemoActivity #" << id << " onPause" << std::endl;
 }
 

@@ -1,4 +1,5 @@
 #include <Application.hpp>
+#include <ActivityFactory.hpp>
 #include <DemoActivity.hpp>
 #include <AppConfig.hpp>
 #include <ResourceManager.hpp>
