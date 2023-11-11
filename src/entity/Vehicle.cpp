@@ -12,7 +12,7 @@ bool Vehicle::isRidden(Entity& other) {
 
 void Vehicle::move() {
     sf::Time timePerFrame = sf::seconds(1.f/(float) FPS);
-    move(timePerFrame);
+    Entity::move(timePerFrame);
 }
 
 bool Vehicle::isDestroyed() {

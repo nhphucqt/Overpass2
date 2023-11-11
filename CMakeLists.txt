@@ -31,6 +31,7 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/framework/exceptions/*.cpp
     ${CMAKE_SOURCE_DIR}/src/activities/*.cpp
     ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
 )
 
 add_executable(game ${SRCS})

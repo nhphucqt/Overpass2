@@ -1,7 +1,7 @@
-#ifndef ENTITY
-#define ENTITY
+#ifndef ENTITY_HPP
+#define ENTITY_HPP
 #include <SFML/Graphics.hpp>
-#include "../framework/ViewGroup.hpp"
+#include <ViewGroup.hpp>
 
 const int FPS = 60;
 

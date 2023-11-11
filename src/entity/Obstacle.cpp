@@ -12,7 +12,7 @@ void Obstacle::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) co
 
 void Obstacle::move() {
     sf::Time timePerFrame = sf::seconds(1.f/(float) FPS);
-    move(timePerFrame);
+    Entity::move(timePerFrame);
 }
 
 bool Obstacle::checkAnimal() const {

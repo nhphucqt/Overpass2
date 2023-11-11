@@ -1,6 +1,6 @@
-#ifndef VEHICLE
-#define VEHICLE
-#include "Entity.hpp"
+#ifndef VEHICLE_HPP
+#define VEHICLE_HPP
+#include <Entity.hpp>
 
 const float INTERVAL = 3600; // use for default interval of existence Vehicle
 
@@ -17,7 +17,6 @@ class Vehicle: public Entity {
         bool isRidden(Entity& other);
         bool isDestroyed();
         bool collides(); // minus health, health = 0 when collides with river
-        void move(sf::Time delta); // make small steps, should be used in a loop, distance moved = delta * velocity
         void move();
         void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 };

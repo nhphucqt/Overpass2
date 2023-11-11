@@ -1,7 +1,7 @@
-#ifndef TRAFFICLIGHT
-#define TRAFFICLIGHT
-#include "Entity.hpp"
-#include "Obstacle.hpp"
+#ifndef TRAFFICLIGHT_HPP
+#define TRAFFICLIGHT_HPP
+#include <Entity.hpp>
+#include <Obstacle.hpp>
 
 class TrafficLight: public Entity {
     public:

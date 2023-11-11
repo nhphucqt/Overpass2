@@ -1,6 +1,6 @@
-#ifndef LOG
-#define LOG
-#include "Entity.hpp"
+#ifndef LOG_HPP
+#define LOG_HPP
+#include <Entity.hpp>
 
 // the only entity that is not destroyed in river
 class Log: public Entity {
