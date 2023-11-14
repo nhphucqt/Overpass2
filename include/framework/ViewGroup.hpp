@@ -4,8 +4,8 @@
 #include <list>
 #include <Viewable.hpp>
 
-
-class ViewGroup: public Viewable {
+class ViewGroup : public Viewable
+{
 public:
     typedef std::unique_ptr<Viewable> ViewChild;
 
@@ -16,12 +16,12 @@ public:
     virtual ~ViewGroup() = default;
 
     void attachView(ViewChild view);
-    ViewChild detachView(const Viewable& view);
+    ViewChild detachView(const Viewable &view);
     void detachAllViews();
 
 protected:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const = 0;
+    virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const = 0;
 };
 
 #endif
