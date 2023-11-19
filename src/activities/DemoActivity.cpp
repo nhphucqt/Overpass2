@@ -71,15 +71,10 @@ void DemoActivity::onEvent(const sf::Event& event) {
     }
 }
 
-void DemoActivity::onUpdate()
+void DemoActivity::updateCurrent(sf::Time dt)
 {
     // std::cout << "DemoActivity #" << id << " onUpdate" << std::endl;
     mRect->move(1,1);
-}
-
-void DemoActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-    // std::cout << "DemoActivity #" << id << " onDraw" << std::endl;
 }
 
 void DemoActivity::onAttach()
