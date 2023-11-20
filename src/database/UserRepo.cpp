@@ -1,7 +1,7 @@
 #include "UserRepo.hpp"
 
 UserRepo::UserRepo()
-    : db("database/users.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE)
+    : db("include/database/users.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE)
 {
     db.exec("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, highscore INTEGER);");
 }

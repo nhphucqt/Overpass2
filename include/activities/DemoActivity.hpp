@@ -5,6 +5,7 @@
 #include <RectangleView.hpp>
 #include <MusicPlayer.hpp>
 #include <SoundPlayer.hpp>
+#include <ResourceID.hpp>
 
 class DemoActivity : public Activity
 {
@@ -14,10 +15,13 @@ private:
 
     MusicPlayer mPlayer;
     SoundPlayer sPlayer;
+    FontManager mFonts;
+    TextureManager mTextures;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;
     virtual void onCreate() override;
+    virtual void onLoadResources() override;
     virtual void onAttach() override;
     virtual void onResume() override;
     virtual void onPause() override;

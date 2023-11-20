@@ -5,10 +5,11 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <SFML/System/Vector2.hpp>
 
 enum class ConfigKey
 {
-    AppName = 0,
+    AppName,
     WindowSize,
     FPS,
     ConfigCount

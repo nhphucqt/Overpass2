@@ -7,24 +7,24 @@
 int main()
 {
   AppConfig &config = AppConfig::getInstance();
-  std::pair<int, int> windowSize = config.get<std::pair<int, int>>(ConfigKey::WindowSize);
+  sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
   std::string windowTitle = config.get<std::string>(ConfigKey::AppName);
 
   std::cout << windowTitle << std::endl;
-  std::cout << windowSize.first << ' ' << windowSize.second << std::endl;
+  std::cout << windowSize.x << ' ' << windowSize.y << std::endl;
 
-  Application app(windowSize.first, windowSize.second, windowTitle);
+  Application app(windowSize.x, windowSize.y, windowTitle);
   Activity::Ptr launcher = std::make_unique<DemoActivity>();
   app.addLauncher(std::move(launcher));
   app.run();
 
   // UserRepo &userRepo = UserRepo::getInstance();
-  // userRepo.addUser(UserData("john doe", "123", 2300));
-  // userRepo.addUser(UserData("Charmander", "asdf", 4600));
-  // userRepo.addUser(UserData("pikachu", "4567", 3200));
-  // userRepo.addUser(UserData("jinx", "9876", 1000));
+  // // userRepo.addUser(UserData("john doe", "123", 2300));
+  // // userRepo.addUser(UserData("Charmander", "asdf", 4600));
+  // // userRepo.addUser(UserData("pikachu", "4567", 3200));
+  // // userRepo.addUser(UserData("jinx", "9876", 1000));
 
-  // userRepo.deleteUser("john doe");
+  // // userRepo.deleteUser("john doe");
   // userRepo.updateUser(UserData("pikachu", "4325", 6000));
 
   // UserData John = userRepo.getUserByLogin("john doe", "123");

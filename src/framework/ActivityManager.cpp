@@ -6,7 +6,7 @@
 
 void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
     activity->setIntent(std::move(intent));
-    activity->onCreate();
+    activity->initialize();
     attachActivity(std::move(activity));
 }
 

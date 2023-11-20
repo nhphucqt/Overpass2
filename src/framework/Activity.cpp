@@ -12,6 +12,11 @@ Activity::~Activity() {
     mManager = nullptr;
 }
 
+void Activity::initialize() {
+    onLoadResources();
+    onCreate();
+}
+
 ActivityManager* Activity::getActivityManager() {
     return mManager;
 }
@@ -33,10 +38,6 @@ void Activity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) co
 }
 
 void Activity::onEvent(const sf::Event& event) {
-    // Do nothing
-}
-
-void Activity::onCreate() {
     // Do nothing
 }
 

@@ -8,6 +8,11 @@
 class EventListener;
 
 class EventPublisher {
+public:
+    enum class EventType {
+        MOUSE_HOVERING
+    };
+
 private:
     std::unordered_map<int, std::list<EventListener*>> listeners;
 

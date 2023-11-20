@@ -1,4 +1,4 @@
-#include "SFML/System/Vector2.hpp"
+#include <SFML/System/Vector2.hpp>
 #include <entity/Entity.hpp>
 
 Entity::Entity(sf::Texture texture): sprite(texture), velocity(0, 0) {}

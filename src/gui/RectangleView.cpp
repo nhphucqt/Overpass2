@@ -2,27 +2,34 @@
 #include <iostream>
 #include <RectangleView.hpp>
 
-RectangleView::RectangleView(int width, int height): mRect(sf::Vector2f(width, height)) {
-    int x = rand() % (800 - width);
-    int y = rand() % (600 - height);
-    setPosition(x, y);
-    mRect.setPosition(0, 0);
-    mRect.setFillColor(sf::Color::Red);
+RectangleView::RectangleView(float left, float top, float width, float height)
+: RectangleView(sf::Vector2f(width, height), sf::Vector2f(left, top), sf::Color::Black) {}
 
-    sf::Vector2f pos = getPosition();
+RectangleView::RectangleView(float left, float top, float width, float height, const sf::Color& color)
+: RectangleView(sf::Vector2f(width, height), sf::Vector2f(left, top), color) {}
+
+RectangleView::RectangleView(const sf::Vector2f& size, const sf::Vector2f& position)
+: RectangleView(size, sf::Vector2f(0, 0), sf::Color::Black) {}
+
+RectangleView::RectangleView(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color): mRect(size) {
+    setPosition(position);
+    setFillColor(color);
 }
 
 sf::Vector2f RectangleView::getSize() {
     return mRect.getSize();
 }
 
-void RectangleView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    states.transform *= getTransform();
-    target.draw(mRect, states);
-}
-
 void RectangleView::setFillColor(sf::Color color) {
     mRect.setFillColor(color);
+}
+
+void RectangleView::setSize(const sf::Vector2f& size) {
+    mRect.setSize(size);
+}
+
+void RectangleView::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.draw(mRect, states);
 }
 
 bool RectangleView::isOnMouseButtonPressed(const sf::Event& event) const {
