@@ -37,14 +37,12 @@ public:
 
 protected:
     virtual void onEvent(const sf::Event& event);
-    virtual void onUpdate();
     virtual void onCreate();
     virtual void onAttach();
     virtual void onResume();
     virtual void onPause();
     virtual void onDestroy();
-    virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
-    virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const;
+    virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data);
 
     void startActivity(Ptr activity, Intent::Ptr intent);

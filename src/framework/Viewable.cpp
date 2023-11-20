@@ -9,3 +9,7 @@ Viewable* Viewable::getParent() {
 void Viewable::setParent(Viewable* parent) {
     this->parent = parent;
 }
+
+void Viewable::update(sf::Time delta) {
+    // do nothing
+}
