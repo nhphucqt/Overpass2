@@ -32,6 +32,7 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/activities/*.cpp
     ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
     ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/map_generator/*.cpp
 )
 
 add_executable(game ${SRCS})
@@ -44,6 +45,7 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/activities
     ${CMAKE_SOURCE_DIR}/include/gui
     ${CMAKE_SOURCE_DIR}/include/entity
+    ${CMAKE_SOURCE_DIR}/include/map_generator
 )
 
 if(WIN32)
