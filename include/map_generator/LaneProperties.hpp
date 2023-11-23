@@ -15,7 +15,7 @@ namespace Lane
 
 namespace Level
 {
-    enum Type
+    enum class Type : int
     {
         Easy = 0, Medium, Hard
     };

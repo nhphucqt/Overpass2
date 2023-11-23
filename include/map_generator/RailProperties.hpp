@@ -8,7 +8,7 @@ class RailProperties : public LaneProperties
 public:
     RailProperties(int map_width, Level::Type level);
     
-    virtual void generate();
+    virtual void generate() override;
     virtual Lane::Type getType() const override;
 
 private:

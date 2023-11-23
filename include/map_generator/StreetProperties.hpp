@@ -12,6 +12,9 @@ public:
     virtual Lane::Type getType() const override;
 
 private:
+    static const int MAX_CAR_WIDTH;
+    static const int MAX_CARS_DISTANCE;
+    
     using LaneProperties::m_level;
     
     int m_car_width, m_cars_distance;
