@@ -14,6 +14,7 @@ public:
 private:
     static const int MAX_CAR_WIDTH;
     static const int MAX_CARS_DISTANCE;
+    static const int LEVEL_VELOCITIES[Level::TYPES_CNT];
     
     using LaneProperties::m_level;
     

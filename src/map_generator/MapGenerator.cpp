@@ -4,7 +4,7 @@
 #include "MapGenerator.hpp"
 
 const int MapGenerator::MAX_RIVER_WIDTH = 5;
-const int MapGenerator::LEVEL_MAX_CONSECUTIVE_LANES_CNT[Level::TYPES_CNT] =
+const int MapGenerator::LEVEL_MAX_CONSECUTIVE_LANES_CNT[] =
 {
     5, 9, 13
 };
