@@ -3,7 +3,7 @@
 #include "RiverProperties.hpp"
 
 const int RiverProperties::CELL_TYPES_CNT = 2;
-const float LEVEL_VELOCITIES[] =
+const float RiverProperties::LEVEL_VELOCITIES[] =
 {
     1.f, 2.f, 3.f
 };

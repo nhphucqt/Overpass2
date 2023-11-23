@@ -6,7 +6,7 @@ RailProperties::RailProperties(int map_width, Level::Type level)
     
 }
 
-void RailProperties::generate() const
+void RailProperties::generate()
 {
     
 }

@@ -34,7 +34,7 @@ private:
     Lane::Type generateLaneType() const;
     void updateContext();
 
-    sf::Vector2u m_sizes;
+    sf::Vector2i m_sizes;
     int &m_width, &m_height;
     Level::Type m_level;
     int m_river_width, m_consecutive_lanes_cnt;

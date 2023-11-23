@@ -17,7 +17,7 @@ void PavementProperties::generate()
     for (auto &cell : m_cells)
     {
         cell = static_cast<CellType>(std::rand() % CELL_TYPES_CNT);
-        if (cell == CellType::Bank)
+        if (cell == CellType::Blank)
         {
             blank_appeared_p = 1;
         }

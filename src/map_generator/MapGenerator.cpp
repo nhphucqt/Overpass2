@@ -9,9 +9,10 @@ const int MapGenerator::LEVEL_MAX_CONSECUTIVE_LANES_CNT[] =
     5, 9, 13
 };
 
-MapGenerator::MapGenerator(int map_width, int map_height)
+MapGenerator::MapGenerator(int map_width, int map_height, Level::Type level)
     : m_sizes(map_width, map_height),
-      m_width(m.sizes.x), m_height(m.sizes.y)
+      m_width(m_sizes.x), m_height(m_sizes.y),
+      m_level(level)
 {
     std::srand(std::time(nullptr));
     
@@ -25,7 +26,7 @@ void MapGenerator::moveView()
     updateContext();
 }
 
-LaneQueue const& MapGenerator::getLanes() const
+MapGenerator::LaneQueue const& MapGenerator::getLanes() const
 {
     return m_lanes;
 }
@@ -71,7 +72,7 @@ std::unique_ptr<LaneProperties> MapGenerator::generateLane() const
 
 Lane::Type MapGenerator::generateLaneType() const
 {
-    if (m_consecutive_lanes_cnt == LEVEL_MAX_CONSECUTIVE_LANES_CNT[m_level])
+    if (m_consecutive_lanes_cnt == LEVEL_MAX_CONSECUTIVE_LANES_CNT[static_cast<int>(m_level)])
     {
         return static_cast<Lane::Type>((std::rand() & 1) + 1);
     }
