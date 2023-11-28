@@ -17,6 +17,7 @@ public:
     
     virtual void generate() override;
     virtual Lane::Type getType() const override;
+    std::vector<CellType> const& getCells() const;
 
 private:
     static const int CELL_TYPES_CNT;

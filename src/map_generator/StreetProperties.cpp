@@ -9,9 +9,9 @@ const float StreetProperties::LEVEL_VELOCITIES[] =
     1.f, 2.f, 3.f
 };
 
-StreetProperties::StreetProperties(int map_width, Level::Type level)
-    : LaneProperties(map_width, level),
-      m_velocity(LEVEL_VELOCITIES[static_cast<int>(level)])
+StreetProperties::StreetProperties(int map_width, Level::Type level) :
+    LaneProperties(map_width, level),
+    m_velocity(LEVEL_VELOCITIES[static_cast<int>(level)])
 {
     
 }
@@ -25,4 +25,19 @@ void StreetProperties::generate()
 Lane::Type StreetProperties::getType() const
 {
     return Lane::Type::Street;
+}
+
+int StreetProperties::getCarWidth() const
+{
+    return m_car_width;
+}
+
+int StreetProperties::getCarsDistance() const
+{
+    return m_cars_distance;
+}
+
+float StreetProperties::getVelocity() const
+{
+    return m_velocity;
 }

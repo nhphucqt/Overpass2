@@ -32,3 +32,9 @@ Lane::Type PavementProperties::getType() const
 {
     return Lane::Type::Pavement;
 }
+
+std::vector<PavementProperties::CellType> const&
+PavementProperties::getCells() const
+{
+    return m_cells;
+}

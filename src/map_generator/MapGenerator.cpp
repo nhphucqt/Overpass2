@@ -94,7 +94,8 @@ void MapGenerator::updateContext()
 {
     Lane::Type back_type = m_lanes.back()->getType();
     m_river_width = (back_type == Lane::Type::River ? m_river_width + 1 : 0);
-    m_consecutive_lanes_cnt = (back_type == Lane::Type::Street || back_type == Lane::Type::Rail ?
-                               m_consecutive_lanes_cnt + 1 :
-                               0);
+    m_consecutive_lanes_cnt =
+        (back_type == Lane::Type::Street || back_type == Lane::Type::Rail ?
+         m_consecutive_lanes_cnt + 1 :
+         0);
 }

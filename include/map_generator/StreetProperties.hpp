@@ -10,6 +10,9 @@ public:
     
     virtual void generate() override;
     virtual Lane::Type getType() const override;
+    int getCarWidth() const;
+    int getCarsDistance() const;
+    float getVelocity() const;
 
 private:
     static const int MAX_CAR_WIDTH;
