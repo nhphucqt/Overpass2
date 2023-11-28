@@ -84,9 +84,9 @@ void ActivityManager::run(sf::RenderWindow &mWindow) {
         }
         while (timeSinceLastUpdate > timePerFrame)
         {
-            timeSinceLastUpdate -= timePerFrame;
-            getCurrentActivity()->onUpdate();
+            getCurrentActivity()->update(timePerFrame);
             assert(!activityStack.empty());
+            timeSinceLastUpdate -= timePerFrame;
         }
         mWindow.clear(sf::Color::White);
         mWindow.draw(*getCurrentActivity());

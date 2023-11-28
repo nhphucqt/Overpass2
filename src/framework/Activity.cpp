@@ -29,14 +29,10 @@ void Activity::startActivity(Ptr activity) {
 }
 
 void Activity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
-    onDraw(target, states);
-}
-
-void Activity::onEvent(const sf::Event& event) {
     // Do nothing
 }
 
-void Activity::onUpdate() {
+void Activity::onEvent(const sf::Event& event) {
     // Do nothing
 }
 
@@ -53,10 +49,6 @@ void Activity::onResume() {
 }
 
 void Activity::onPause() {
-    // Do nothing
-}
-
-void Activity::onDraw(sf::RenderTarget& target, sf::RenderStates states) const {
     // Do nothing
 }
 

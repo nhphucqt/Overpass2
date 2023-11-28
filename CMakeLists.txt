@@ -26,6 +26,20 @@ FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
+
+# Fetch SQLiteCpp
+FetchContent_Declare(
+    SQLiteCpp
+    GIT_REPOSITORY https://github.com/SRombauts/SQLiteCpp.git
+    GIT_TAG 3.3.1)
+
+FetchContent_GetProperties(SQLiteCpp)
+
+if(NOT SQLiteCpp_POPULATED)
+    FetchContent_Populate(SQLiteCpp)
+    add_subdirectory(${sqlitecpp_SOURCE_DIR} ${sqlitecpp_BINARY_DIR})
+endif()
+
 file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/src/framework/*.cpp
@@ -34,10 +48,11 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
     ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
     ${CMAKE_SOURCE_DIR}/src/map_generator/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/database/*.cpp
 )
 
 add_executable(game ${SRCS})
-target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
+target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system sfml-audio SQLiteCpp sqlite3 pthread dl)
 target_compile_features(game PRIVATE cxx_std_17)
 target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include
@@ -47,6 +62,7 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/gui
     ${CMAKE_SOURCE_DIR}/include/entity
     ${CMAKE_SOURCE_DIR}/include/map_generator
+    ${CMAKE_SOURCE_DIR}/include/database
 )
 
 if(WIN32)

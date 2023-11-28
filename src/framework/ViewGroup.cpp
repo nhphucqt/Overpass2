@@ -2,18 +2,18 @@
 #include <ViewGroup.hpp>
 #include <iostream>
 
-void ViewGroup::attachView(ViewChild view) {
+void ViewGroup::attachView(Viewable::Ptr view) {
     view->setParent(this);
     childViews.push_back(std::move(view));
 }
 
-ViewGroup::ViewChild ViewGroup::detachView(const Viewable& view) {
+Viewable::Ptr ViewGroup::detachView(const Viewable& view) {
     auto found = std::find_if(childViews.begin(), childViews.end(),
-    [&] (ViewChild& p) -> bool { return p.get() == &view; });
+    [&] (Viewable::Ptr& p) -> bool { return p.get() == &view; });
 
     assert(found != childViews.end());
 
-    ViewChild result = std::move(*found);
+    Viewable::Ptr result = std::move(*found);
     result->setParent(nullptr);
     childViews.erase(found);
     return result;
@@ -31,5 +31,20 @@ void ViewGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     drawCurrent(target, states);
     for (auto& child : childViews) {
         child->draw(target, states);
+    }
+}
+
+void ViewGroup::update(sf::Time delta) {
+    updateCurrent(delta);
+    updateChildren(delta);
+}
+
+void ViewGroup::updateCurrent(sf::Time delta) {
+    // do nothing
+}
+
+void ViewGroup::updateChildren(sf::Time delta) {
+    for (Viewable::Ptr& child : childViews) {
+        child->update(delta);
     }
 }
