@@ -1,22 +1,34 @@
 #ifndef TEXT_VIEW_H
 #define TEXT_VIEW_H
 
-#include <Viewable.hpp>
+#include <ViewGroup.hpp>
 #include <SFML/Graphics.hpp>
+#include <EventListener.hpp>
 
-class TextView: public Viewable {
+class TextView: public ViewGroup,
+                public EventListener {
+public:
+    typedef std::unique_ptr<TextView> Ptr;
+
 private:
-    sf::Font font;
     sf::Text text;
 
 public:
-    TextView(std::string text);
+    TextView(const std::string& text, const sf::Font& font);
+    TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position);
+    TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize);
+    TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize, const sf::Color& color);
 
-    void setText(std::string text);
-    std::string getText();
+    sf::FloatRect getGlobalBounds() const;
+
+    void setText(const std::string& text);
+    void setFillColor(const sf::Color& color);
+    std::string getText() const;
 
 protected:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
+    virtual bool isOnMouseButtonPressed(const sf::Event& event) const override;
+    virtual bool isOnMouseButtonReleased(const sf::Event& event) const override;
 };
 
 #endif

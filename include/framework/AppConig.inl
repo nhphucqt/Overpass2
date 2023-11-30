@@ -1,5 +1,3 @@
-#include <AppConfig.hpp>
-
 template <typename T>
 inline TypedConfigValue<T>::TypedConfigValue(const T &value)
     : mValue(value)
@@ -50,6 +48,6 @@ inline AppConfig::~AppConfig()
 inline AppConfig::AppConfig()
 {
     set(ConfigKey::AppName, std::string("Overpass"));
-    set(ConfigKey::WindowSize, std::pair<int, int>(1400, 900));
+    set(ConfigKey::WindowSize, sf::Vector2f(1400, 900));
     set(ConfigKey::FPS, int(60));
 }

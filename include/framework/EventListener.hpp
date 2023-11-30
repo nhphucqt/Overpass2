@@ -10,16 +10,21 @@ class EventPublisher;
 
 class EventListener {
 friend class EventPublisher;
+public:
+    typedef std::function<void(EventListener* listener, const sf::Event& event, std::function<void(EventListener* listener, const sf::Event& event)>)> EventDoubleCallback;
+    typedef std::function<void(EventListener* listener, const sf::Event& event)> EventCallback;
 
 private:
-    std::function<void(EventListener* listener, const sf::Event& event)> onMouseButtonPressed;
-    std::function<void(EventListener* listener, const sf::Event& event)> onMouseButtonReleased;
+    EventCallback onMouseButtonPressed;
+    EventCallback onMouseButtonReleased;
+    EventCallback onMouseMoved;
     
 public:
     virtual ~EventListener() = default;
 
-    void setOnMouseButtonPressed(EventPublisher* publisher, std::function<void(EventListener* listener, const sf::Event& event)> onMouseButtonPressed);
-    void setOnMouseButtonReleased(EventPublisher* publisher, std::function<void(EventListener* listener, const sf::Event& event)> onMouseButtonReleased);
+    virtual void setOnMouseButtonPressed(EventPublisher* publisher, EventCallback onMouseButtonPressed);
+    virtual void setOnMouseButtonReleased(EventPublisher* publisher, EventCallback onMouseButtonReleased);
+    virtual void setOnMouseMoved(EventPublisher* publisher, EventCallback onMouseMoved);
 
 private:
     void eventDispatch(const sf::Event& event);
@@ -27,6 +32,7 @@ private:
 protected:
     virtual bool isOnMouseButtonPressed(const sf::Event& event) const;
     virtual bool isOnMouseButtonReleased(const sf::Event& event) const;
+    virtual bool isOnMouseMoved(const sf::Event& event) const;
 };
 
 #endif

@@ -36,8 +36,11 @@ public:
     ActivityManager* getActivityManager();
 
 protected:
+    void initialize();
+
+    virtual void onLoadResources() = 0;
+    virtual void onCreate() = 0;
     virtual void onEvent(const sf::Event& event);
-    virtual void onCreate();
     virtual void onAttach();
     virtual void onResume();
     virtual void onPause();

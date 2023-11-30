@@ -5,6 +5,7 @@
 
 enum class TextureID
 {
+    demoButtonTexture
 };
 
 enum class ImageID
@@ -13,11 +14,13 @@ enum class ImageID
 
 enum class FontID
 {
+    defaultFont
 };
 
 enum class SoundBufferID
 {
-    testSound
+    testSound,
+    buttonfx
 };
 
 enum class MusicID
