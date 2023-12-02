@@ -31,8 +31,8 @@ FetchContent_MakeAvailable(SFML)
 FetchContent_Declare(
     SQLiteCpp
     GIT_REPOSITORY https://github.com/SRombauts/SQLiteCpp.git
-    GIT_TAG 3.3.1)
-
+    GIT_TAG 3.3.1
+    GIT_CONFIG "core.autocrlf=false")
 FetchContent_GetProperties(SQLiteCpp)
 
 if(NOT SQLiteCpp_POPULATED)
@@ -51,8 +51,13 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/database/*.cpp
 )
 
+# option(CMAKE_USE_WIN32_THREADS_INIT "using WIN32 threads" ON)
+
 add_executable(game ${SRCS})
-target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system sfml-audio SQLiteCpp sqlite3 pthread dl)
+target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system sfml-audio SQLiteCpp sqlite3)
+if (UNIX)
+    target_link_libraries(game PRIVATE pthread dl)
+endif()
 target_compile_features(game PRIVATE cxx_std_17)
 target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include
