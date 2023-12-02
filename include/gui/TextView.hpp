@@ -24,6 +24,7 @@ public:
     void setText(const std::string& text);
     void setFillColor(const sf::Color& color);
     std::string getText() const;
+    bool isMouseHovering(const sf::Vector2f& mousePoint) const;
 
 protected:
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;

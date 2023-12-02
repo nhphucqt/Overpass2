@@ -32,14 +32,18 @@ sf::FloatRect TextView::getGlobalBounds() const {
     return getTransform().transformRect(text.getGlobalBounds());
 }
 
+bool TextView::isMouseHovering(const sf::Vector2f& mousePoint) const {
+    return getGlobalBounds().contains(mousePoint);
+}
+
 void TextView::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(text, states);
 }
 
 bool TextView::isOnMouseButtonPressed(const sf::Event& event) const {
-    return getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
+    return isMouseHovering(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
 }
 
 bool TextView::isOnMouseButtonReleased(const sf::Event& event) const {
-    return text.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
+    return isMouseHovering(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
 }

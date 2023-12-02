@@ -20,7 +20,10 @@ public:
     sf::Vector2f getSize();
     void setSize(const sf::Vector2f& size);
     void setFillColor(sf::Color color);
+    bool isMouseHovering(const sf::Vector2f& mousePoint) const;
 
+    sf::FloatRect getGlobalBounds() const;
+    
 protected:
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual bool isOnMouseButtonPressed(const sf::Event& event) const override;

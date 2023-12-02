@@ -18,10 +18,12 @@ public:
     Viewable();
     virtual ~Viewable() = default;
     
-    Viewable* getParent();
+    Viewable* getParent() const;
     void setParent(Viewable* parent);
 
     virtual void update(sf::Time delta);
+
+    sf::Transform getAbsoluteTransform() const;
 };
 
 #endif
