@@ -1,6 +1,6 @@
 #include <Application.hpp>
 #include <ActivityFactory.hpp>
-#include <DemoActivity.hpp>
+#include <MainMenuActivity.hpp>
 #include <AppConfig.hpp>
 #include <UserRepo.hpp>
 
@@ -14,7 +14,7 @@ int main()
   std::cout << windowSize.x << ' ' << windowSize.y << std::endl;
 
   Application app(windowSize.x, windowSize.y, windowTitle);
-  Activity::Ptr launcher = std::make_unique<DemoActivity>();
+  Activity::Ptr launcher = std::make_unique<MainMenuActivity>();
   app.addLauncher(std::move(launcher));
   app.run();
 

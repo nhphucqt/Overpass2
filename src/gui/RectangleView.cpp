@@ -32,18 +32,19 @@ void RectangleView::drawCurrent(sf::RenderTarget& target, sf::RenderStates state
     target.draw(mRect, states);
 }
 
+sf::FloatRect RectangleView::getGlobalBounds() const {
+    return getAbsoluteTransform().transformRect(mRect.getGlobalBounds());
+}
+
+bool RectangleView::isMouseHovering(const sf::Vector2f& mousePoint) const {
+    return getGlobalBounds().contains(mousePoint);
+}
+
+
 bool RectangleView::isOnMouseButtonPressed(const sf::Event& event) const {
-    sf::Vector2i pos = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
-    sf::Vector2f position = getPosition();
-    sf::Vector2f size = mRect.getSize();
-    return pos.x >= position.x && pos.x <= position.x + size.x
-        && pos.y >= position.y && pos.y <= position.y + size.y;
+    return isMouseHovering(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
 }
 
 bool RectangleView::isOnMouseButtonReleased(const sf::Event& event) const {
-    sf::Vector2i pos = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
-    sf::Vector2f position = getPosition();
-    sf::Vector2f size = mRect.getSize();
-    return pos.x >= position.x && pos.x <= position.x + size.x
-        && pos.y >= position.y && pos.y <= position.y + size.y;
+    return isMouseHovering(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
 }
