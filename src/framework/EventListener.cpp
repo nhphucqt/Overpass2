@@ -15,6 +15,11 @@ void EventListener::setOnMouseMoved(EventPublisher* publisher, EventCallback onM
     publisher->subscribe(sf::Event::MouseMoved, this);
 }
 
+void EventListener::setOnTextEntered(EventPublisher* publisher, EventCallback onTextEntered) {
+    this->onTextEntered = onTextEntered;
+    publisher->subscribe(sf::Event::TextEntered, this);
+}
+
 void EventListener::eventDispatch(const sf::Event& event) {
     switch (event.type) {
         case sf::Event::MouseButtonPressed:
@@ -32,6 +37,11 @@ void EventListener::eventDispatch(const sf::Event& event) {
                 if (onMouseMoved)
                     onMouseMoved(this, event);
             break;
+        case sf::Event::TextEntered:
+            if (isOnTextEntered(event))
+                if (onTextEntered)
+                    onTextEntered(this, event);
+            break;
     }
 }
 
@@ -44,5 +54,9 @@ bool EventListener::isOnMouseButtonReleased(const sf::Event& event) const {
 }
 
 bool EventListener::isOnMouseMoved(const sf::Event& event) const {
+    return true;
+}
+
+bool EventListener::isOnTextEntered(const sf::Event& event) const {
     return true;
 }

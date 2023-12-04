@@ -9,6 +9,7 @@
 #include <LevelsActivity.hpp>
 #include <SettingsActivity.hpp>
 #include <RankingActivity.hpp>
+#include <EditTextView.hpp>
 #include <DemoActivity.hpp>
 
 void MainMenuActivity::onLoadResources() {
@@ -18,6 +19,12 @@ void MainMenuActivity::onLoadResources() {
 void MainMenuActivity::onCreate() {
     createTitle();
     createPlayButtons();
+
+    EditTextView::Ptr editTextView = std::make_unique<EditTextView>(this, mFontManager.get(FontID::defaultFont), "Edit text view", sf::Vector2f(0, 0), sf::Vector2f(300, 50), sf::Color(120,120,120,255));
+    editTextView->setLeftPadding(10);
+    editTextView->setLimit(10);
+    editTextView->setTextColor(sf::Color::Black);
+    attachView(std::move(editTextView));
 }
 
 void MainMenuActivity::onAttach() {
