@@ -19,13 +19,13 @@ int main()
   // app.run();
 
   UserSession session;
-  if (!session.isLoggedin())
-  {
-    session.loginUser("pikachu", "4567");
-    session.logoutUser();
-  }
-  session.loginUser("jinx", "9876");
-  session.logoutUser();
+  // if (!session.isLoggedin())
+  // {
+  session.loginUser("pikachu", "4567");
+  // session.logoutUser();
+  // }
+  // session.loginUser("jinx", "9876");
+  // session.logoutUser();
 
   return 0;
 }
