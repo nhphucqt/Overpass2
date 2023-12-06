@@ -2,7 +2,7 @@
 #include <ActivityFactory.hpp>
 #include <MainMenuActivity.hpp>
 #include <AppConfig.hpp>
-#include <UserSession.hpp>
+#include <GameSetting.hpp>
 
 int main()
 {
@@ -18,14 +18,9 @@ int main()
   app.addLauncher(std::move(launcher));
   app.run();
 
-  //   UserSession session;
-  // if (!session.isLoggedin())
-  // {
-  //   session.loginUser("pikachu", "4567");
-  // session.logoutUser();
-  // }
-  // session.loginUser("jinx", "9876");
-  // session.logoutUser();
+  GameSetting setting;
+  MusicPlayer::getInstance().setVolume(30);
+  SoundPlayer::getInstance().setVolume(20);
 
   return 0;
 }
