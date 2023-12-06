@@ -31,3 +31,8 @@ void MusicPlayer::setVolume(float volume)
 {
   mVolume = volume;
 }
+
+float MusicPlayer::getVolume() const
+{
+  return mVolume;
+}
