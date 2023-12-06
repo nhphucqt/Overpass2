@@ -10,7 +10,10 @@
 class SoundPlayer : private sf::NonCopyable
 {
 public:
-    SoundPlayer();
+    static SoundPlayer &getInstance();
+    SoundPlayer(const SoundPlayer &) = delete;
+    SoundPlayer &operator=(const SoundPlayer &) = delete;
+
     void play(SoundBufferID effect);
     void removeStoppedSounds();
     void setVolume(float volume);
@@ -18,6 +21,8 @@ public:
     float getVolume() const;
 
 private:
+    SoundPlayer();
+
     SoundBufferManager mSoundBuffers;
     std::list<sf::Sound> mSounds;
     float mVolume;

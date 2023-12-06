@@ -8,6 +8,12 @@ SoundPlayer::SoundPlayer()
     // ...
 }
 
+SoundPlayer &SoundPlayer::getInstance()
+{
+    static SoundPlayer mSoundPlayer;
+    return mSoundPlayer;
+}
+
 void SoundPlayer::play(SoundBufferID effect)
 {
     mSounds.push_back(sf::Sound(mSoundBuffers.get(effect)));

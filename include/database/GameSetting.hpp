@@ -9,15 +9,15 @@
 class GameSetting
 {
 public:
-    GameSetting(SoundPlayer *soundPlayer, MusicPlayer *musicPlayer);
+    GameSetting();
     ~GameSetting();
 
     void loadSettingState(const std::string &filename);
     void saveSettingState(const std::string &filename);
 
 private:
-    SoundPlayer *mSoundPlayer;
-    MusicPlayer *mMusicPlayer;
-}
+    SoundPlayer &mSoundPlayer;
+    MusicPlayer &mMusicPlayer;
+};
 
 #endif

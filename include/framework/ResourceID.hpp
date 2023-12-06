@@ -1,7 +1,7 @@
 #ifndef RESOURCE_ID
 #define RESOURCE_ID
 
-#include "ResourceManager.hpp"
+#include <ResourceManager.hpp>
 
 enum class TextureID
 {

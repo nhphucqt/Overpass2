@@ -8,7 +8,10 @@
 class MusicPlayer : private sf::NonCopyable
 {
 public:
-  MusicPlayer();
+  static MusicPlayer &getInstance();
+  MusicPlayer &operator=(const MusicPlayer &) = delete;
+  MusicPlayer(const MusicPlayer &) = delete;
+
   void play(MusicID theme);
   void stop();
   void setPaused(bool paused);
@@ -17,6 +20,8 @@ public:
   float getVolume() const;
 
 private:
+  MusicPlayer();
+
   sf::Music mMusic;
   std::map<MusicID, std::string> mFilenames;
   float mVolume;
