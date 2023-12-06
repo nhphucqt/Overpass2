@@ -10,6 +10,7 @@ class Intent {
 public:
     typedef std::unique_ptr<Intent> Ptr;
     static const int NO_REQUEST_CODE = -1;
+    static const int ACTION_NONE = -1;
 
 private:
     class IntentExtra {
@@ -28,6 +29,7 @@ private:
 
     std::map<std::string, std::unique_ptr<IntentExtra>> extras;
     int requestCode;
+    int action;
 
 public:
     class Builder {
@@ -36,6 +38,14 @@ public:
     public:
         Builder() {
             intent = std::make_unique<Intent>();
+        }
+
+        Builder& setAction(int action) {
+            if (action < 0) {
+                throw std::runtime_error("Action must be non-negative");
+            }
+            intent->setAction(action);
+            return *this;
         }
 
         Builder& setRequestCode(int requestCode) {
@@ -61,7 +71,21 @@ public:
         requestCode = NO_REQUEST_CODE;
     }
 
+    void setAction(int action) {
+        if (action < 0) {
+            throw std::runtime_error("Action must be non-negative");
+        }
+        this->action = action;
+    }
+
+    int getAction() {
+        return action;
+    }
+
     void setRequestCode(int requestCode) {
+        if (requestCode < 0) {
+            throw std::runtime_error("Request code must be non-negative");
+        }
         this->requestCode = requestCode;
     }
 

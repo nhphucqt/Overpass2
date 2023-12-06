@@ -1,6 +1,6 @@
 #include <Application.hpp>
 #include <ActivityFactory.hpp>
-#include <DemoActivity.hpp>
+#include <MainMenuActivity.hpp>
 #include <AppConfig.hpp>
 #include <UserSession.hpp>
 
@@ -13,15 +13,15 @@ int main()
   // std::cout << windowTitle << std::endl;
   // std::cout << windowSize.x << ' ' << windowSize.y << std::endl;
 
-  // Application app(windowSize.x, windowSize.y, windowTitle);
-  // Activity::Ptr launcher = std::make_unique<DemoActivity>();
-  // app.addLauncher(std::move(launcher));
-  // app.run();
+  Application app(windowSize.x, windowSize.y, windowTitle);
+  Activity::Ptr launcher = std::make_unique<MainMenuActivity>();
+  app.addLauncher(std::move(launcher));
+  app.run();
 
-  UserSession session;
+//   UserSession session;
   // if (!session.isLoggedin())
   // {
-  session.loginUser("pikachu", "4567");
+//   session.loginUser("pikachu", "4567");
   // session.logoutUser();
   // }
   // session.loginUser("jinx", "9876");
