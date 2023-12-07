@@ -1,39 +1,47 @@
-#include <SFML/System/Vector2.hpp>
-#include <entity/Entity.hpp>
-
-Entity::Entity(sf::Texture texture): sprite(texture), velocity(0, 0) {}
-
-Entity::Entity(sf::Texture texture, float vx, float vy): sprite(texture), velocity(vx, vy) {}
-
-Entity::Entity(sf::Texture texture, sf::Vector2f v): sprite(texture), velocity(v) {}
+#include <Entity.hpp>
 
 void Entity::setVelocity(sf::Vector2f velocity) {
-    this->velocity = velocity;
+	mVelocity = velocity;
 }
 
-bool Entity::checkCollision(Entity& other) {
-   return sprite.getGlobalBounds().intersects(other.getGlobalBounds());
+void Entity::setVelocity(float vx, float vy) {
+	mVelocity.x = vx;
+	mVelocity.y = vy;
 }
 
-sf::FloatRect Entity::getGlobalBounds() {
+sf::Vector2f Entity::getVelocity() const {
+	return mVelocity;
+}
+
+void Entity::accelerate(sf::Vector2f velocity)
+{
+	mVelocity += velocity;
+}
+
+void Entity::accelerate(float vx, float vy)
+{
+	mVelocity.x += vx;
+	mVelocity.y += vy;
+
+}
+
+void Entity::updateCurrent(sf::Time dt) {
+	move(mVelocity * dt.asSeconds());
+}
+
+void Entity::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {
+    target.draw(sprite, states);
+}
+
+bool Entity::checkCollision(Entity &other) {
+    return sprite.getGlobalBounds().intersects(other.getGlobalBounds());
+}
+
+sf::FloatRect Entity::getGlobalBounds()
+{
     return sprite.getGlobalBounds();
 }
-
-// void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-//     states.transform *= getTransform();
-//     target.draw(sprite, states);
-// }
 
 sf::Vector2f Entity::center() {
     return sf::Vector2f(sprite.getGlobalBounds().getSize().x/2, sprite.getGlobalBounds().getSize().y/2);
 }
-
-Entity::EntityType Entity::getType() {
-    return TYPE;
-}
-
-void Entity::move(sf::Time delta) {
-    sprite.move(velocity * delta.asSeconds());
-}
-
-// TODO: research about how to move an entity properly.
