@@ -5,7 +5,16 @@
 
 enum class TextureID
 {
-    demoButtonTexture
+    demoButtonTexture,
+    Wood,
+    Crocodile,
+    Car,
+    Bear,
+    TrafficLight,
+    River,
+    Road,
+    Fox,
+    Player,
 };
 
 enum class ImageID

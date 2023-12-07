@@ -4,18 +4,19 @@
 
 class Entity: public ViewGroup {
 public:
+	Entity(sf::Texture texture);
 	void setVelocity(sf::Vector2f velocity);
 	void setVelocity(float vx, float vy);
 	sf::Vector2f getVelocity() const;
 	void accelerate(sf::Vector2f velocity);
 	void accelerate(float vx, float vy);
+	virtual bool checkCollision(Entity& other);
+	virtual sf::FloatRect getGlobalBounds();
+	virtual sf::Vector2f center();
 	virtual unsigned int getCategory() const = 0;
 
 protected: 
     sf::Sprite sprite;
-	bool checkCollision(Entity& other);
-	sf::FloatRect getGlobalBounds();
-	sf::Vector2f center();
 	virtual void updateCurrent(sf::Time dt);
 
 private:

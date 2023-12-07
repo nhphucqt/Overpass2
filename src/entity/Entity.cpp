@@ -1,7 +1,10 @@
 #include <Entity.hpp>
 
-void Entity::setVelocity(sf::Vector2f velocity) {
-	mVelocity = velocity;
+Entity::Entity(sf::Texture texture): sprite(texture) {}
+
+void Entity::setVelocity(sf::Vector2f velocity)
+{
+    mVelocity = velocity;
 }
 
 void Entity::setVelocity(float vx, float vy) {
