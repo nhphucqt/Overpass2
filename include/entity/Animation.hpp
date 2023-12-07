@@ -1,5 +1,5 @@
-#ifndef BOOK_ANIMATION_HPP
-#define BOOK_ANIMATION_HPP
+#ifndef ANIMATION_HPP
+#define ANIMATION_HPP
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Time.hpp>
