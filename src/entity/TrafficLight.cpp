@@ -1,67 +1,42 @@
 #include <TrafficLight.hpp>
 
-void TrafficLight::initInterval(float r, float y, float g) {
-    red = sf::seconds(r);
-    yellow = sf::seconds(y);
-    green = sf::seconds(g);
+TrafficLight::TrafficLight(const TextureManager& textures)
+: Entity(textures.get(TextureID::TrafficLight)),
+red(Duration::Red),
+yellow(Duration::Yellow),
+green(Duration::Green),
+current(Color::Green),
+rect(sprite.getLocalBounds())
+{
+    sf::FloatRect rect = sprite.getLocalBounds();
+    sprite.setTextureRect(sf::IntRect(0, 0, rect.width / 3, rect.height));
+    sprite.setScale(0.5, 0.5);
+	sf::FloatRect bounds = sprite.getLocalBounds();
+	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
 
-TrafficLight::TrafficLight(sf::Texture texture, float interval): Entity(texture) {
-    clock.restart();
-    initInterval(interval, interval, interval);
+TrafficLight::Color TrafficLight::getCurrentColor() {
+    return current;
 }
 
-TrafficLight::TrafficLight(sf::Texture texture, TrafficColor initColor, float interval): Entity(texture), current(initColor) {
-    clock.restart();
-    initInterval(interval, interval, interval);
+void TrafficLight::updateCurrent(sf::Time dt) {
+    updateCurrentColor(dt);
+    sprite.setTextureRect(sf::IntRect(rect.width / 3 * current, 0, rect.width / 3, rect.height));
 }
 
-TrafficLight::TrafficLight(sf::Texture texture, float r, float y, float g): Entity(texture) {
-    clock.restart();
-    initInterval(r, y, g);
+void TrafficLight::updateCurrentColor(sf::Time dt) {
+    elapsed += dt;
+    if (elapsed < green)
+        current = Color::Green;
+    else if (elapsed < green + yellow)
+        current = Color::Yellow;
+    else if (elapsed < red + yellow + green)
+        current = Color::Red;
+    else
+        elapsed %= (red + yellow + green);
 }
 
-TrafficLight::TrafficLight(sf::Texture texture, TrafficColor initColor, float r, float y, float g): Entity(texture), current(initColor) {
-    clock.restart();
-    initInterval(r, y, g);
-}
-
-void TrafficLight::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
-	target.draw(sprite, states);
-}
-
-bool TrafficLight::trafficAllow(const Entity& other) {
-    return trafficAllow();
-}
-
-bool TrafficLight::trafficAllow() {
-    sf::Time elapsed = clock.getElapsedTime();
-    elapsed %= (red + yellow + green);
-    sf::Time interval;
-    while (elapsed > sf::Time::Zero) {
-        switch (current) {
-            case TrafficColor::Red:
-                interval = red;
-                current = TrafficColor::Green;
-                break;
-            case TrafficColor::Yellow:
-                interval = yellow;
-                current = TrafficColor::Yellow;
-                break;
-            case TrafficColor::Green:
-                interval = green;
-                current = TrafficColor::Green;
-                break;
-        }
-        elapsed -= interval;
-    }
-    if (current == TrafficColor::Red)
-        return false;
-    return true;
-}
-
-bool TrafficLight::trafficAllow(const Obstacle& other) {
-    if (other.checkAnimal())
-        return true;
-    return trafficAllow();
-}
+// unsigned int TrafficLight::getCategory() const
+// {
+//     return Category::TrafficLight;
+// }
