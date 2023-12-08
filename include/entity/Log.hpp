@@ -11,7 +11,7 @@ class Log: public Entity {
 public:
     enum Type {Wood, Crocodile};
     Log(Type mType, const TextureManager& textures);
-    // virtual unsigned int getCategory() const;
+    virtual unsigned int getCategory() const;
 
 private:
     Type type;

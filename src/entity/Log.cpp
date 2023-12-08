@@ -19,6 +19,13 @@ Log::Log(Type mType, const TextureManager& textures)
 	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
 
-// unsigned int Log::getCategory() const {
-//     return Category::Log;
-// }
+unsigned int Log::getCategory() const {
+	switch (type) {
+	case Log::Wood:
+		return Category::Wood;
+	case Log::Crocodile:
+		return Category::Crocodile;
+	default:
+		return Category::Wood;
+	}
+}

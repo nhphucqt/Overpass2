@@ -16,6 +16,9 @@ public:
     void detachAllViews();
 
     void update(sf::Time delta) override;
+	void onCommand(const Command &command, sf::Time dt);
+	virtual unsigned int getCategory() const;
+
 protected:
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const = 0;

@@ -31,6 +31,6 @@ void Animal::updateCurrent(sf::Time dt) {
     animation.setRepeating(true);
 }
 
-// unsigned int Animal::getCategory() const {
-//     return Category::Animal;
-// }
+unsigned int Animal::getCategory() const {
+    return Category::Animal;
+}

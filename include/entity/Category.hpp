@@ -11,8 +11,8 @@ namespace Category {
 		Animal = 1 << 3,
 		TrafficLight = 1 << 4,
 		River = 1 << 5,
-		Log = 1 << 6,
-		Scene = 1 << 7,
+		Wood = 1 << 6,
+		Crocodile = 1 << 7,
 	};
 }
 

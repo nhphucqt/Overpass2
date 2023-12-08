@@ -1,6 +1,7 @@
 #include <cassert>
 #include <ViewGroup.hpp>
 #include <iostream>
+#include <cassert>
 
 void ViewGroup::attachView(Viewable::Ptr view) {
     view->setParent(this);
@@ -47,4 +48,18 @@ void ViewGroup::updateChildren(sf::Time delta) {
     for (Viewable::Ptr& child : childViews) {
         child->update(delta);
     }
+}
+
+void ViewGroup::onCommand(const Command& command, sf::Time dt) {
+	// Command current node, if category matches
+	if (command.category & getCategory())
+		command.action(*this, dt);
+
+	// Command children
+	for(auto& child : childViews)
+		child->onCommand(command, dt);
+}
+
+unsigned int ViewGroup::getCategory() const {
+    return Category::None;
 }

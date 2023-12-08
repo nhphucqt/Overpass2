@@ -11,7 +11,7 @@ class Vehicle: public Entity {
 public:
     enum Type {Car};
     Vehicle(Type mType, const TextureManager& textures);
-    // virtual unsigned int getCategory() const;
+    virtual unsigned int getCategory() const;
 
 private:
     Type type;
