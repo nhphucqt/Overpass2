@@ -14,7 +14,7 @@ public:
 	virtual bool checkCollision(Entity& other);
 	virtual sf::FloatRect getGlobalBounds();
 	virtual sf::Vector2f center();
-	virtual unsigned int getCategory() const = 0;
+	// virtual unsigned int getCategory() const = 0;
 
 protected: 
     sf::Sprite sprite;
