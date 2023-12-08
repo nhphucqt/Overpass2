@@ -14,14 +14,13 @@ public:
 	virtual bool checkCollision(Entity& other);
 	virtual sf::FloatRect getGlobalBounds();
 	virtual sf::Vector2f center();
-	// virtual unsigned int getCategory() const = 0;
 
 protected: 
     sf::Sprite sprite;
 	virtual void updateCurrent(sf::Time dt);
+	virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
-	virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 	sf::Vector2f mVelocity;
 };
 

@@ -1,18 +1,18 @@
 #ifndef LANE_HPP
 #define LANE_HPP
-#include <ResourceManager.hpp>
-#include <ResourceID.hpp>
 #include <ViewGroup.hpp>
 #include <TrafficLight.hpp>
 #include <Animal.hpp>
 #include <Vehicle.hpp>
+#include <ResourceID.hpp>
+#include <ResourceManager.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 class Lane: public ViewGroup {
 public:
-    Lane(const TextureManager* textures);
+    Lane(TextureManager* textures);
 
 private:
     sf::Sprite sprite;

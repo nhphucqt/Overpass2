@@ -12,7 +12,7 @@ TextureID toTextureID(Animal::Type type) {
 
 Animal::Animal(Type mType, const TextureManager& textures): 
 type(mType),
-animation(textures.get(toTextureID(type)))
+animation(textures.get(toTextureID(mType)))
 {
     animation.setFrameSize(sf::Vector2i(890/5, 308));
     animation.setNumFrames(5);

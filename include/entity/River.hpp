@@ -1,23 +1,20 @@
 #ifndef RIVER_HPP
 #define RIVER_HPP
-#include <ResourceManager.hpp>
-#include <ResourceID.hpp>
 #include <ViewGroup.hpp>
-#include <TrafficLight.hpp>
-#include <Animal.hpp>
-#include <Vehicle.hpp>
 #include <Log.hpp>
+#include <ResourceID.hpp>
+#include <ResourceManager.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 class River: public ViewGroup {
 public:
-    River(const TextureManager* textures);
+    River(TextureManager* textures);
 
 private:
     sf::Sprite sprite;
-    TextureManager riverTexture;
+    TextureManager* riverTexture;
 	std::vector<Log *> logs;
 
     void updateCurrent(sf::Time dt);

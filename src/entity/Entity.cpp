@@ -2,8 +2,7 @@
 
 Entity::Entity(sf::Texture texture): sprite(texture) {}
 
-void Entity::setVelocity(sf::Vector2f velocity)
-{
+void Entity::setVelocity(sf::Vector2f velocity) {
     mVelocity = velocity;
 }
 
@@ -16,13 +15,11 @@ sf::Vector2f Entity::getVelocity() const {
 	return mVelocity;
 }
 
-void Entity::accelerate(sf::Vector2f velocity)
-{
+void Entity::accelerate(sf::Vector2f velocity) {
 	mVelocity += velocity;
 }
 
-void Entity::accelerate(float vx, float vy)
-{
+void Entity::accelerate(float vx, float vy) {
 	mVelocity.x += vx;
 	mVelocity.y += vy;
 
@@ -40,8 +37,7 @@ bool Entity::checkCollision(Entity &other) {
     return sprite.getGlobalBounds().intersects(other.getGlobalBounds());
 }
 
-sf::FloatRect Entity::getGlobalBounds()
-{
+sf::FloatRect Entity::getGlobalBounds() {
     return sprite.getGlobalBounds();
 }
 

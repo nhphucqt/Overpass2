@@ -12,7 +12,7 @@ TextureID toTextureID(Vehicle::Type type) {
 
 Vehicle::Vehicle(Type mType, const TextureManager& textures): 
 type(mType), 
-Entity(textures.get(toTextureID(type))) {
+Entity(textures.get(toTextureID(mType))) {
 	sf::FloatRect bounds = sprite.getLocalBounds();
 	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }

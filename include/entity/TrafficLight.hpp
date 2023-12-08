@@ -1,9 +1,9 @@
 #ifndef TRAFFICLIGHT_HPP
 #define TRAFFICLIGHT_HPP
 #include <Entity.hpp>
-#include <Vehicle.hpp>
-#include <ResourceManager.hpp>
 #include <ResourceID.hpp>
+#include <ResourceManager.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 
@@ -21,7 +21,6 @@ public:
     // virtual unsigned int getCategory() const; 
 
 private:
-    sf::Sprite sprite;
     sf::IntRect rect;
     Color current;
     sf::Time red;

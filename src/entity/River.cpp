@@ -1,6 +1,6 @@
 #include <River.hpp>
 
-River::River(const TextureManager* textures): riverTexture(textures) {
+River::River(TextureManager* textures): riverTexture(textures) {
 	sf::IntRect textureRect(0, 0, 1400, 150);
     sprite.setTexture(textures->get(TextureID::River));
     sprite.setTextureRect(textureRect);
@@ -25,7 +25,7 @@ void River::updateCurrent(sf::Time dt) {
 }
 
 void River::buildRiver() {
-    std::unique_ptr<Log> log(new Log(Log::Wood, riverTexture));
+    std::unique_ptr<Log> log(new Log(Log::Wood, *riverTexture));
     logs.push_back(log.get());
     log->setPosition(0.f, 75.f);
     log->setVelocity(150.f, 0.f);

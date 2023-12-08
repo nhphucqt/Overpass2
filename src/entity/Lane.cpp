@@ -1,8 +1,8 @@
 #include <Lane.hpp>
 
-Lane::Lane(const TextureManager* textures): laneTexture(textures) {
+Lane::Lane(TextureManager* textures): laneTexture(textures) {
 	sf::IntRect textureRect(0, 0, 1400, 150);
-    sprite.setTexture(textures->get(TextureID::Road));
+    sprite.setTexture(laneTexture->get(TextureID::Road));
     sprite.setTextureRect(textureRect);
     buildLane();
 }
@@ -46,7 +46,7 @@ void Lane::buildLane() {
     traffic->setVelocity(0.f, 0.f);
     traffic->setScale(0.8, 0.8);
     trafficlight = traffic.get();
-    std::unique_ptr<Animal> fox(new Animal(*laneTexture));
+    std::unique_ptr<Animal> fox(new Animal(Animal::Fox, *laneTexture));
     fox->setVelocity(100.f, 0.f);
     fox->setPosition(50.f, 75.f);
     fox->setScale(0.7, 0.7);
