@@ -5,7 +5,7 @@
 class Entity: public ViewGroup {
 public:
 	Entity() = default;
-	Entity(sf::Texture texture);
+	Entity(const sf::Texture &texture);
 	void setVelocity(sf::Vector2f velocity);
 	void setVelocity(float vx, float vy);
 	sf::Vector2f getVelocity() const;

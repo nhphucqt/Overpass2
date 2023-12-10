@@ -1,6 +1,6 @@
 #include <Entity.hpp>
 
-Entity::Entity(sf::Texture texture): sprite(texture) {}
+Entity::Entity(const sf::Texture &texture): sprite(texture) {}
 
 void Entity::setVelocity(sf::Vector2f velocity) {
     mVelocity = velocity;
