@@ -1,9 +1,7 @@
 #ifndef LANE_HPP
 #define LANE_HPP
+
 #include <ViewGroup.hpp>
-#include <TrafficLight.hpp>
-#include <Animal.hpp>
-#include <Vehicle.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -12,18 +10,24 @@
 
 class Lane: public ViewGroup {
 public:
-    Lane(TextureManager* textures);
+    enum Type {
+        Road,
+        Green,
+        River,
+        Count
+    };
+    
+    Lane(const sf::Texture &texture, TextureManager* textures, bool reverse = false);
+
+protected:
+    TextureManager* laneTextures;
+    sf::Sprite sprite;
+    bool isReverse;
 
 private:
-    sf::Sprite sprite;
-    TextureManager* laneTexture;
-	std::vector<Vehicle *> cars;
-    TrafficLight* trafficlight;
-
-    void updateCurrent(sf::Time dt);
-    void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
-    void loadTextures();
-    void buildLane();
+    virtual void updateCurrent(sf::Time dt) = 0;
+    virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual void buildLane() = 0;
 };
 
 #endif
