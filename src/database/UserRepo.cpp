@@ -30,6 +30,12 @@ UserData UserRepo::getUserByLogin(const std::string &username, const std::string
     return UserData("", "", -1);
 }
 
+bool UserRepo::checkUser(const std::string &username, const std::string &password) const
+{
+    UserData user = getUserByLogin(username, password);
+    return !user.notAUser();
+}
+
 UserRepo::Leaderboard UserRepo::getLeaderboard() const
 {
     UserRepo::Leaderboard leaderboard;

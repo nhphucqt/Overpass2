@@ -1,16 +1,19 @@
-#ifndef MAIN_MENU_ACTIVITY_HPP
-#define MAIN_MENU_ACTIVITY_HPP
+#ifndef LOGIN_ACTIVITY_HPP
+#define LOGIN_ACTIVITY_HPP
 
 #include <Activity.hpp>
 #include <ResourceID.hpp>
+#include <EditTextView.hpp>
+#include <TextView.hpp>
 
-class MainMenuActivity : public Activity {
+class LoginActivity : public Activity {
 private:
-    int REQUEST_CODE_GAME_LEVEL = 123;
-    int REQUEST_CODE_CONTINUE_GAME = 124;
-    int REQUEST_LOGIN = 125;
+    static const int REQUEST_SIGN_UP = 1;
 
     FontManager mFontManager;
+    EditTextView* mUsername;
+    EditTextView* mPassword;
+    TextView* mError;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;
@@ -25,7 +28,9 @@ protected:
 
 private:
     void createTitle();
-    void createPlayButtons();
+    void createBackButton();
+    void createDialog();
+    void checkLogin(const std::string& username, const std::string& password);
 };
 
 #endif

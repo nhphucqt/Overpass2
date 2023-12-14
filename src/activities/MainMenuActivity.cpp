@@ -11,6 +11,7 @@
 #include <RankingActivity.hpp>
 #include <EditTextView.hpp>
 #include <DemoActivity.hpp>
+#include <LoginActivity.hpp>
 
 void MainMenuActivity::onLoadResources() {
     mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
@@ -19,16 +20,13 @@ void MainMenuActivity::onLoadResources() {
 void MainMenuActivity::onCreate() {
     createTitle();
     createPlayButtons();
-
-    EditTextView::Ptr editTextView = std::make_unique<EditTextView>(this, mFontManager.get(FontID::defaultFont), "Edit text view", sf::Vector2f(0, 0), sf::Vector2f(300, 50), sf::Color(120,120,120,255));
-    editTextView->setLeftPadding(10);
-    editTextView->setLimit(10);
-    editTextView->setTextColor(sf::Color::Black);
-    attachView(std::move(editTextView));
 }
 
 void MainMenuActivity::onAttach() {
-    // ...
+    Intent::Ptr intent = Intent::Builder()
+        .setRequestCode(REQUEST_LOGIN)
+        .build();
+    startActivity(ActivityFactory<LoginActivity>::createInstance(), std::move(intent));
 }
 
 void MainMenuActivity::onResume() {
@@ -55,6 +53,12 @@ void MainMenuActivity::onActivityResult(int requestCode, int resultCode, Intent:
     if (requestCode == REQUEST_CODE_GAME_LEVEL) {
         if (resultCode == (int)ResultCode::RESULT_OK) {
             startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(data));
+        }
+    } else if (requestCode == REQUEST_LOGIN) {
+        if (resultCode == (int)ResultCode::RESULT_OK) {
+            assert(data != nullptr);
+            std::string username = data->getExtra<std::string>("username");
+            std::cout << " >> Login success: " << username << std::endl;
         }
     }
 }

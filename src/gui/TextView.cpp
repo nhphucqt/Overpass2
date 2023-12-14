@@ -28,8 +28,12 @@ std::string TextView::getText() const {
     return text.getString();
 }
 
+int TextView::getCharacterSize() const {
+    return text.getCharacterSize();
+}
+
 sf::FloatRect TextView::getGlobalBounds() const {
-    return getTransform().transformRect(text.getGlobalBounds());
+    return getAbsoluteTransform().transformRect(text.getGlobalBounds());
 }
 
 bool TextView::isMouseHovering(const sf::Vector2f& mousePoint) const {
