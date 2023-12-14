@@ -13,13 +13,11 @@ private:
     int id;
     RectangleView *mRect;
 
-    MusicPlayer mPlayer;
-    SoundPlayer sPlayer;
     FontManager mFonts;
     TextureManager mTextures;
 
 protected:
-    virtual void onEvent(const sf::Event& event) override;
+    virtual void onEvent(const sf::Event &event) override;
     virtual void onCreate() override;
     virtual void onLoadResources() override;
     virtual void onAttach() override;

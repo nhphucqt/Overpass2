@@ -26,7 +26,6 @@ UserData UserRepo::getUserByLogin(const std::string &username, const std::string
     if (query.executeStep())
         return UserData(query.getColumn(0), query.getColumn(1), query.getColumn(2));
 
-    std::cerr << "username or password is wrong\n";
     return UserData("", "", -1);
 }
 
