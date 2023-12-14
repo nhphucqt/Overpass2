@@ -7,7 +7,7 @@
 #include <UserRepo.hpp>
 
 void SignupActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/minecraft_font.ttf");
 }
 
 void SignupActivity::onCreate() {

@@ -5,7 +5,13 @@
 
 enum class TextureID
 {
-    demoButtonTexture
+    demoButtonTexture,
+    mainMenuButtonTexture,
+    mainMenuBackgroundTexture,
+    titleBackgroundTexture,
+    characterTitleBarTexture,
+    squareButtonsTexture,
+    iconsTexture
 };
 
 enum class ImageID

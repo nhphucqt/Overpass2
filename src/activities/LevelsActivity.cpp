@@ -3,16 +3,32 @@
 
 #include <TextView.hpp>
 #include <ButtonView.hpp>
+#include <SpriteButtonView.hpp>
 #include <ActivityFactory.hpp>
+
 #include <DemoActivity.hpp>
 #include <GameActivity.hpp>
+#include <SettingsActivity.hpp>
+#include <ProfileActivity.hpp>
+#include <HelpActivity.hpp>
 
+#include <TitlebarFactory.hpp>
+#include <BackgroundFactory.hpp>
+#include <BackButtonFactory.hpp>
+#include <MenuButtonFactory.hpp>
 
 void LevelsActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
+    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
 }
 
 void LevelsActivity::onCreate() {
+    createBackground();
     createTitle();
     createBackButton();
     createLevelButtons();
@@ -43,69 +59,84 @@ void LevelsActivity::updateCurrent(sf::Time dt) {
 }
 
 void LevelsActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
-    // ...
+    if (requestCode == REQUEST_TITLEBAR_BUTTONS) {
+        if (resultCode == (int)ResultCode::RESULT_OK) {
+            int titleType = data->getExtra<int>("titleType", -1);
+            if (titleType == -1) {
+                std::cerr << " >> MainMenuActivity::onActivityResult: titleType is not set" << std::endl;
+                return;
+            }
+            Intent::Ptr intent = Intent::Builder()
+                .setRequestCode(REQUEST_TITLEBAR_BUTTONS)
+                .build();
+            if (titleType == (int)TitlebarFactory::TitlebarType::SETTINGS) {
+                startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+            } else if (titleType == (int)TitlebarFactory::TitlebarType::HELP) {
+                startActivity(ActivityFactory<HelpActivity>::createInstance(), std::move(intent));
+            } else if (titleType == (int)TitlebarFactory::TitlebarType::PROFILE) {
+                startActivity(ActivityFactory<ProfileActivity>::createInstance(), std::move(intent));
+            }
+        }
+    }
+}
+
+void LevelsActivity::createBackground() {
+    attachView(
+        BackgroundFactory::create(mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+    );
 }
 
 void LevelsActivity::createTitle() {
-    AppConfig& config = AppConfig::getInstance();
-    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
-
-    sf::Color color = sf::Color::Black;
-    int fontSize = 50;
-
-    TextView::Ptr title = std::make_unique<TextView>("Levels", mFontManager.get(FontID::defaultFont), sf::Vector2f(), fontSize, color);
-    sf::Vector2f position((windowSize.x-title->getGlobalBounds().getSize().x)/2, 50);
-    title->setPosition(position);
-
-    attachView(std::move(title));
+    attachView(
+        TitlebarFactory::create(
+            this,
+            mTextureManager,
+            mFontManager.get(FontID::defaultFont),
+            "Levels",
+            TitlebarFactory::TitlebarType::NONE,
+            REQUEST_TITLEBAR_BUTTONS
+        )
+    );
 }
 
 void LevelsActivity::createBackButton() {
-    float width = 50;
-    float height = 50;
-    sf::Vector2f size(width, height);
-    sf::Vector2f position(20, 20);
-    sf::Color color = sf::Color(150, 150, 150, 255);
-    int fontSize = 50;
-
-    ButtonView::Ptr backButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "<", fontSize, position, size, color);
-    backButton->setTextColor(sf::Color::Black);
-    backButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        finish();
-    });
-    attachView(std::move(backButton));
+    attachView(
+        BackButtonFactory::create(
+            this,
+            mTextureManager.get(TextureID::squareButtonsTexture),
+            mFontManager.get(FontID::defaultFont)
+        )
+    );
 }
 
 void LevelsActivity::createLevelButtons() {
     AppConfig& config = AppConfig::getInstance();
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
-    float width = 250;
-    float height = 75;
+    float width = 320;
+    float height = 128;
     sf::Vector2f size(width, height);
     sf::Vector2f position((windowSize.x-width)/2, 300);
     sf::Color color = sf::Color::Cyan;
-    sf::Vector2f spacing(0, height + 20);
+    sf::Vector2f spacing(0, height + 2);
     int fontSize = 50;
 
-    ButtonView::Ptr easyButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Easy", fontSize, position, size, color);
-    easyButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        enterGame(GameActivity::GameLevel::Easy);
+    sf::Texture& buttonTexture = mTextureManager.get(TextureID::mainMenuButtonTexture);
+
+    SpriteButtonView::Ptr easyButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Easy", position, [this](EventListener* listener, const sf::Event& event) {
+        this->enterGame(GameActivity::GameLevel::Easy);
     });
 
-    ButtonView::Ptr mediumButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Medium", fontSize, spacing, size, color);
-    mediumButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        enterGame(GameActivity::GameLevel::Medium);
+    SpriteButtonView::Ptr mediumButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Medium", spacing, [this](EventListener* listener, const sf::Event& event) {
+        this->enterGame(GameActivity::GameLevel::Medium);
     });
 
-    ButtonView::Ptr hardButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Hard", fontSize, spacing, size, color);
-    hardButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        enterGame(GameActivity::GameLevel::Hard);
+    SpriteButtonView::Ptr hardButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Hard", spacing, [this](EventListener* listener, const sf::Event& event) {
+        this->enterGame(GameActivity::GameLevel::Hard);
     });
 
-    ButtonView::Ptr endlessButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Endless", fontSize, spacing, size, color);
-    endlessButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        enterGame(GameActivity::GameLevel::Endless);
+    SpriteButtonView::Ptr endlessButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Endless", spacing, [this](EventListener* listener, const sf::Event& event) {
+        this->enterGame(GameActivity::GameLevel::Endless);
     });
 
     hardButton->attachView(std::move(endlessButton));

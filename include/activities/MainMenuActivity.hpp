@@ -9,8 +9,10 @@ private:
     int REQUEST_CODE_GAME_LEVEL = 123;
     int REQUEST_CODE_CONTINUE_GAME = 124;
     int REQUEST_LOGIN = 125;
+    int REQUEST_TITLEBAR_BUTTONS = 126;
 
     FontManager mFontManager;
+    TextureManager mTextureManager;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;
@@ -24,6 +26,7 @@ protected:
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
 
 private:
+    void createBackground();
     void createTitle();
     void createPlayButtons();
 };

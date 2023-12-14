@@ -10,7 +10,8 @@ ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const s
 ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size)
 : ButtonView(texture, font, text, 30, position, size) {}
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size): mSprite(texture), mRect(size), mText(text, font, characterSize) {
+ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size)
+: mSprite(texture), mRect(size), mText(text, font, characterSize) {
     setPosition(position);
     mRect.setFillColor(sf::Color::Transparent);
     mSprite.setScale(size.x / texture.getSize().x, size.y / texture.getSize().y);
@@ -18,11 +19,22 @@ ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const s
     mText.setPosition(size/2.f);
 }
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect): mSprite(texture, textureRect), mRect(sf::Vector2f(textureRect.width, textureRect.height)), mText(text, font, characterSize) {
+ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect)
+: mSprite(texture, textureRect), mRect(sf::Vector2f(textureRect.width, textureRect.height)), mText(text, font, characterSize) {
     setPosition(position);
     mRect.setFillColor(sf::Color::Transparent);
     mText.setOrigin(mText.getGlobalBounds().getPosition() + mText.getGlobalBounds().getSize() / 2.f);
     mText.setPosition(textureRect.width/2, textureRect.height/2);
+}
+
+ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect, const sf::Vector2f& size)
+: mSprite(texture, textureRect), mRect(size), mText(text, font, characterSize) {
+    setPosition(position);
+    mRect.setFillColor(sf::Color::Transparent);
+    // mRect.setFillColor(sf::Color::Red);
+    mSprite.setScale(size.x / textureRect.width, size.y / textureRect.height);
+    mText.setOrigin(mText.getGlobalBounds().getPosition() + mText.getGlobalBounds().getSize() / 2.f);
+    mText.setPosition(size/2.f);
 }
 
 ButtonView::ButtonView(const sf::Font& font, const std::string& text, const sf::Vector2f& size, const sf::Color& fillColor)
@@ -40,12 +52,12 @@ ButtonView::ButtonView(const sf::Font& font, const std::string& text, unsigned i
 
 void ButtonView::setTexture(const sf::Texture& texture, bool resetRect) {
     mSprite.setTexture(texture, resetRect);
-    mRect.setSize(sf::Vector2f(texture.getSize()));
+    // mRect.setSize(sf::Vector2f(texture.getSize()));
 }
 
 void ButtonView::setTextureRect(const sf::IntRect& rect) {
     mSprite.setTextureRect(rect);
-    mRect.setSize(sf::Vector2f(rect.width, rect.height));
+    // mRect.setSize(sf::Vector2f(rect.width, rect.height));
 }
 
 void ButtonView::setText(const std::string& text) {

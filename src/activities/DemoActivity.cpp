@@ -81,7 +81,6 @@ void DemoActivity::onCreate() {
     button->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
         if (event.mouseButton.button != sf::Mouse::Left) return;
         sPlayer.play(SoundBufferID::buttonfx);
-        std::cerr << " >> Button clicked!" << std::endl;
     });
     attachView(std::move(button));
 }

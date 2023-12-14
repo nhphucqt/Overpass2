@@ -13,6 +13,8 @@ TextView::TextView(const std::string& text, const sf::Font& font, const sf::Vect
 
 TextView::TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize, const sf::Color& color): text(text, font, characterSize) {
     setPosition(position);
+    this->text.setOrigin(this->text.getGlobalBounds().getPosition());
+    this->text.setPosition(sf::Vector2f(0, 0));
     setFillColor(color);
 }
 

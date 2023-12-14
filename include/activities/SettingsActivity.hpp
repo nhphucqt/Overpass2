@@ -6,6 +6,9 @@
 
 class SettingsActivity : public Activity {
 private:
+    static const int REQUEST_TITLEBAR_BUTTONS = 126;
+
+    TextureManager mTextureManager;
     FontManager mFontManager;
 
 protected:
@@ -20,6 +23,7 @@ protected:
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
 
 private:
+    void createBackground();
     void createTitle();
     void createBackButton();
 };
