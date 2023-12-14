@@ -1,7 +1,7 @@
 #ifndef RESOURCE_MANAGER
 #define RESOURCE_MANAGER
 
-#include "ResourceID.hpp"
+#include <ResourceID.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
