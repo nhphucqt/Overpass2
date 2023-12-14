@@ -21,6 +21,7 @@ SpriteButtonView::Ptr BackButtonFactory::create(Activity* context, const sf::Tex
     TextView::Ptr textView = std::make_unique<TextView>("<", font, sf::Vector2f(), fontSize, sf::Color::White);
     sf::Vector2f textPosition((size - textView->getGlobalBounds().getSize()) / 2.f);
     sf::Vector2f textPositionNormal(textPosition - sf::Vector2f(0, 4));
+    textView->setPosition(textPositionNormal);
     TextView* textViewPtr = textView.get();
 
     backButton->setOnMouseMoved(context, [textViewPtr, textPosition, textPositionNormal](EventListener* listener, const sf::Event& event) {
