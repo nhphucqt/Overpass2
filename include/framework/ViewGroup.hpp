@@ -1,14 +1,14 @@
 #ifndef VIEW_GROUP_HPP
 #define VIEW_GROUP_HPP
 
-#include <list>
 #include <Viewable.hpp>
 
 class ViewGroup : public Viewable {
 private:
-    std::list<Viewable::Ptr> childViews;
+    std::vector<Viewable::Ptr> childViews;
 
 public:
+    ViewGroup();
     virtual ~ViewGroup() = default;
 
     void attachView(Viewable::Ptr view);
@@ -17,6 +17,7 @@ public:
 
     void update(sf::Time delta) override;
 	void onCommand(const Command &command, sf::Time dt);
+    void setReverse(bool reverse = true);
 	virtual unsigned int getCategory() const;
 
 protected:
@@ -24,6 +25,7 @@ protected:
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const = 0;
 
 private:
+    bool isReverse;
     virtual void updateCurrent(sf::Time delta);
     void updateChildren(sf::Time delta);
 };
