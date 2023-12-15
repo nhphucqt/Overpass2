@@ -46,6 +46,7 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/framework/exceptions/*.cpp
     ${CMAKE_SOURCE_DIR}/src/activities/*.cpp
     ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/gui/factory/*.cpp
     ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
     ${CMAKE_SOURCE_DIR}/src/map_generator/*.cpp
     ${CMAKE_SOURCE_DIR}/src/database/*.cpp
@@ -65,6 +66,7 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/framework/exceptions
     ${CMAKE_SOURCE_DIR}/include/activities
     ${CMAKE_SOURCE_DIR}/include/gui
+    ${CMAKE_SOURCE_DIR}/include/gui/factory
     ${CMAKE_SOURCE_DIR}/include/entity
     ${CMAKE_SOURCE_DIR}/include/map_generator
     ${CMAKE_SOURCE_DIR}/include/database

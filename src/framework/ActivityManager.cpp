@@ -12,12 +12,13 @@ void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
 
 void ActivityManager::attachActivity(ActivityPtr activity) {
     assert(activity != nullptr);
-    activity->setActivityManager(this);
-    activity->onAttach();
     if (!activityStack.empty()) {
         getCurrentActivity()->onPause();
     }
+    Activity* activityPtr = activity.get();
     activityStack.push(std::move(activity));
+    activityPtr->setActivityManager(this);
+    activityPtr->onAttach();
 }
 
 void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Ptr data) {
