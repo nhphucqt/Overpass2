@@ -15,10 +15,10 @@ Game::Game()
 {
 	mWindow.setKeyRepeatEnabled(false);
 
-	mFont.loadFromFile("../../res/fonts/Consolas-Bold.ttf");
-	mStatisticsText.setFont(mFont);
-	mStatisticsText.setPosition(5.f, 5.f);
-	mStatisticsText.setCharacterSize(10);
+	// mFont.loadFromFile("../../res/fonts/Consolas-Bold.ttf");
+	// mStatisticsText.setFont(mFont);
+	// mStatisticsText.setPosition(5.f, 5.f);
+	// mStatisticsText.setCharacterSize(10);
 }
 
 void Game::run()

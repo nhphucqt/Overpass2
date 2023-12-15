@@ -5,8 +5,12 @@
 #include <ResourceManager.hpp>
 #include <ViewGroup.hpp>
 #include <Log.hpp>
+#include <Green.hpp>
+#include <Train.hpp>
 #include <River.hpp>
 #include <Road.hpp>
+#include <Field.hpp>
+#include <Railway.hpp>
 #include <PlayerNode.hpp>
 #include <CommandQueue.hpp>
 #include <Command.hpp>
