@@ -2,6 +2,8 @@
 
 Road::Road(TextureManager *textures, bool isReverse):
 Lane(textures->get(TextureID::Road), textures, isReverse) {
+    type = Lane::Type::Road;
+    textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
 	sf::IntRect textureRect(0, 0, 1400, 16);
     sprite.setTextureRect(textureRect);

@@ -11,10 +11,11 @@ TextureID toTextureID(Log::Type type) {
 	return TextureID::Wood;
 }
 
-Log::Log(Type mType, const TextureManager& textures)
-: type(mType)
-, Entity(textures.get(toTextureID(mType)))
+Log::Log(Type mType, const TextureManager& textures):
+type(mType),
+Entity(textures.get(toTextureID(mType)))
 {
+	sprite.scale(8, 8);
 	sf::FloatRect bounds = sprite.getLocalBounds();
 	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }

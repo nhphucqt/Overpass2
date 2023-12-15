@@ -12,8 +12,9 @@ class Lane: public ViewGroup {
 public:
     enum Type {
         Road,
-        Green,
+        Field,
         River,
+        Railway,
         Count
     };
     
@@ -23,6 +24,7 @@ protected:
     TextureManager* laneTextures;
     sf::Sprite sprite;
     bool isReverse;
+    Type type;
 
 private:
     virtual void updateCurrent(sf::Time dt) = 0;

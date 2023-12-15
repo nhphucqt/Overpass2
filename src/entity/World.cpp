@@ -58,11 +58,21 @@ CommandQueue& World::getCommandQueue() {
 void World::loadTextures() {
 	mTextures.load(TextureID::Road, "../../res/textures/Road.png");
 	mTextures.load(TextureID::River, "../../res/textures/River.png");
+    mTextures.load(TextureID::Rail, "../../res/textures/Rail.png");
+    mTextures.load(TextureID::Field, "../../res/textures/Field.png");
 	mTextures.load(TextureID::Player, "../../res/textures/Player.png");
     mTextures.load(TextureID::Car, "../../res/textures/Car.png");
+    mTextures.load(TextureID::Ambulance, "../../res/textures/Ambulance.png");
+    mTextures.load(TextureID::Taxi, "../../res/textures/Taxi.png");
+    mTextures.load(TextureID::Police, "../../res/textures/Police.png");
 	mTextures.load(TextureID::TrafficLight, "../../res/textures/TrafficLight.png");
 	mTextures.load(TextureID::Fox, "../../res/textures/Fox.png");
-    mTextures.load(TextureID::Wood, "../../res/textures/Wood.jpg");
+    mTextures.load(TextureID::Wood, "../../res/textures/Wood.png");
+    mTextures.load(TextureID::Tree, "../../res/textures/Tree.png");
+    mTextures.load(TextureID::Bush, "../../res/textures/Bush.png");
+    mTextures.load(TextureID::CircleBush, "../../res/textures/CircleBush.png");
+    mTextures.load(TextureID::Train, "../../res/textures/Train.png");
+    // mTextures.load(TextureID::Crocodile, "../../res/textures/Crocodile.png");
 }
 
 void World::buildScene() {
@@ -73,27 +83,32 @@ void World::buildScene() {
 
 		mSceneGraph.attachView(std::move(layer));
 	}
-	mTextures.get(TextureID::Road).setRepeated(true);
-	mTextures.get(TextureID::River).setRepeated(true);
+	mSceneLayers[Background]->setReverse(true);
 
 	srand(time(NULL));
 	int laneTypeCount = Lane::Type::Count;
-    int randnum = rand() % laneTypeCount;
-	int numOfLanes = 50;
-	for (int i = 0; i < numOfLanes; ++i) {
-		if (randnum != laneTypeCount - 1) {
-			bool reverse = randnum = rand() % 2;
-			std::unique_ptr<Road> road(new Road(&mTextures, reverse));
-			road->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
-			mSceneLayers[Background]->attachView(std::move(road));
+	for (int i = 0; i < 50; ++i) {
+    	int randLane = rand() % laneTypeCount;
+    	bool reverse = rand() % 2;
+		std::unique_ptr<Lane> lane;
+		switch (randLane) {
+		case 0:
+			lane.reset(new Road(&mTextures, reverse));
+			break;
+		case 1:
+			lane.reset(new River(&mTextures, reverse));
+			break;
+		case 2:
+			lane.reset(new Field(&mTextures, reverse));
+			break;
+		case 3:
+			lane.reset(new Railway(&mTextures, mSceneLayers[Aboveground],reverse));
+			break;
+		default:
+			lane.reset(new Road(&mTextures, reverse));
 		}
-		else {
-			bool reverse = randnum = rand() % 2;
-			std::unique_ptr<River> river(new River(&mTextures, reverse));
-			river->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
-			mSceneLayers[Background]->attachView(std::move(river));
-		}
-		randnum = rand() % laneTypeCount;	
+		lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
+		mSceneLayers[Background]->attachView(std::move(lane));
 	}
 	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures));
 	player->setPosition(mSpawnPosition);

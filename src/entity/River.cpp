@@ -2,6 +2,8 @@
 
 River::River(TextureManager *textures, bool isReverse):
 Lane(textures->get(TextureID::River), textures, isReverse) {
+    type = Lane::Type::River;
+    textures->get(TextureID::River).setRepeated(true);
     buildLane();
 }
 
@@ -23,21 +25,16 @@ void River::updateCurrent(sf::Time dt) {
 }
 
 void River::buildLane() {
+    std::unique_ptr<Log> log(new Log(Log::Wood, *laneTextures));
+    logs.push_back(log.get());
     if (isReverse) {
-        std::unique_ptr<Log> log(new Log(Log::Wood, *laneTextures));
-        logs.push_back(log.get());
         log->setPosition(1400.f, 64.f);
         log->setVelocity(-150.f, 0.f);
-        log->scale(0.8, 0.8);
-        this->attachView(std::move(log)); 
     }
     else {
-        std::unique_ptr<Log> log(new Log(Log::Wood, *laneTextures));
-        logs.push_back(log.get());
         log->setPosition(0.f, 64.f);
         log->setVelocity(150.f, 0.f);
-        log->scale(0.8, 0.8);
-        this->attachView(std::move(log));
     }
+    this->attachView(std::move(log)); 
 
 }
