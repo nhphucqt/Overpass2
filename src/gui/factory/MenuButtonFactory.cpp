@@ -3,6 +3,8 @@
 #include <EventListener.hpp>
 #include <TextView.hpp>
 
+#include <SoundPlayer.hpp>
+
 SpriteButtonView::Ptr MenuButtonFactory::create(Activity* context, const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position, EventListener::EventCallback callback) {
     float width = 320;
     float height = 128;
@@ -32,7 +34,12 @@ SpriteButtonView::Ptr MenuButtonFactory::create(Activity* context, const sf::Tex
         }
     });
 
-    playButton->setOnMouseButtonReleased(context, callback);
+    EventListener::EventDoubleCallback doubleCallback([](EventListener* listener, const sf::Event& event, EventListener::EventCallback callback) {
+        SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
+        callback(listener, event);       
+    });
+
+    playButton->setOnMouseButtonReleased(context, std::bind(doubleCallback, std::placeholders::_1, std::placeholders::_2, callback));
 
     playButton->attachView(std::move(textView));
 

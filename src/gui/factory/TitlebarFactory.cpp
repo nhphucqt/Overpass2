@@ -12,6 +12,7 @@
 #include <SpriteView.hpp>
 #include <SpriteSheetView.hpp>
 
+#include <SoundPlayer.hpp>
 
 SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mTextureManager, const sf::Font& font, const std::string& title, TitlebarType titleType, int requestCode) {
     AppConfig& config = AppConfig::getInstance();
@@ -39,7 +40,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
 
     sf::Vector2f character_position(sf::Vector2f(128, 15) * scale);
     sf::Vector2f character_size(sf::Vector2f(32, 32) * scale);
-    sf::Time frameTime = sf::seconds(0.2f);
+    sf::Time frameTime = sf::seconds(0.15f);
     int columns = 5;
     int rows = 1;
     SpriteSheetView::Ptr characterView = std::make_unique<SpriteSheetView>(characterTexture, columns, rows, frameTime, character_position, character_size);
@@ -49,7 +50,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
 
     sf::IntRect buttonRects[3] = {
         sf::IntRect(8, 154, 32, 32),
-        sf::IntRect(56, 152, 32, 32),
+        sf::IntRect(56, 104, 32, 32),
         sf::IntRect(56, 152, 32, 32),
     };
 
@@ -125,6 +126,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
             }
         });
         settingButton->setOnMouseButtonReleased(context, [context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
+            SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
             if (titleType == TitlebarType::NONE) {
                 Intent::Ptr intent = Intent::Builder()
                     .setRequestCode(requestCode)
@@ -150,6 +152,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
             }
         });
         profButton->setOnMouseButtonReleased(context, [context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
+            SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
             if (titleType == TitlebarType::NONE) {
                 Intent::Ptr intent = Intent::Builder()
                     .setRequestCode(requestCode)
@@ -175,6 +178,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
             }
         });
         helpButton->setOnMouseButtonReleased(context, [context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
+            SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
             if (titleType == TitlebarType::NONE) {
                 Intent::Ptr intent = Intent::Builder()
                     .setRequestCode(requestCode)

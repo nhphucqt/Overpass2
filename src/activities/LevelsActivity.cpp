@@ -115,11 +115,8 @@ void LevelsActivity::createLevelButtons() {
 
     float width = 320;
     float height = 128;
-    sf::Vector2f size(width, height);
     sf::Vector2f position((windowSize.x-width)/2, 300);
-    sf::Color color = sf::Color::Cyan;
     sf::Vector2f spacing(0, height + 2);
-    int fontSize = 50;
 
     sf::Texture& buttonTexture = mTextureManager.get(TextureID::mainMenuButtonTexture);
 
