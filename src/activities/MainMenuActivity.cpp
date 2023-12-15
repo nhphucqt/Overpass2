@@ -3,28 +3,37 @@
 #include <AppConfig.hpp>
 
 #include <ButtonView.hpp>
+#include <SpriteButtonView.hpp>
 #include <TextView.hpp>
+#include <SpriteView.hpp>
+#include <SpriteSheetView.hpp>
+
+#include <TitlebarFactory.hpp>
+#include <BackgroundFactory.hpp>
+#include <MenuButtonFactory.hpp>
 
 #include <ActivityFactory.hpp>
 #include <LevelsActivity.hpp>
-#include <SettingsActivity.hpp>
+
 #include <RankingActivity.hpp>
-#include <EditTextView.hpp>
-#include <DemoActivity.hpp>
+#include <SettingsActivity.hpp>
+#include <ProfileActivity.hpp>
+#include <HelpActivity.hpp>
 
 void MainMenuActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
+    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
 }
 
 void MainMenuActivity::onCreate() {
+    createBackground();
     createTitle();
     createPlayButtons();
-
-    EditTextView::Ptr editTextView = std::make_unique<EditTextView>(this, mFontManager.get(FontID::defaultFont), "Edit text view", sf::Vector2f(0, 0), sf::Vector2f(300, 50), sf::Color(120,120,120,255));
-    editTextView->setLeftPadding(10);
-    editTextView->setLimit(10);
-    editTextView->setTextColor(sf::Color::Black);
-    attachView(std::move(editTextView));
 }
 
 void MainMenuActivity::onAttach() {
@@ -56,70 +65,80 @@ void MainMenuActivity::onActivityResult(int requestCode, int resultCode, Intent:
         if (resultCode == (int)ResultCode::RESULT_OK) {
             startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(data));
         }
+    } else if (requestCode == REQUEST_TITLEBAR_BUTTONS) {
+        if (resultCode == (int)ResultCode::RESULT_OK) {
+            int titleType = data->getExtra<int>("titleType", -1);
+            if (titleType == -1) {
+                std::cerr << " >> MainMenuActivity::onActivityResult: titleType is not set" << std::endl;
+                return;
+            }
+            Intent::Ptr intent = Intent::Builder()
+                .setRequestCode(REQUEST_TITLEBAR_BUTTONS)
+                .build();
+            if (titleType == (int)TitlebarFactory::TitlebarType::SETTINGS) {
+                startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+            } else if (titleType == (int)TitlebarFactory::TitlebarType::HELP) {
+                startActivity(ActivityFactory<HelpActivity>::createInstance(), std::move(intent));
+            } else if (titleType == (int)TitlebarFactory::TitlebarType::PROFILE) {
+                startActivity(ActivityFactory<ProfileActivity>::createInstance(), std::move(intent));
+            }
+        }
     }
 }
 
+void MainMenuActivity::createBackground() {
+    attachView(BackgroundFactory::create(
+        mTextureManager.get(TextureID::mainMenuBackgroundTexture)
+    ));
+} 
+
 void MainMenuActivity::createTitle() {
-    AppConfig& config = AppConfig::getInstance();
-    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
-
-    sf::Color color = sf::Color::Black;
-    int fontSize = 50;
-
-    TextView::Ptr title = std::make_unique<TextView>("Main Menu", mFontManager.get(FontID::defaultFont), sf::Vector2f(), fontSize, color);
-    sf::Vector2f position((windowSize.x-title->getGlobalBounds().getSize().x)/2, 50);
-    title->setPosition(position);
-
-    attachView(std::move(title));
+    attachView(TitlebarFactory::create(
+        this,
+        mTextureManager,
+        mFontManager.get(FontID::defaultFont),
+        "Main Menu",
+        TitlebarFactory::TitlebarType::NONE,
+        REQUEST_TITLEBAR_BUTTONS
+    ));
 }
 
 void MainMenuActivity::createPlayButtons() {
     AppConfig& config = AppConfig::getInstance();
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
-    float width = 250;
-    float height = 75;
-    sf::Vector2f size(width, height);
+    float width = 320;
+    float height = 128;
     sf::Vector2f position((windowSize.x-width)/2, 300);
-    sf::Color color = sf::Color::Cyan;
-    sf::Vector2f spacing(0, height + 20);
-    int fontSize = 50;
+    sf::Vector2f spacing(0, height + 2);
 
-    ButtonView::Ptr playButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "New game", fontSize, position, size, color);
-    playButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    sf::Texture& buttonTexture = mTextureManager.get(TextureID::mainMenuButtonTexture);
+
+    SpriteButtonView::Ptr playButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "New game", position, [this](EventListener* listener, const sf::Event& event) {
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode(REQUEST_CODE_GAME_LEVEL)
             .build();
-        startActivity(ActivityFactory<LevelsActivity>::createInstance(), std::move(intent));
+        this->startActivity(ActivityFactory<LevelsActivity>::createInstance(), std::move(intent));
     });
 
-    ButtonView::Ptr continueButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Continue", fontSize, spacing, size, color);
-    continueButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    SpriteButtonView::Ptr continueButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Continue", spacing, [this](EventListener* listener, const sf::Event& event) {
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode(REQUEST_CODE_CONTINUE_GAME)
             .setAction(GameActivity::ACTION_CONTINUE_GAME)
             .build();
-        startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(intent));
+        this->startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(intent));
     });
 
-    ButtonView::Ptr rankingsButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Rankings", fontSize, spacing, size, color);
-    rankingsButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        startActivity(ActivityFactory<RankingActivity>::createInstance(), Intent::Builder().build());
+    SpriteButtonView::Ptr rankingsButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Rankings", spacing, [this](EventListener* listener, const sf::Event& event) {
+        this->startActivity(ActivityFactory<RankingActivity>::createInstance());
     });
 
-    ButtonView::Ptr settingsButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Settings", fontSize, spacing, size, color);
-    settingsButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        startActivity(ActivityFactory<SettingsActivity>::createInstance(), Intent::Builder().build());
-    });
-
-    ButtonView::Ptr exitButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Exit", fontSize, spacing, size, color);
-    exitButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    SpriteButtonView::Ptr exitButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Exit", spacing, [&](EventListener* listener, const sf::Event& event) {
         std::cerr << " >> Exit" << std::endl;
-        finish();
+        this->finish();
     });
 
-    settingsButton->attachView(std::move(exitButton));
-    rankingsButton->attachView(std::move(settingsButton));
+    rankingsButton->attachView(std::move(exitButton));
     continueButton->attachView(std::move(rankingsButton));
     playButton->attachView(std::move(continueButton));
     attachView(std::move(playButton));

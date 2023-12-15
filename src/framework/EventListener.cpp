@@ -2,21 +2,25 @@
 
 void EventListener::setOnMouseButtonPressed(EventPublisher* publisher, EventCallback onMouseButtonPressed) {
     this->onMouseButtonPressed = onMouseButtonPressed;
+    publisher->unsubscribe(sf::Event::MouseButtonPressed, this);
     publisher->subscribe(sf::Event::MouseButtonPressed, this);
 }
 
 void EventListener::setOnMouseButtonReleased(EventPublisher* publisher, EventCallback onMouseButtonReleased) {
     this->onMouseButtonReleased = onMouseButtonReleased;
+    publisher->unsubscribe(sf::Event::MouseButtonReleased, this);
     publisher->subscribe(sf::Event::MouseButtonReleased, this);
 }
 
 void EventListener::setOnMouseMoved(EventPublisher* publisher, EventCallback onMouseMoved) {
     this->onMouseMoved = onMouseMoved;
+    publisher->unsubscribe(sf::Event::MouseMoved, this);
     publisher->subscribe(sf::Event::MouseMoved, this);
 }
 
 void EventListener::setOnTextEntered(EventPublisher* publisher, EventCallback onTextEntered) {
     this->onTextEntered = onTextEntered;
+    publisher->unsubscribe(sf::Event::TextEntered, this);
     publisher->subscribe(sf::Event::TextEntered, this);
 }
 

@@ -35,6 +35,12 @@ public:
 
     ActivityManager* getActivityManager();
 
+    void startActivity(Ptr activity, Intent::Ptr intent);
+    void startActivity(Ptr activity);
+
+    void finish();
+    void setResult(int resultCode, Intent::Ptr data);
+    
 protected:
     void initialize();
 
@@ -48,15 +54,9 @@ protected:
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data);
 
-    void startActivity(Ptr activity, Intent::Ptr intent);
-
-    void startActivity(Ptr activity);
-
     Intent* getIntent();
 
-    void setResult(int resultCode, Intent::Ptr data);
 
-    void finish();
 private:
     void setActivityManager(ActivityManager* manager);
     void setIntent(Intent::Ptr intent);
