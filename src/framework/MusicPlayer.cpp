@@ -4,6 +4,7 @@ MusicPlayer::MusicPlayer() : mMusic(), mFilenames(), mVolume(100.0f)
 {
   // Example
   mFilenames[MusicID::testMusic] = "res/musics/fellowship.mp3";
+  mFilenames[MusicID::backgroundMusic] = "res/musics/cruising-down-8bit-lane.mp3";
   // mFilenames[MusicID::MissionTheme] = "[path to mission theme]";
 }
 

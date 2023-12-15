@@ -3,6 +3,8 @@
 #include <SpriteButtonView.hpp>
 #include <Activity.hpp>
 
+#include <SoundPlayer.hpp>
+
 SpriteButtonView::Ptr BackButtonFactory::create(Activity* context, const sf::Texture& texture, const sf::Font& font) {
     float width = 64;
     float height = 64;
@@ -12,7 +14,7 @@ SpriteButtonView::Ptr BackButtonFactory::create(Activity* context, const sf::Tex
 
     sf::IntRect buttonRects[3] = {
         sf::IntRect(8, 154, 32, 32),
-        sf::IntRect(56, 152, 32, 32),
+        sf::IntRect(56, 104, 32, 32),
         sf::IntRect(56, 152, 32, 32),
     };
 
@@ -34,6 +36,7 @@ SpriteButtonView::Ptr BackButtonFactory::create(Activity* context, const sf::Tex
     });
 
     backButton->setOnMouseButtonReleased(context, [context](EventListener* listener, const sf::Event& event) {
+        SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
         context->finish();
     });
 

@@ -20,6 +20,8 @@
 #include <ProfileActivity.hpp>
 #include <HelpActivity.hpp>
 
+#include <MusicPlayer.hpp>
+
 void MainMenuActivity::onLoadResources() {
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
     mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
@@ -37,7 +39,7 @@ void MainMenuActivity::onCreate() {
 }
 
 void MainMenuActivity::onAttach() {
-    // ...
+    MusicPlayer::getInstance().play(MusicID::backgroundMusic);
 }
 
 void MainMenuActivity::onResume() {
@@ -49,7 +51,7 @@ void MainMenuActivity::onPause() {
 }
 
 void MainMenuActivity::onDestroy() {
-    // ...
+    MusicPlayer::getInstance().stop();
 }
 
 void MainMenuActivity::onEvent(const sf::Event& event) {

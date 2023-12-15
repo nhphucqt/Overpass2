@@ -5,6 +5,7 @@ SoundPlayer::SoundPlayer()
 {
     mSoundBuffers.load(SoundBufferID::testSound, "res/sounds/door-open-sound-effect-94368.ogg");
     mSoundBuffers.load(SoundBufferID::buttonfx, "res/sounds/buttonfx.wav");
+    mSoundBuffers.load(SoundBufferID::buttonClick, "res/sounds/mixkit-classic-click.wav");
     // ...
 }
 
