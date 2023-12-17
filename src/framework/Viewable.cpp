@@ -21,3 +21,6 @@ sf::Transform Viewable::getAbsoluteTransform() const {
     }
     return transform;
 }
+
+void Viewable::onCommand(const Command &command, sf::Time dt) {
+}

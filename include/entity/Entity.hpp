@@ -1,30 +1,27 @@
 #ifndef ENTITY_HPP
 #define ENTITY_HPP
-#include <SFML/Graphics.hpp>
 #include <ViewGroup.hpp>
 
-const int FPS = 60;
-
 class Entity: public ViewGroup {
-    public:
-        enum class EntityType {Entity, Obstacle, TrafficLight, Vehicle, Log};
-    private:
-        const EntityType TYPE = EntityType::Entity;
-        // void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-        sf::Vector2f velocity;
-    protected:
-        sf::Sprite sprite;
-        void move(sf::Time delta);
-    public:
-        Entity(sf::Texture texture);
-        Entity(sf::Texture texture, float vx, float vy);
-        Entity(sf::Texture texture, sf::Vector2f v);
-        void setVelocity(sf::Vector2f velocity);
-        sf::Vector2f getVelocity();
-        bool checkCollision(Entity& other);
-        sf::FloatRect getGlobalBounds();
-        sf::Vector2f center();
-        EntityType getType();
+public:
+	Entity() = default;
+	Entity(const sf::Texture &texture);
+	void setVelocity(sf::Vector2f velocity);
+	void setVelocity(float vx, float vy);
+	sf::Vector2f getVelocity() const;
+	void accelerate(sf::Vector2f velocity);
+	void accelerate(float vx, float vy);
+	virtual bool checkCollision(Entity& other);
+	virtual sf::FloatRect getGlobalBounds();
+	virtual sf::Vector2f center();
+
+protected: 
+    sf::Sprite sprite;
+	virtual void updateCurrent(sf::Time dt);
+	virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+
+private:
+	sf::Vector2f mVelocity;
 };
 
 #endif

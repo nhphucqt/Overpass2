@@ -1,29 +1,22 @@
 #include <Vehicle.hpp>
 
-Vehicle::Vehicle(sf::Texture texture): Entity(texture), interval(sf::seconds(INTERVAL)), health(1) {}
+TextureID toTextureID(Vehicle::Type type) {
+	switch (type) {
+	case Vehicle::Car:
+		return TextureID::Car;
 
-Vehicle::Vehicle(sf::Texture texture, float t): Entity(texture), interval(sf::seconds(t)), health(1) {}
-
-Vehicle::Vehicle(sf::Texture texture, int hp): Entity(texture), interval(sf::seconds(INTERVAL)), health(hp) {}
-
-bool Vehicle::isRidden(Entity& other) {
-    return checkCollision(other) && this->getGlobalBounds().contains(other.center());
+	// other vehicles here
+	}
+	return TextureID::Car;
 }
 
-void Vehicle::move() {
-    sf::Time timePerFrame = sf::seconds(1.f/(float) FPS);
-    Entity::move(timePerFrame);
+Vehicle::Vehicle(Type mType, const TextureManager& textures): 
+type(mType), 
+Entity(textures.get(toTextureID(mType))) {
+	sf::FloatRect bounds = sprite.getLocalBounds();
+	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
 
-bool Vehicle::isDestroyed() {
-    return health <= 0 && interval <= sf::Time::Zero;
-}
-
-bool Vehicle::collides() {
-    --health;
-    return isDestroyed();
-}
-
-void Vehicle::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
-	target.draw(sprite, states);
+unsigned int Vehicle::getCategory() const {
+    return Category::Car;
 }

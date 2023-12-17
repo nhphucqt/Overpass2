@@ -1,6 +1,8 @@
 #ifndef VIEWABLE_HPP
 #define VIEWABLE_HPP
 
+#include <Command.hpp>
+#include <CommandQueue.hpp>
 #include <memory>
 #include <SFML/Graphics.hpp>
 
@@ -24,6 +26,8 @@ public:
     virtual void update(sf::Time delta);
 
     sf::Transform getAbsoluteTransform() const;
+
+	virtual void onCommand(const Command &command, sf::Time dt);
 };
 
 #endif

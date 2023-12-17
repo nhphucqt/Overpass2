@@ -1,28 +1,34 @@
 #ifndef TRAFFICLIGHT_HPP
 #define TRAFFICLIGHT_HPP
 #include <Entity.hpp>
-#include <Obstacle.hpp>
+#include <ResourceID.hpp>
+#include <ResourceManager.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
+
+namespace Duration {
+    const sf::Time Red = sf::seconds(1);
+    const sf::Time Yellow = sf::seconds(1);
+    const sf::Time Green = sf::seconds(1);
+};
 
 class TrafficLight: public Entity {
-    public:
-        enum class TrafficColor {Red, Yellow, Green};
-    private:
-        const EntityType TYPE = EntityType::TrafficLight;
-        TrafficColor current;
-        sf::Time red;
-        sf::Time yellow;
-        sf::Time green;
-        sf::Clock clock;
-        void initInterval(float r, float y, float g);
-    public:
-        TrafficLight(sf::Texture texture, float interval);
-        TrafficLight(sf::Texture texture, TrafficColor initColor, float interval);
-        TrafficLight(sf::Texture texture, float r, float y, float g);
-        TrafficLight(sf::Texture texture, TrafficColor initColor, float r, float y, float g);
-        bool trafficAllow(const Obstacle& other);
-        bool trafficAllow(const Entity& other);
-        bool trafficAllow();
-        void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+public:
+    enum Color{Red, Yellow, Green};
+    TrafficLight(const TextureManager& textures);
+    Color getCurrentColor();
+    virtual unsigned int getCategory() const; 
+
+private:
+    sf::IntRect rect;
+    Color current;
+    sf::Time red;
+    sf::Time yellow;
+    sf::Time green;
+    sf::Time elapsed;
+    void updateCurrent(sf::Time dt);
+    void updateCurrentColor(sf::Time dt);
 };
 
 #endif

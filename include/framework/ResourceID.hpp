@@ -12,6 +12,24 @@ enum class TextureID
     characterTitleBarTexture,
     squareButtonsTexture,
     iconsTexture
+    Wood,
+    Crocodile,
+    Car,
+    Ambulance,
+    Taxi,
+    Police,
+    Train,
+    Bear,
+    TrafficLight,
+    Tree,
+    Bush,
+    CircleBush,
+    Road,
+    River,
+    Rail,
+    Field,
+    Fox,
+    Player,
 };
 
 enum class ImageID
