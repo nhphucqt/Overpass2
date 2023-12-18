@@ -71,7 +71,7 @@ void UserSession::loadLoginState(const std::string &filename)
     std::ifstream inf{filename};
     if (!inf)
     {
-        std::cerr << "Save file not found.\n";
+        std::cerr << filename + " not found.\n";
         return;
     }
 

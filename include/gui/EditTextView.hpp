@@ -7,21 +7,32 @@
 class EditTextView : public ViewGroup, public EventListener {
 public:
     typedef std::unique_ptr<EditTextView> Ptr;
+    enum InputType {
+        TEXT,
+        PASSWORD
+    };
 
 private:
     bool __isFocused;
     int limit;
-    int leftPadding;
     sf::RectangleShape mRect;
+    sf::Text mCursor;
     sf::Text mText;
+    sf::Time mCursorBlinkTime, mCurrentTime;
+    bool mCursorVisible;
+    InputType mInputType;
+    sf::Color mFocusBackGroundColor, mUnFocusBackGroundColor;
+
 public:
-    EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& size, const sf::Color& fillColor);
-    EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor);
-    EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor);
+    EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& size);
+    EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size);
+    EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size);
+
+    void setInputType(InputType type);
 
     void setLimit(int limit);
-    void setLeftPadding(int padding);
-    void setBackGroundColor(const sf::Color& color);
+    void setFocusBackGroundColor(const sf::Color& color);
+    void setUnFocusBackGroundColor(const sf::Color& color);
     void setTextColor(const sf::Color& color);
 
     void appendCharacter(char character);
@@ -43,6 +54,14 @@ protected:
 private:
     void setFocused(bool focused);
     void setText(const std::string& text);
+
+    void updateTextPosition();
+
+    virtual void updateCurrent(sf::Time delta) override;
+    void setBlinkTime(sf::Time time);
+    void resetBlink();
+
+    void setBackGroundColor(const sf::Color& color);
 };
 
 #endif

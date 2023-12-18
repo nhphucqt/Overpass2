@@ -1,8 +1,50 @@
 #include <SpriteButtonView.hpp>
 #include <iostream>
 
+SpriteButtonView::SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const char* text, unsigned int characterSize, const sf::Vector2f& position)
+: SpriteButtonView(publisher, texture, font, textureRects, std::string(text), characterSize, position) {}
+
+SpriteButtonView::SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const std::string& text, unsigned int characterSize, const sf::Vector2f& position)
+: ButtonView(texture, font, text, characterSize, position, textureRects[(int)ButtonType::NORMAL]) {
+    for (int i = 0; i < (int)ButtonType::COUNT; i++) {
+        mTexts[i] = text;
+        mTextureRects[i] = textureRects[i];
+    }
+
+    setOnMouseButtonPressed(publisher, [&](EventListener* listener, const sf::Event& event) {});
+    setOnMouseButtonReleased(publisher, [&](EventListener* listener, const sf::Event& event) {});
+    setOnMouseMoved(publisher, [&](EventListener* listener, const sf::Event& event) {});
+}
+
+SpriteButtonView::SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const char* text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size)
+: SpriteButtonView(publisher, texture, font, textureRects, std::string(text), characterSize, position, size) {}
+
+SpriteButtonView::SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size)
+: ButtonView(texture, font, text, characterSize, position, textureRects[(int)ButtonType::NORMAL], size) {
+    for (int i = 0; i < (int)ButtonType::COUNT; i++) {
+        mTexts[i] = text;
+        mTextureRects[i] = textureRects[i];
+    }
+
+    setOnMouseButtonPressed(publisher, [&](EventListener* listener, const sf::Event& event) {});
+    setOnMouseButtonReleased(publisher, [&](EventListener* listener, const sf::Event& event) {});
+    setOnMouseMoved(publisher, [&](EventListener* listener, const sf::Event& event) {});
+}
+
 SpriteButtonView::SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const std::string* texts, unsigned int characterSize, const sf::Vector2f& position)
 : ButtonView(texture, font, texts[0], characterSize, position, textureRects[(int)ButtonType::NORMAL]) {
+    for (int i = 0; i < (int)ButtonType::COUNT; i++) {
+        mTexts[i] = texts[i];
+        mTextureRects[i] = textureRects[i];
+    }
+
+    setOnMouseButtonPressed(publisher, [&](EventListener* listener, const sf::Event& event) {});
+    setOnMouseButtonReleased(publisher, [&](EventListener* listener, const sf::Event& event) {});
+    setOnMouseMoved(publisher, [&](EventListener* listener, const sf::Event& event) {});
+}
+
+SpriteButtonView::SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const std::string* texts, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size)
+: ButtonView(texture, font, texts[0], characterSize, position, textureRects[(int)ButtonType::NORMAL], size) {
     for (int i = 0; i < (int)ButtonType::COUNT; i++) {
         mTexts[i] = texts[i];
         mTextureRects[i] = textureRects[i];

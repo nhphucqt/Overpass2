@@ -21,6 +21,8 @@ public:
 
     sf::FloatRect getGlobalBounds() const;
 
+    int getCharacterSize() const;
+
     void setText(const std::string& text);
     void setFillColor(const sf::Color& color);
     std::string getText() const;

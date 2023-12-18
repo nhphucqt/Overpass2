@@ -1,11 +1,17 @@
 #ifndef RESOURCE_ID
 #define RESOURCE_ID
 
-#include "ResourceManager.hpp"
+#include <ResourceManager.hpp>
 
 enum class TextureID
 {
     demoButtonTexture,
+    mainMenuButtonTexture,
+    mainMenuBackgroundTexture,
+    titleBackgroundTexture,
+    characterTitleBarTexture,
+    squareButtonsTexture,
+    iconsTexture
     Wood,
     Crocodile,
     Car,
@@ -43,12 +49,14 @@ enum class FontID
 enum class SoundBufferID
 {
     testSound,
-    buttonfx
+    buttonfx,
+    buttonClick
 };
 
 enum class MusicID
 {
-    testMusic
+    testMusic,
+    backgroundMusic
 };
 
 typedef ResourceManager<sf::Texture, TextureID> TextureManager;
