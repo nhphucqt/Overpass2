@@ -2,6 +2,7 @@
 #define PLAYERNODE_HPP
 
 #include <Entity.hpp>
+#include <Animation.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
 
@@ -11,7 +12,11 @@
 
 class PlayerNode : public Entity {
 public:
-    PlayerNode(const TextureManager &textures);
+    enum State {MoveDown, MoveUp, MoveLeft, MoveRight, Idle, Free};
+    PlayerNode(const TextureManager &textures, sf::Vector2f initPos);
+    void setVelocity(sf::Vector2f velocity);
+    void setVelocity(float vx, float vy);
+    State getState();
     virtual bool checkCollision(Entity &other);
     virtual sf::FloatRect getGlobalBounds();
     virtual sf::Vector2f center();
@@ -19,9 +24,16 @@ public:
 
 private:
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
+    void updateCurrent(sf::Time delta);
 
 private:
+    State state;
     sf::Sprite sprite;
+    Animation moveUp;
+    Animation moveDown;
+    Animation moveLeft;
+    Animation moveRight;
+    sf::Vector2f lastPos;
 };
 
 #endif

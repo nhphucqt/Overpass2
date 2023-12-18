@@ -1,16 +1,15 @@
 #include <World.hpp>
 
-
-
 World::World(sf::RenderWindow& window)
 : mWindow(window)
 , mWorldView(window.getDefaultView())
 , mTextures() 
 , mSceneGraph()
 , mSceneLayers()
-, mWorldBounds(0.f, 0.f, mWorldView.getSize().x, 2000.f)
+, mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10)
 , mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
 , mScrollSpeed(-50.f)
+, clock()
 {
 	loadTextures();
 	buildScene();
@@ -22,12 +21,18 @@ World::World(sf::RenderWindow& window)
 void World::update(sf::Time dt) {
 	// Scroll the world
 	mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());	
-	mPlayer->setVelocity(0.f, 0.f);
+	// mPlayer->setVelocity(0.f, 0.f);
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
-	while (!mCommandQueue.isEmpty())
-		mSceneGraph.onCommand(mCommandQueue.pop(), dt);
-	adaptPlayerVelocity();
+	while (!mCommandQueue.isEmpty()) {
+		if (mPlayer->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.2) {
+			mSceneGraph.onCommand(mCommandQueue.pop(), dt);
+			clock.restart();
+		}
+		else
+			mCommandQueue.pop();
+	}
+	// adaptPlayerVelocity();
 
 	// Move the player sidewards (plane scouts follow the main aircraft)
 	sf::Vector2f position = mPlayer->getPosition();
@@ -56,6 +61,7 @@ CommandQueue& World::getCommandQueue() {
 }
 
 void World::loadTextures() {
+	// load entities
 	mTextures.load(TextureID::Road, "../../res/textures/Road.png");
 	mTextures.load(TextureID::River, "../../res/textures/River.png");
     mTextures.load(TextureID::Rail, "../../res/textures/Rail.png");
@@ -72,7 +78,12 @@ void World::loadTextures() {
     mTextures.load(TextureID::Bush, "../../res/textures/Bush.png");
     mTextures.load(TextureID::CircleBush, "../../res/textures/CircleBush.png");
     mTextures.load(TextureID::Train, "../../res/textures/Train.png");
-    // mTextures.load(TextureID::Crocodile, "../../res/textures/Crocodile.png");
+	// load character
+    mTextures.load(TextureID::CharacterUp, "../../res/textures/Character/Cat-Up.png");
+    mTextures.load(TextureID::CharacterDown, "../../res/textures/Character/Cat-Down.png");
+    mTextures.load(TextureID::CharacterLeft, "../../res/textures/Character/Cat-Left.png");
+    mTextures.load(TextureID::CharacterRight, "../../res/textures/Character/Cat-Right.png");
+    mTextures.load(TextureID::CharacterIdle, "../../res/textures/Character/Cat-Idle.png");
 }
 
 void World::buildScene() {
@@ -110,8 +121,8 @@ void World::buildScene() {
 		lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
 		mSceneLayers[Background]->attachView(std::move(lane));
 	}
-	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures));
-	player->setPosition(mSpawnPosition);
+	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, mSpawnPosition));
+	// player->setPosition(mSpawnPosition);
 	mPlayer = player.get();
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 
@@ -120,7 +131,7 @@ void World::buildScene() {
 void World::adaptPlayerPosition() {
 	// Keep player's position inside the screen bounds, at least borderDistance units from the border
 	sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
-	const float borderDistance = 40.f;
+	const float borderDistance = 0.f;
 
 	sf::Vector2f position = mPlayer->getPosition();
 	position.x = std::max(position.x, viewBounds.left + borderDistance);

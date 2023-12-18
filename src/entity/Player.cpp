@@ -14,7 +14,7 @@ struct PlayerMover {
 	}
 
 	void operator() (PlayerNode& player, sf::Time) const {
-		player.accelerate(velocity);
+		player.setVelocity(player.getVelocity() + velocity);
 	}
 
 	sf::Vector2f velocity;
@@ -80,7 +80,7 @@ sf::Keyboard::Key Player::getAssignedKey(Action action) const {
 }
 
 void Player::initializeActions() {
-	const float playerSpeed = 200.f;
+	const float playerSpeed = 400.f;
 
 	mActionBinding[MoveLeft].action	 = derivedAction<PlayerNode>(PlayerMover(-playerSpeed, 0.f));
 	mActionBinding[MoveRight].action = derivedAction<PlayerNode>(PlayerMover(+playerSpeed, 0.f));

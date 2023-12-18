@@ -24,6 +24,11 @@ enum class TextureID
     Field,
     Fox,
     Player,
+    CharacterUp,
+    CharacterDown,
+    CharacterLeft,
+    CharacterRight,
+    CharacterIdle,
 };
 
 enum class ImageID

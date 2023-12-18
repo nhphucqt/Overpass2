@@ -62,6 +62,7 @@ private:
 	sf::FloatRect mWorldBounds;
 	sf::Vector2f mSpawnPosition;
 	float mScrollSpeed;
+	sf::Clock clock;
 };
 
 #endif
