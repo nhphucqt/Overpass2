@@ -21,7 +21,6 @@ World::World(sf::RenderWindow& window)
 void World::update(sf::Time dt) {
 	// Scroll the world
 	mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());	
-	// mPlayer->setVelocity(0.f, 0.f);
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty()) {
@@ -31,19 +30,6 @@ void World::update(sf::Time dt) {
 		}
 		else
 			mCommandQueue.pop();
-	}
-	// adaptPlayerVelocity();
-
-	// Move the player sidewards (plane scouts follow the main aircraft)
-	sf::Vector2f position = mPlayer->getPosition();
-	sf::Vector2f velocity = mPlayer->getVelocity();
-
-	// // If player touches borders, flip its X velocity
-	if (position.x <= mWorldBounds.left + 150.f
-	 || position.x >= mWorldBounds.left + mWorldBounds.width - 150.f)
-	{
-		velocity.x = -velocity.x;
-		mPlayer->setVelocity(velocity);
 	}
 
 	// Apply movements
@@ -122,7 +108,6 @@ void World::buildScene() {
 		mSceneLayers[Background]->attachView(std::move(lane));
 	}
 	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, mSpawnPosition));
-	// player->setPosition(mSpawnPosition);
 	mPlayer = player.get();
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 
@@ -131,20 +116,28 @@ void World::buildScene() {
 void World::adaptPlayerPosition() {
 	// Keep player's position inside the screen bounds, at least borderDistance units from the border
 	sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
-	const float borderDistance = 0.f;
 
 	sf::Vector2f position = mPlayer->getPosition();
-	position.x = std::max(position.x, viewBounds.left + borderDistance);
-	position.x = std::min(position.x, viewBounds.left + viewBounds.width - borderDistance);
-	position.y = std::max(position.y, viewBounds.top + borderDistance);
-	position.y = std::min(position.y, viewBounds.top + viewBounds.height - borderDistance);
-	mPlayer->setPosition(position);
-}
-
-void World::adaptPlayerVelocity() {
 	sf::Vector2f velocity = mPlayer->getVelocity();
 
-	// If moving diagonally, reduce velocity (to have always same velocity)
-	if (velocity.x != 0.f && velocity.y != 0.f)
-		mPlayer->setVelocity(velocity / std::sqrt(2.f));
+	if (position.x <= viewBounds.left - 94.f) {
+		position.x = position.x + 1;
+		velocity.x = 0;
+	}
+	else if (position.x >= viewBounds.left + viewBounds.width - 140.f) {
+		position.x = position.x - 1;
+		velocity.x = 0;
+	}
+
+	if (position.y <= viewBounds.top - 80.f) {
+		position.y = position.y + 1;
+		velocity.y = 0;
+	}
+	else if (position.y >= viewBounds.top + viewBounds.height - 160.f) {
+		position.y = position.y - 1;
+		velocity.y = 0;
+	}
+
+	mPlayer->setVelocity(velocity);
+	mPlayer->setPosition(position);
 }
