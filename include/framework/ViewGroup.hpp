@@ -4,9 +4,6 @@
 #include <Viewable.hpp>
 
 class ViewGroup : public Viewable {
-private:
-    std::vector<Viewable::Ptr> childViews;
-
 public:
     ViewGroup();
     virtual ~ViewGroup() = default;

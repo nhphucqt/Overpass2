@@ -41,6 +41,7 @@ void ViewGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         for (auto& child : childViews)
             child->draw(target, states);
     
+    drawBoundingRect(target, states);
 }
 
 void ViewGroup::update(sf::Time delta) {

@@ -17,9 +17,6 @@ public:
     void setVelocity(sf::Vector2f velocity);
     void setVelocity(float vx, float vy);
     State getState();
-    virtual bool checkCollision(Entity &other);
-    virtual sf::FloatRect getGlobalBounds();
-    virtual sf::Vector2f center();
     virtual unsigned int getCategory() const;
 
 private:

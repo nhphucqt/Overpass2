@@ -9,8 +9,7 @@ public:
 	virtual void setVelocity(sf::Vector2f velocity);
 	virtual void setVelocity(float vx, float vy);
 	sf::Vector2f getVelocity() const;
-	virtual bool checkCollision(Entity& other);
-	virtual sf::FloatRect getGlobalBounds();
+	virtual sf::FloatRect getBoundingRect() const;
 	virtual sf::Vector2f center();
 
 protected: 

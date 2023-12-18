@@ -23,12 +23,8 @@ void Entity::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) cons
     target.draw(sprite, states);
 }
 
-bool Entity::checkCollision(Entity &other) {
-    return sprite.getGlobalBounds().intersects(other.getGlobalBounds());
-}
-
-sf::FloatRect Entity::getGlobalBounds() {
-    return sprite.getGlobalBounds();
+sf::FloatRect Entity::getBoundingRect() const {
+    return getWorldTransform().transformRect(sprite.getGlobalBounds());
 }
 
 sf::Vector2f Entity::center() {
