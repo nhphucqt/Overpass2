@@ -11,7 +11,7 @@ enum class TextureID
     titleBackgroundTexture,
     characterTitleBarTexture,
     squareButtonsTexture,
-    iconsTexture
+    iconsTexture,
     Wood,
     Crocodile,
     Car,
