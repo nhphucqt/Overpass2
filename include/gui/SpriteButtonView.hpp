@@ -17,8 +17,8 @@ public:
     };
 
 private:
-    std::string mTexts[3];
-    sf::IntRect mTextureRects[3];
+    std::string mTexts[(int)ButtonType::COUNT];
+    sf::IntRect mTextureRects[(int)ButtonType::COUNT];
 
 public:
     // @Params 0: normal | 1: hovering | 2: pressed

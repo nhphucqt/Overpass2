@@ -18,9 +18,9 @@ int main()
   app.addLauncher(std::move(launcher));
   app.run();
 
-  GameSetting setting;
-  MusicPlayer::getInstance().setVolume(30);
-  SoundPlayer::getInstance().setVolume(20);
+  // GameSetting setting;
+  // MusicPlayer::getInstance().setVolume(30);
+  // SoundPlayer::getInstance().setVolume(20);
 
   return 0;
 }

@@ -22,6 +22,8 @@
 
 #include <MusicPlayer.hpp>
 
+#include <GameSetting.hpp>
+
 void MainMenuActivity::onLoadResources() {
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
     mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
@@ -33,6 +35,7 @@ void MainMenuActivity::onLoadResources() {
 }
 
 void MainMenuActivity::onCreate() {
+    GameSetting::getInstance().loadSettingState();
     createBackground();
     createTitle();
     createPlayButtons();
@@ -59,7 +62,22 @@ void MainMenuActivity::onEvent(const sf::Event& event) {
 }
 
 void MainMenuActivity::updateCurrent(sf::Time dt) {
-    // ...
+    static float ratio = 1;
+    static float delta = 0.01;
+    static float angle = 0;
+    static sf::View view = getActivityManager()->getWindow().getView();
+    view.rotate(angle);
+    view.zoom(ratio);
+    getActivityManager()->getWindow().setView(view);
+    view.zoom(1/ratio);
+    angle += 0.001;
+    if (angle >= 360) {
+        angle = 0;
+    }
+    ratio += delta;
+    if (ratio >= 2) delta = -0.01;
+    if (ratio <= 0.5) delta = 0.01;
+    // std::cerr << ratio << ' ' << delta << '\n';
 }
 
 void MainMenuActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {

@@ -2,9 +2,14 @@
 #include <TitlebarFactory.hpp>
 #include <BackgroundFactory.hpp>
 #include <BackButtonFactory.hpp>
+#include <MenuButtonFactory.hpp>
+#include <ActivityFactory.hpp>
+
+#include <LoginActivity.hpp>
 
 void ProfileActivity::onLoadResources() {
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
     mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
     mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
     mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
@@ -73,5 +78,17 @@ void ProfileActivity::createTitle() {
 }
 
 void ProfileActivity::createProfile() {
-    // ...
+    attachView(MenuButtonFactory::create(
+        this,
+        mTextureManager.get(TextureID::mainMenuButtonTexture),
+        mFontManager.get(FontID::defaultFont),
+        "Sign in",
+        sf::Vector2f(100, 100),
+        [&](EventListener* listener, const sf::Event& event) {
+            Intent::Ptr intent = Intent::Builder()
+                .setRequestCode(REQUEST_LOG_IN)
+                .build();
+            this->startActivity(ActivityFactory<LoginActivity>::createInstance(), std::move(intent));
+        }
+    ));
 }
