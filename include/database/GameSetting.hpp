@@ -9,10 +9,9 @@
 class GameSetting : sf::NonCopyable
 {
 public:
-    GameSetting();
     ~GameSetting();
 
-    static GameSetting& getInstance();
+    static GameSetting &getInstance();
     GameSetting &operator=(const GameSetting &) = delete;
     GameSetting(const GameSetting &) = delete;
 
@@ -20,7 +19,7 @@ public:
     void saveSettingState();
 
 private:
-
+    GameSetting();
     void loadSettingState(const std::string &filename);
     void saveSettingState(const std::string &filename);
     SoundPlayer &mSoundPlayer;
