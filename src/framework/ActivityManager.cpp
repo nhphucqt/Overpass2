@@ -4,6 +4,11 @@
 #include <ActivityFinishReturn.hpp>
 #include <AppConfig.hpp>
 
+ActivityManager::ActivityManager(int windowWidth, int windowHeight, std::string windowTitle)
+: mWindow(sf::VideoMode(windowWidth, windowHeight), windowTitle) {
+    // do nothing
+}
+
 void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
     activity->setIntent(std::move(intent));
     activity->initialize();
@@ -55,7 +60,7 @@ Activity *ActivityManager::getCurrentActivity() {
     return activityStack.top().get();
 }
 
-void ActivityManager::run(sf::RenderWindow &mWindow) {
+void ActivityManager::run() {
     if (isEmpty()) {
         throw std::runtime_error("Activity stack is empty");
     }
@@ -93,4 +98,8 @@ void ActivityManager::run(sf::RenderWindow &mWindow) {
         mWindow.draw(*getCurrentActivity());
         mWindow.display();
     }
+}
+
+sf::RenderWindow& ActivityManager::getWindow() {
+    return mWindow;
 }

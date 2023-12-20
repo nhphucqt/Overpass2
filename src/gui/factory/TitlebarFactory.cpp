@@ -48,6 +48,10 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
     titleBar->attachView(std::move(titleView));
     titleBar->attachView(std::move(characterView));
 
+    if (requestCode == -1) {
+        return std::move(titleBar);
+    }
+
     sf::IntRect buttonRects[3] = {
         sf::IntRect(8, 154, 32, 32),
         sf::IntRect(56, 104, 32, 32),

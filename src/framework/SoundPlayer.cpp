@@ -18,7 +18,11 @@ SoundPlayer &SoundPlayer::getInstance()
 void SoundPlayer::play(SoundBufferID effect)
 {
     mSounds.push_back(sf::Sound(mSoundBuffers.get(effect)));
+    mSounds.back().setVolume(getVolume());
     mSounds.back().play();
+    if (mSounds.size() == 100) {
+        removeStoppedSounds();
+    }
 }
 
 void SoundPlayer::removeStoppedSounds()
@@ -30,6 +34,9 @@ void SoundPlayer::removeStoppedSounds()
 void SoundPlayer::setVolume(float volume)
 {
     mVolume = volume;
+    for (sf::Sound& sound : mSounds) {
+        sound.setVolume(volume);
+    }
 }
 
 float SoundPlayer::getVolume() const

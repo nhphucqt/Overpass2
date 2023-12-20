@@ -8,11 +8,21 @@
 #include <UserRepo.hpp>
 #include <SignupActivity.hpp>
 
+#include <BackgroundFactory.hpp>
+#include <TitlebarFactory.hpp>
+#include <BackButtonFactory.hpp>
+
 void LoginActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
 }
 
 void LoginActivity::onCreate() {
+    createBackground();
     createTitle();
     createBackButton();
     createDialog();
@@ -53,35 +63,29 @@ void LoginActivity::onActivityResult(int requestCode, int resultCode, Intent::Pt
     }
 }
 
+void LoginActivity::createBackground() {
+    attachView(BackgroundFactory::create(
+        mTextureManager.get(TextureID::mainMenuBackgroundTexture)
+    ));
+}
+
 void LoginActivity::createTitle() {
-    AppConfig& config = AppConfig::getInstance();
-    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
-
-    sf::Color color = sf::Color::Black;
-    int fontSize = 50;
-
-    TextView::Ptr title = std::make_unique<TextView>("Sign in", mFontManager.get(FontID::defaultFont), sf::Vector2f(), fontSize, color);
-    sf::Vector2f position((windowSize.x-title->getGlobalBounds().getSize().x)/2, 50);
-    title->setPosition(position);
-
-    attachView(std::move(title));
+    attachView(TitlebarFactory::create(
+        this,
+        mTextureManager,
+        mFontManager.get(FontID::defaultFont),
+        "Sign in",
+        TitlebarFactory::TitlebarType::NONE,
+        -1
+    ));
 }
 
 void LoginActivity::createBackButton() {
-    float width = 50;
-    float height = 50;
-    sf::Vector2f size(width, height);
-    sf::Vector2f position(20, 20);
-    sf::Color color = sf::Color(150, 150, 150, 255);
-    int fontSize = 50;
-
-    ButtonView::Ptr backButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "<", fontSize, position, size, color);
-    backButton->setTextColor(sf::Color::Black);
-    backButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        setResult((int)ResultCode::RESULT_CANCELED, nullptr);
-        finish();
-    });
-    attachView(std::move(backButton));
+    attachView(BackButtonFactory::create(
+        this,
+        mTextureManager.get(TextureID::squareButtonsTexture),
+        mFontManager.get(FontID::defaultFont)
+    ));
 }
 
 void LoginActivity::createDialog() {

@@ -6,6 +6,7 @@
 
 class ProfileActivity: public Activity {
 private:
+    static const int REQUEST_LOG_IN = 11;
     static const int REQUEST_TITLEBAR_BUTTONS = 126;
 
     FontManager mFontManager;
