@@ -5,6 +5,10 @@ Lane::Lane(const sf::Texture &texture, TextureManager *textures, bool reverse): 
     sprite.setTextureRect(textureRect);
 }
 
+sf::FloatRect Lane::getBoundingRect() const {
+    return getWorldTransform().transformRect(sprite.getGlobalBounds());
+}
+
 void Lane::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(sprite, states);
 }

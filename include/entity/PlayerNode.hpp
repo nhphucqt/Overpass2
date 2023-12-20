@@ -5,6 +5,7 @@
 #include <Animation.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
+#include <Lane.hpp>
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -12,19 +13,23 @@
 
 class PlayerNode : public Entity {
 public:
-    enum State {MoveDown, MoveUp, MoveLeft, MoveRight, Idle, Free};
-    PlayerNode(const TextureManager &textures, sf::Vector2f initPos);
-    void setVelocity(sf::Vector2f velocity);
-    void setVelocity(float vx, float vy);
+    enum State {MoveDown, MoveUp, MoveLeft, MoveRight, Idle, Mounted, Free};
+    PlayerNode(const TextureManager &textures, std::vector<Lane *>& lanes, int currentLane = 0);
+    void move(sf::Vector2f velocity);
+    void move(float vx, float vy);
     State getState();
-    virtual unsigned int getCategory() const;
+    unsigned int getCategory() const;
+	virtual sf::FloatRect getBoundingRect() const;
 
 private:
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     void updateCurrent(sf::Time delta);
+    void adaptPosition();
 
 private:
     State state;
+    int curLane;
+    std::vector<Lane *>& lanes;
     sf::Sprite sprite;
     Animation moveUp;
     Animation moveDown;

@@ -41,6 +41,9 @@ private:
 	void buildScene();
 	void adaptPlayerPosition();
 
+	void handleCollisions();
+	void gameOver();
+
 private:
 	enum Layer {
 		Background,
@@ -49,9 +52,11 @@ private:
 	};
 
 private:
+	bool stop;
 	sf::RenderWindow &mWindow;
 	sf::View mWorldView;
 	TextureManager mTextures;
+	std::vector<Lane *> lanes;
 
 	Entity mSceneGraph;
 	std::array<ViewGroup *, LayerCount> mSceneLayers;

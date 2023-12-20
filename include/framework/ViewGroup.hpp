@@ -5,6 +5,9 @@
 
 class ViewGroup : public Viewable {
 public:
+    typedef std::unique_ptr<ViewGroup> Ptr;
+
+public:
     ViewGroup();
     virtual ~ViewGroup() = default;
 

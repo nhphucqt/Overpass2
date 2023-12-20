@@ -11,7 +11,8 @@ class Log: public Entity {
 public:
     enum Type {Wood, Crocodile};
     Log(Type mType, const TextureManager& textures);
-    virtual unsigned int getCategory() const;
+    unsigned int getCategory() const;
+	sf::FloatRect getBoundingRect() const;
 
 private:
     Type type;

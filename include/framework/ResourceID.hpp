@@ -35,6 +35,7 @@ enum class TextureID
     CharacterLeft,
     CharacterRight,
     CharacterIdle,
+    GameOver,
 };
 
 enum class ImageID

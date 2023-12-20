@@ -10,6 +10,7 @@ World::World(sf::RenderWindow& window)
 , mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
 , mScrollSpeed(-50.f)
 , clock()
+, stop(false)
 {
 	loadTextures();
 	buildScene();
@@ -19,6 +20,8 @@ World::World(sf::RenderWindow& window)
 }
 
 void World::update(sf::Time dt) {
+	if (stop)
+		return;
 	// Scroll the world
 	mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());	
 
@@ -32,6 +35,7 @@ void World::update(sf::Time dt) {
 			mCommandQueue.pop();
 	}
 
+	handleCollisions();
 	// Apply movements
 	mSceneGraph.update(dt);
 	adaptPlayerPosition();
@@ -70,6 +74,7 @@ void World::loadTextures() {
     mTextures.load(TextureID::CharacterLeft, "../../res/textures/Character/Cat-Left.png");
     mTextures.load(TextureID::CharacterRight, "../../res/textures/Character/Cat-Right.png");
     mTextures.load(TextureID::CharacterIdle, "../../res/textures/Character/Cat-Idle.png");
+	mTextures.load(TextureID::GameOver, "../../res/textures/GameOver.png");
 }
 
 void World::buildScene() {
@@ -104,10 +109,11 @@ void World::buildScene() {
 		default:
 			lane.reset(new Road(&mTextures, reverse));
 		}
+		lanes.push_back(lane.get());
 		lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
 		mSceneLayers[Background]->attachView(std::move(lane));
 	}
-	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, mSpawnPosition));
+	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3));
 	mPlayer = player.get();
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 
@@ -120,24 +126,90 @@ void World::adaptPlayerPosition() {
 	sf::Vector2f position = mPlayer->getPosition();
 	sf::Vector2f velocity = mPlayer->getVelocity();
 
-	if (position.x <= viewBounds.left - 94.f) {
+	bool isChanged = false;
+
+	if (position.x <= viewBounds.left) {
 		position.x = position.x + 1;
 		velocity.x = 0;
+		isChanged = true;
 	}
-	else if (position.x >= viewBounds.left + viewBounds.width - 140.f) {
+	else if (position.x >= viewBounds.left + viewBounds.width - 72.f) {
 		position.x = position.x - 1;
 		velocity.x = 0;
+		isChanged = true;
 	}
 
-	if (position.y <= viewBounds.top - 80.f) {
+	if (position.y <= viewBounds.top) {
 		position.y = position.y + 1;
 		velocity.y = 0;
+		isChanged = true;
 	}
-	else if (position.y >= viewBounds.top + viewBounds.height - 160.f) {
+	else if (position.y >= viewBounds.top + viewBounds.height - 90.f) {
 		position.y = position.y - 1;
 		velocity.y = 0;
+		isChanged = true;
 	}
 
-	mPlayer->setVelocity(velocity);
-	mPlayer->setPosition(position);
+	if (isChanged) {
+		mPlayer->move(velocity);
+		mPlayer->setPosition(position);
+	}
+}
+
+bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2)
+{
+	unsigned int category1 = colliders.first->getCategory();
+	unsigned int category2 = colliders.second->getCategory();
+
+	// Make sure first pair entry has category type1 and second has type2
+	if (type1 & category1 && type2 & category2)
+	{
+		return true;
+	}
+	else if (type1 & category2 && type2 & category1)
+	{
+		std::swap(colliders.first, colliders.second);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void World::handleCollisions() {
+	std::set<ViewGroup::Pair> collisionPairs;
+	mPlayer->checkSceneCollision(mSceneGraph, collisionPairs);
+
+	bool onRiver = false;
+	for (ViewGroup::Pair pair : collisionPairs) {
+		if (matchesCategories(pair, Category::Player, Category::Vehicle))
+			gameOver();
+		else if (matchesCategories(pair, Category::Player, Category::Animal))
+			gameOver();
+		else if (matchesCategories(pair, Category::Player, Category::Train))
+			gameOver();
+		else if (matchesCategories(pair, Category::Player, Category::Log)) {
+			onRiver = false;
+			if (mPlayer->getState() == PlayerNode::Idle) {
+				auto& log = static_cast<Log&>(*pair.second);
+				mPlayer->setVelocity(log.getVelocity());
+			}
+			break;
+		}
+		else if (matchesCategories(pair, Category::Player, Category::River)) {
+			onRiver = true;
+		}
+	}
+
+	if (onRiver)
+		gameOver();
+}
+
+void World::gameOver() {
+	std::unique_ptr<Entity> banner(new Entity(mTextures.get(TextureID::GameOver)));
+	sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
+	banner->setPosition(viewBounds.getPosition().x, viewBounds.getPosition().y + 300);
+	mSceneLayers[Aboveground]->attachView(std::move(banner));
+	stop = true;
 }

@@ -11,6 +11,7 @@
 class River: public Lane {
 public:
     River(TextureManager* textures, bool isReverse = false);
+    unsigned int getCategory() const;
 
 private:
 	std::vector<Log *> logs;

@@ -17,12 +17,16 @@ animation(textures.get(toTextureID(mType)))
     animation.setFrameSize(sf::Vector2i(890/5, 308));
     animation.setNumFrames(5);
     animation.setDuration(sf::seconds(1));
-	sf::FloatRect bounds = animation.getLocalBounds();
-	animation.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+	// sf::FloatRect bounds = animation.getLocalBounds();
+	// animation.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
 
 void Animal::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(animation, states);
+}
+
+sf::FloatRect Animal::getBoundingRect() const {
+    return getWorldTransform().transformRect(animation.getGlobalBounds());
 }
 
 void Animal::updateCurrent(sf::Time dt) {
