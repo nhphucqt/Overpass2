@@ -6,11 +6,25 @@
 #include <AppConfig.hpp>
 #include <UserRepo.hpp>
 
+#include <BackgroundFactory.hpp>
+#include <TitlebarFactory.hpp>
+#include <BackButtonFactory.hpp>
+#include <InputFieldFactory.hpp>
+#include <MenuButtonFactory.hpp>
+
 void SignupActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/minecraft_font.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
+    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureManager.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
+    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
 }
 
 void SignupActivity::onCreate() {
+    createBackground();
     createTitle();
     createBackButton();
     createDialog();
@@ -33,7 +47,27 @@ void SignupActivity::onDestroy() {
 }
 
 void SignupActivity::onEvent(const sf::Event& event) {
-    // ...
+    if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::Tab) {
+            if (mUsername->isFocused()) {
+                mUsername->setFocused(false);
+                mPassword->setFocused(true);
+                mConfirmPassword->setFocused(false);
+            } else if (mPassword->isFocused()) {
+                mUsername->setFocused(false);
+                mPassword->setFocused(false);
+                mConfirmPassword->setFocused(true);
+            } else if (mConfirmPassword->isFocused()) {
+                mUsername->setFocused(true);
+                mPassword->setFocused(false);
+                mConfirmPassword->setFocused(false);
+            } else {
+                mUsername->setFocused(true);
+            }
+        } else if (event.key.code == sf::Keyboard::Return) {
+            checkSignup(mUsername->getText(), mPassword->getText(), mConfirmPassword->getText());
+        }
+    }
 }
 
 void SignupActivity::updateCurrent(sf::Time dt) {
@@ -44,72 +78,71 @@ void SignupActivity::onActivityResult(int requestCode, int resultCode, Intent::P
     // ...
 }
 
+void SignupActivity::createBackground() {
+    attachView(BackgroundFactory::create(
+        mTextureManager.get(TextureID::mainMenuBackgroundTexture)
+    ));
+}
+
 void SignupActivity::createTitle() {
-    AppConfig& config = AppConfig::getInstance();
-    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
-
-    sf::Color color = sf::Color::Black;
-    int fontSize = 50;
-
-    TextView::Ptr title = std::make_unique<TextView>("Sign up", mFontManager.get(FontID::defaultFont), sf::Vector2f(), fontSize, color);
-    sf::Vector2f position((windowSize.x-title->getGlobalBounds().getSize().x)/2, 50);
-    title->setPosition(position);
-
-    attachView(std::move(title));
+    attachView(TitlebarFactory::create(
+        this,
+        mTextureManager,
+        mFontManager.get(FontID::defaultFont),
+        "Sign up",
+        TitlebarFactory::TitlebarType::NONE,
+        REQUEST_TITLEBAR_BUTTONS
+    ));
 }
 
 void SignupActivity::createBackButton() {
-    float width = 50;
-    float height = 50;
-    sf::Vector2f size(width, height);
-    sf::Vector2f position(20, 20);
-    sf::Color color = sf::Color(150, 150, 150, 255);
-    int fontSize = 50;
-
-    ButtonView::Ptr backButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "<", fontSize, position, size, color);
-    backButton->setTextColor(sf::Color::Black);
-    backButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        setResult((int)ResultCode::RESULT_CANCELED, nullptr);
-        finish();
-    });
-    attachView(std::move(backButton));
+    attachView(BackButtonFactory::create(
+        this,
+        mTextureManager.get(TextureID::squareButtonsTexture),
+        mFontManager.get(FontID::defaultFont)
+    ));
 }
 
 void SignupActivity::createDialog() {
     AppConfig& config = AppConfig::getInstance();
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
-    float width = 300;
-    float height = 100;
-    sf::Vector2f size(width, height);
-    // sf::Vector2f position((windowSize - size) / 2.f);
-    sf::Vector2f position(windowSize.x/2 - width/2, 200);
-    sf::Vector2f spacing(0, height + 20);
-    sf::Color color = sf::Color(150, 150, 150, 255);
+    SpriteView::Ptr menu = std::make_unique<SpriteView>(
+        mTextureManager.get(TextureID::settingMenuTexture),
+        sf::Vector2f(0, 0),
+        sf::Vector2f(106, 122) * 5.f,
+        sf::IntRect(139, 12, 106, 122)
+    );
+    menu->setPosition((windowSize - menu->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
 
-    EditTextView::Ptr usrField = std::make_unique<EditTextView>(this, mFontManager.get(FontID::defaultFont), "Username", position, size);
-    EditTextView::Ptr pwdField = std::make_unique<EditTextView>(this, mFontManager.get(FontID::defaultFont), "Password", spacing, size);
-    EditTextView::Ptr rePwdField = std::make_unique<EditTextView>(this, mFontManager.get(FontID::defaultFont), "Re-Enter", spacing, size);
-    TextView::Ptr errorView = std::make_unique<TextView>("", mFontManager.get(FontID::defaultFont), spacing, 20, sf::Color::Red);
-    usrField->setLimit(10);
-    pwdField->setLimit(10);
-    rePwdField->setLimit(10);
-
+    EditTextView::Ptr usrField = InputFieldFactory::create(this, mFontManager.get(FontID::defaultFont), "Username", EditTextView::InputType::TEXT);
     mUsername = usrField.get();
+    EditTextView::Ptr pwdField = InputFieldFactory::create(this, mFontManager.get(FontID::defaultFont), "Password", EditTextView::InputType::PASSWORD);
     mPassword = pwdField.get();
-    mConfirmPassword = rePwdField.get();
-    mError = errorView.get();
+    EditTextView::Ptr confirmPwdField = InputFieldFactory::create(this, mFontManager.get(FontID::defaultFont), "ReEnter", EditTextView::InputType::PASSWORD);
+    mConfirmPassword = confirmPwdField.get();
 
-    ButtonView::Ptr submitButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "Sign up", 20, sf::Vector2f(0, errorView->getCharacterSize() + 20), size, color);
-    submitButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    usrField->setPosition((menu->get().getGlobalBounds().getSize() - usrField->getGlobalBounds().getSize() - sf::Vector2f(0, usrField->getGlobalBounds().getSize().y + 20)) / 2.f);
+    usrField->move(92, -156);
+    pwdField->move(0, usrField->getGlobalBounds().getSize().y + 20);
+    confirmPwdField->move(0, pwdField->getGlobalBounds().getSize().y + 20);
+
+    TextView::Ptr errorView = std::make_unique<TextView>("", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, pwdField->getGlobalBounds().getSize().y + 20), 36, sf::Color::Red);
+    mError = errorView.get();
+    errorView->move(-180, 0);
+
+    SpriteButtonView::Ptr submitButton = MenuButtonFactory::create(this, mTextureManager.get(TextureID::mainMenuButtonTexture), mFontManager.get(FontID::defaultFont), "Sign up", sf::Vector2f(), [&](EventListener* listener, const sf::Event& event) {
         checkSignup(mUsername->getText(), mPassword->getText(), mConfirmPassword->getText());
     });
+    submitButton->setPosition((menu->get().getGlobalBounds().getSize() - submitButton->getGlobalBounds().getSize()) / 2.f);
+    submitButton->move(0, 180);
 
-    errorView->attachView(std::move(submitButton));
-    rePwdField->attachView(std::move(errorView));
-    pwdField->attachView(std::move(rePwdField));
+    confirmPwdField->attachView(std::move(errorView));
+    pwdField->attachView(std::move(confirmPwdField));
     usrField->attachView(std::move(pwdField));
-    attachView(std::move(usrField));
+    menu->attachView(std::move(usrField));
+    menu->attachView(std::move(submitButton));
+    attachView(std::move(menu));
 }
 
 void SignupActivity::checkSignup(const std::string& username, const std::string& password, const std::string& confirmPassword) {
@@ -137,6 +170,7 @@ void SignupActivity::checkSignup(const std::string& username, const std::string&
     std::cout << " >> Signup success: " << username << std::endl;
     Intent::Ptr resIntent = Intent::Builder()
         .putExtra("username", username)
+        .putExtra("password", password)
         .build();
     setResult((int)ResultCode::RESULT_OK, std::move(resIntent));
     finish();

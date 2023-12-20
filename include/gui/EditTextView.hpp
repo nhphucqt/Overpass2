@@ -18,6 +18,7 @@ private:
     sf::RectangleShape mRect;
     sf::Text mCursor;
     sf::Text mText;
+    std::string mString;
     sf::Time mCursorBlinkTime, mCurrentTime;
     bool mCursorVisible;
     InputType mInputType;
@@ -38,13 +39,14 @@ public:
     void appendCharacter(char character);
     void removeCharacter();
     void clearText();
-    std::string getText() const;
+    const std::string& getText() const;
 
     sf::FloatRect getGlobalBounds() const;
 
     bool isMouseHovering(const sf::Vector2f& mousePoint) const;
 
     bool isFocused() const;
+    void setFocused(bool focused);
 
 protected:
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -52,10 +54,10 @@ protected:
     virtual bool isOnTextEntered(const sf::Event& event) const override;
 
 private:
-    void setFocused(bool focused);
     void setText(const std::string& text);
 
     void updateTextPosition();
+    void updateBackgroundColor();
 
     virtual void updateCurrent(sf::Time delta) override;
     void setBlinkTime(sf::Time time);
