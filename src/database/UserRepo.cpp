@@ -62,9 +62,10 @@ void UserRepo::updateUser(const UserData &user)
     if (!userExist(user.getUsername()))
         throw std::runtime_error("User with username " + user.getUsername() + " not found.");
 
-    SQLite::Statement query(db, "UPDATE users SET highscore = ? WHERE username = ?;");
-    query.bind(1, user.getHighscore());
-    query.bind(2, user.getUsername());
+    SQLite::Statement query(db, "UPDATE users SET password = ?, highscore = ? WHERE username = ?;");
+    query.bind(1, user.getPassword());
+    query.bind(2, user.getHighscore());
+    query.bind(3, user.getUsername());
 
     query.exec();
 }
