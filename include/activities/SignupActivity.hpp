@@ -8,6 +8,9 @@
 
 class SignupActivity : public Activity {
 private:
+    static const int REQUEST_TITLEBAR_BUTTONS = -1;
+
+    TextureManager mTextureManager;
     FontManager mFontManager;
     EditTextView* mUsername;
     EditTextView* mPassword;
@@ -26,6 +29,7 @@ protected:
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
 
 private:
+    void createBackground();
     void createTitle();
     void createBackButton();
     void createDialog();
