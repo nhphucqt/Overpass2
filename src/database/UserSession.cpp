@@ -9,6 +9,7 @@ UserSession::UserSession()
 UserSession::~UserSession()
 {
     saveLoginState("data/login.txt");
+    repo.updateUser(*currentUser);
 
     if (currentUser)
         delete currentUser;
