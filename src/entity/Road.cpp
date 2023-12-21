@@ -10,6 +10,10 @@ Lane(textures->get(TextureID::Road), textures, isReverse) {
     buildLane();
 }
 
+unsigned int Road::getCategory() const {
+    return Category::Lane;
+}
+
 void Road::updateCurrent(sf::Time dt) {
     if (isReverse) {
         TrafficLight::Color curColor = trafficlight->getCurrentColor();

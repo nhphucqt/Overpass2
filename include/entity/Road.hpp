@@ -14,6 +14,7 @@
 class Road: public Lane {
 public:
     Road(TextureManager* textures, bool isReverse = false);
+    unsigned int getCategory() const;
 
 private:
 	std::vector<Vehicle *> cars;

@@ -20,6 +20,9 @@ public:
     State getState();
     unsigned int getCategory() const;
 	virtual sf::FloatRect getBoundingRect() const;
+    int getCurrentLane();
+    void setOnRiver(bool onRiver);
+    void moveBack();
 
 private:
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
@@ -36,6 +39,7 @@ private:
     Animation moveLeft;
     Animation moveRight;
     sf::Vector2f lastPos;
+    bool onRiver;
 };
 
 #endif

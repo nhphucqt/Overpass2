@@ -8,9 +8,12 @@ World::World(sf::RenderWindow& window)
 , mSceneLayers()
 , mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10)
 , mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
-, mScrollSpeed(-50.f)
+, mScrollSpeed(-600.f)
 , clock()
 , stop(false)
+, playerLaneIndex(3)
+, scrollDistance(0)
+, actualScrollDistance(0)
 {
 	loadTextures();
 	buildScene();
@@ -23,11 +26,11 @@ void World::update(sf::Time dt) {
 	if (stop)
 		return;
 	// Scroll the world
-	mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());	
+	scroll(dt);
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty()) {
-		if (mPlayer->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.2) {
+		if (mPlayer->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.1) {
 			mSceneGraph.onCommand(mCommandQueue.pop(), dt);
 			clock.restart();
 		}
@@ -113,7 +116,7 @@ void World::buildScene() {
 		lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
 		mSceneLayers[Background]->attachView(std::move(lane));
 	}
-	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3));
+	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3)); // last argument must be consistent with playerLaneIndex
 	mPlayer = player.get();
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 
@@ -145,9 +148,10 @@ void World::adaptPlayerPosition() {
 		isChanged = true;
 	}
 	else if (position.y >= viewBounds.top + viewBounds.height - 90.f) {
-		position.y = position.y - 1;
-		velocity.y = 0;
-		isChanged = true;
+		// position.y = position.y - 1;
+		// velocity.y = 0;
+		// isChanged = true;
+		gameOver();
 	}
 
 	if (isChanged) {
@@ -179,17 +183,23 @@ bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Categor
 
 void World::handleCollisions() {
 	std::set<ViewGroup::Pair> collisionPairs;
-	mPlayer->checkSceneCollision(mSceneGraph, collisionPairs);
+	mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane()], collisionPairs);
+	if (lanes.size() > mPlayer->getCurrentLane() + 1)
+		mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane() + 1], collisionPairs);
+	mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane() - 1], collisionPairs);
 
 	bool onRiver = false;
 	for (ViewGroup::Pair pair : collisionPairs) {
-		if (matchesCategories(pair, Category::Player, Category::Vehicle))
+		if (matchesCategories(pair, Category::Player, Category::Lane))
+			mPlayer->setOnRiver(false);
+		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Animal))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Train))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Log)) {
+			mPlayer->setOnRiver(true);
 			onRiver = false;
 			if (mPlayer->getState() == PlayerNode::Idle) {
 				auto& log = static_cast<Log&>(*pair.second);
@@ -199,11 +209,34 @@ void World::handleCollisions() {
 		}
 		else if (matchesCategories(pair, Category::Player, Category::River)) {
 			onRiver = true;
+			mPlayer->setOnRiver(true);
+		}
+		else if (matchesCategories(pair, Category::Player, Category::Green)) {
+			mPlayer->moveBack();
 		}
 	}
 
 	if (onRiver)
 		gameOver();
+}
+
+void World::scroll(sf::Time dt) {
+	int currentLaneIndex = mPlayer->getCurrentLane();
+	if (currentLaneIndex > playerLaneIndex) {
+		scrollDistance += 128.f;
+		++playerLaneIndex;
+	}
+	else if (currentLaneIndex < playerLaneIndex) {
+		scrollDistance -= 128.f;
+		--playerLaneIndex;
+	}
+
+	float scrollStep = mScrollSpeed * dt.asSeconds();
+
+	if (scrollDistance > 0) {
+		scrollDistance += scrollStep;
+		mWorldView.move(0.f, scrollStep);	
+	}
 }
 
 void World::gameOver() {

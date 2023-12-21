@@ -14,7 +14,7 @@ Animal::Animal(Type mType, const TextureManager& textures):
 type(mType),
 animation(textures.get(toTextureID(mType)))
 {
-    animation.setFrameSize(sf::Vector2i(890/5, 308));
+    animation.setFrameSize(sf::Vector2i(890/5, 152));
     animation.setNumFrames(5);
     animation.setDuration(sf::seconds(1));
 	// sf::FloatRect bounds = animation.getLocalBounds();

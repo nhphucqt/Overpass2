@@ -42,6 +42,7 @@ private:
 	void adaptPlayerPosition();
 
 	void handleCollisions();
+	void scroll(sf::Time dt);
 	void gameOver();
 
 private:
@@ -67,6 +68,9 @@ private:
 	sf::Vector2f mSpawnPosition;
 	float mScrollSpeed;
 	sf::Clock clock;
+	int playerLaneIndex;
+	int scrollDistance;
+	int actualScrollDistance;
 };
 
 #endif

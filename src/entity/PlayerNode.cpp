@@ -9,6 +9,7 @@ PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lane
 , moveRight(textures.get(TextureID::CharacterRight))
 , curLane(currentLane)
 , lanes(lanesVct)
+, onRiver(false)
 {
     adaptPosition();
     lastPos = getPosition();
@@ -111,8 +112,11 @@ void PlayerNode::updateCurrent(sf::Time delta) {
         lastPos = curPos;
         --curLane;
     }
-    else if (posDiff.x <= -128 || posDiff.x >= 128) {
+    else if (!onRiver && (posDiff.x <= -64 || posDiff.x >= 64)) {
         move(0, 0);
+        lastPos = curPos;
+    }
+    else if (onRiver && (posDiff.x <= -64 || posDiff.x >= 64)) {
         lastPos = curPos;
     }
 
@@ -132,4 +136,17 @@ unsigned int PlayerNode::getCategory() const {
 
 sf::FloatRect PlayerNode::getBoundingRect() const {
     return getWorldTransform().transformRect(sprite.getGlobalBounds());
+}
+
+int PlayerNode::getCurrentLane() {
+    return curLane;
+}
+
+void PlayerNode::setOnRiver(bool onRiver) {
+    this->onRiver = onRiver;
+}
+
+void PlayerNode::moveBack() {
+    setPosition(lastPos);
+    move(0, 0);
 }

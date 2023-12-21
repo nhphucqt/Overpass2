@@ -10,6 +10,10 @@ Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview) 
     buildLane();
 }
 
+unsigned int Railway::getCategory() const {
+    return Category::Lane;
+}
+
 void Railway::updateCurrent(sf::Time dt) {
     if (isReverse) {
         if (train->getPosition().x < -1000)
