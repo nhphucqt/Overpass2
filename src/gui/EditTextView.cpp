@@ -10,6 +10,8 @@ EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, cons
 
 EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size) 
 : limit(0), mRect(size), mText(text, font, characterSize), mCursor("|", font, characterSize), __isFocused(false) {
+    mString = text;
+
     setPosition(position);
     setTextColor(sf::Color::Black);
     updateTextPosition();
@@ -55,6 +57,7 @@ EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, cons
 
 void EditTextView::setInputType(InputType type) {
     mInputType = type;
+    setText(mString);
 }
 
 void EditTextView::updateTextPosition() {
@@ -78,10 +81,20 @@ void EditTextView::setBackGroundColor(const sf::Color& color) {
 
 void EditTextView::setFocusBackGroundColor(const sf::Color& color) {
     mFocusBackGroundColor = color;
+    updateBackgroundColor();
 }
 
 void EditTextView::setUnFocusBackGroundColor(const sf::Color& color) {
     mUnFocusBackGroundColor = color;
+    updateBackgroundColor();
+}
+
+void EditTextView::updateBackgroundColor() {
+    if (isFocused()) {
+        setBackGroundColor(mFocusBackGroundColor);
+    } else {
+        setBackGroundColor(mUnFocusBackGroundColor);
+    }
 }
 
 void EditTextView::setTextColor(const sf::Color& color) {
@@ -90,7 +103,16 @@ void EditTextView::setTextColor(const sf::Color& color) {
 }
 
 void EditTextView::setText(const std::string& text) {
-    mText.setString(text);
+    if (limit != 0 && text.size() > limit) {
+        return;
+    }
+    if (mInputType == InputType::PASSWORD) {
+        std::string password(text.size(), '*');
+        mText.setString(password);
+    } else if (mInputType == InputType::TEXT) {
+        mText.setString(text);
+    }
+    mString = text;
     updateTextPosition();
 }
 
@@ -110,22 +132,16 @@ void EditTextView::clearText() {
     setText("");
 }
 
-std::string EditTextView::getText() const {
-    return mText.getString();
+const std::string& EditTextView::getText() const {
+    return mString;
 }
 
 void EditTextView::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(mRect, states);
-    if (mInputType == InputType::PASSWORD) {
-        std::string password(mText.getString().getSize(), '*');
-        sf::Text text(mText);
-        text.setString(password);
-        target.draw(text, states);
-    } else if (mInputType == InputType::TEXT) {
-        target.draw(mText, states);
-    }
-    if (mCursorVisible && isFocused())
+    target.draw(mText, states);
+    if (mCursorVisible && isFocused()) {
         target.draw(mCursor, states);
+    }
 }
 
 sf::FloatRect EditTextView::getGlobalBounds() const {
@@ -151,6 +167,7 @@ bool EditTextView::isFocused() const {
 
 void EditTextView::setFocused(bool focused) {
     __isFocused = focused;
+    updateBackgroundColor();
 }
 
 void EditTextView::updateCurrent(sf::Time delta) {

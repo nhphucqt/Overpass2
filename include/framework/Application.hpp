@@ -7,10 +7,11 @@
 #include <Activity.hpp>
 #include <ActivityManager.hpp>
 
+class ActivityManager;
+
 class Application {
 
 private:
-    sf::RenderWindow mWindow;
     ActivityManager activityManager;
 
 public:

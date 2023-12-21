@@ -5,6 +5,11 @@ UserData::UserData(std::string username, std::string password, int highscore)
 {
 }
 
+UserData::UserData(std::string username, std::string password)
+    : username(username), password(password), highscore(0)
+{
+}
+
 UserData::UserData(const UserData &other)
     : username(other.getUsername()), password(other.getPassword()), highscore(other.getHighscore())
 {
@@ -25,9 +30,14 @@ int UserData::getHighscore() const
     return highscore;
 }
 
-void UserData::setHighscore(int highscore)
+void UserData::setPassword(const std::string &newPassword)
 {
-    this->highscore = highscore;
+    password = newPassword;
+}
+
+void UserData::setHighscore(int newHighscore)
+{
+    highscore = newHighscore;
 }
 
 bool UserData::notAUser() const

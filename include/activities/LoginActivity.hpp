@@ -9,8 +9,10 @@
 class LoginActivity : public Activity {
 private:
     static const int REQUEST_SIGN_UP = 1;
+    static const int REQUEST_TITLEBAR_BUTTONS = -1;
 
     FontManager mFontManager;
+    TextureManager mTextureManager;
     EditTextView* mUsername;
     EditTextView* mPassword;
     TextView* mError;
@@ -27,6 +29,7 @@ protected:
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
 
 private:
+    void createBackground();
     void createTitle();
     void createBackButton();
     void createDialog();

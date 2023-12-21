@@ -15,6 +15,7 @@ public:
 
     bool isLoggedin() const;
     std::string getUsername() const;
+    std::string getPassword() const;
     void loginUser(const std::string &username, const std::string &password);
     void logoutUser();
     void loadLoginState(const std::string &filename);

@@ -18,17 +18,21 @@ public:
 
 private:
     std::stack<ActivityPtr> activityStack;
+    sf::RenderWindow mWindow;
 
 public:
+    ActivityManager(int windowWidth, int windowHeight, std::string windowTitle);
+
     void startActivity(ActivityPtr activity, Intent::Ptr intent);
     void attachActivity(ActivityPtr activity);
     void finishActivity(int requestCode, int resultCode, Intent::Ptr data);
     bool isEmpty() const;
-    Activity *getCurrentActivity();
+    Activity* getCurrentActivity();
+    sf::RenderWindow& getWindow();
 
 private:
     void clearStack();
-    void run(sf::RenderWindow &window);
+    void run();
 };
 
 #endif
