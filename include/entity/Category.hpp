@@ -7,14 +7,13 @@ namespace Category {
 		None = 0,
 		Player = 1 << 0,
 		Lane = 1 << 1,
-		Vehicle = 1 << 2,
-		Train = 1 << 3,
-		Animal = 1 << 4,
-		TrafficLight = 1 << 5,
+		River = 1 << 2,
+		Vehicle = 1 << 3,
+		Train = 1 << 4,
+		Animal = 1 << 5,
 		Log = 1 << 6,
-		River = 1 << 7,
-		Crocodile = 1 << 8,
-		Green = 1 << 9,
+		Crocodile = 1 << 7,
+		Green = 1 << 8,
 	};
 }
 

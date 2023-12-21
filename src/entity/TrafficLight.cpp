@@ -35,7 +35,3 @@ void TrafficLight::updateCurrentColor(sf::Time dt) {
     else
         elapsed %= (red + yellow + green);
 }
-
-unsigned int TrafficLight::getCategory() const {
-    return Category::TrafficLight;
-}

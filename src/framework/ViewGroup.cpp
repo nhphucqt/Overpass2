@@ -76,3 +76,81 @@ void ViewGroup::setReverse(bool reverse) {
 unsigned int ViewGroup::getCategory() const {
     return Category::None;
 }
+
+sf::Vector2f ViewGroup::getWorldPosition() const {
+	return getWorldTransform() * sf::Vector2f();
+}
+
+sf::Transform ViewGroup::getWorldTransform() const {
+	sf::Transform transform = sf::Transform::Identity;
+
+	for (const Viewable* node = this; node != nullptr; node = node->parent)
+		transform = node->getTransform() * transform;
+
+	return transform;
+}
+
+void ViewGroup::checkSceneCollision(const ViewGroup &sceneGraph, std::set<Pair> &collisionPairs) {
+	checkNodeCollision(sceneGraph, collisionPairs);
+
+	for (auto& child : sceneGraph.childViews)
+		checkSceneCollision(*((ViewGroup*) child.get()), collisionPairs);
+}
+
+void ViewGroup::checkNodeCollision(const ViewGroup& node, std::set<Pair>& collisionPairs) {
+	if (this != &node && collision(*this, node) && !isDestroyed() && !node.isDestroyed()) {
+		ViewGroup* ptr = (ViewGroup*) &node;
+		collisionPairs.insert(std::minmax(this, ptr));
+	}
+
+	for(Viewable::Ptr& child : childViews)
+		((ViewGroup*) child.get())->checkNodeCollision(node, collisionPairs);
+}
+
+sf::FloatRect ViewGroup::getBoundingRect() const {
+	return sf::FloatRect();
+}
+
+// void ViewGroup::removeWrecks() {
+// 	// Remove all children which request so
+// 	auto wreckfieldBegin = std::remove_if(childViews.begin(), childViews.end(), std::mem_fn(&ViewGroup::isMarkedForRemoval));
+// 	childViews.erase(wreckfieldBegin, childViews.end());
+
+// 	// Call function recursively for all remaining children
+// 	std::for_each(childViews.begin(), childViews.end(), std::mem_fn(&ViewGroup::removeWrecks));
+// }
+
+bool ViewGroup::isMarkedForRemoval() const {
+	// By default, remove node if entity is destroyed
+	return isDestroyed();
+}
+
+bool ViewGroup::isDestroyed() const {
+	// By default, scene node needn't be removed
+	return false;
+}
+
+void ViewGroup::drawBoundingRect(sf::RenderTarget& target, sf::RenderStates) const {
+	sf::FloatRect rect = getBoundingRect();
+
+	sf::RectangleShape shape;
+	shape.setPosition(sf::Vector2f(rect.left, rect.top));
+	shape.setSize(sf::Vector2f(rect.width, rect.height));
+	shape.setFillColor(sf::Color::Transparent);
+	shape.setOutlineColor(sf::Color::Green);
+	shape.setOutlineThickness(1.f);
+
+	target.draw(shape);
+}
+
+bool collision(const ViewGroup& lhs, const ViewGroup& rhs) {
+	return lhs.getBoundingRect().intersects(rhs.getBoundingRect());
+}
+
+float length(sf::Vector2f vector) {
+	return std::sqrt(vector.x * vector.x + vector.y * vector.y);
+}
+
+float distance(const ViewGroup& lhs, const ViewGroup& rhs) {
+	return length(lhs.getWorldPosition() - rhs.getWorldPosition());
+}
