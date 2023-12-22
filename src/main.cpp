@@ -26,16 +26,24 @@
 // }
 
 #include <Game.hpp>
+#include <UserSession.hpp>
 
 #include <stdexcept>
 #include <iostream>
 
-int main() {
-	try {
+int main()
+{
+	// UserRepo &repo = UserRepo::getInstance();
+	// repo.addUser(UserData("pikachu", "123"));
+	UserSession &userSession = UserSession::getInstance();
+	userSession.loginUser("pikachu", "123");
+	try
+	{
 		Game game;
 		game.run();
 	}
-	catch (std::exception& e) {
+	catch (std::exception &e)
+	{
 		std::cout << "\nEXCEPTION: " << e.what() << std::endl;
 	}
 }

@@ -60,7 +60,7 @@ void ProfileActivity::onActivityResult(int requestCode, int resultCode, Intent::
             std::string username = data->getExtra<std::string>("username");
             std::string password = data->getExtra<std::string>("password"); 
             {
-                UserSession userSession;
+                UserSession& userSession = UserSession::getInstance();
                 userSession.loginUser(username, password);
             }
             Intent::Ptr intent = Intent::Builder()
@@ -117,7 +117,7 @@ void ProfileActivity::createProfile() {
 
     bool isLogin = false;
     {
-        UserSession userSession;
+        UserSession& userSession = UserSession::getInstance();
         isLogin = userSession.isLoggedin();
     }
     
@@ -153,7 +153,7 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
     std::unique_ptr<UserData> userData;
     UserRepo& userRepo = UserRepo::getInstance();
     {
-        UserSession userSession;
+        UserSession& userSession = UserSession::getInstance();
         userData = std::make_unique<UserData>(userRepo.getUserByLogin(userSession.getUsername(), userSession.getPassword()));
     }
 
@@ -192,7 +192,7 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
         sf::Vector2f(),
         [this](EventListener* listener, const sf::Event& event) {
             {
-                UserSession userSession;
+                UserSession& userSession = UserSession::getInstance();
                 userSession.logoutUser();
             }
             this->finish();

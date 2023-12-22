@@ -1,5 +1,11 @@
 #include <UserSession.hpp>
 
+UserSession &UserSession::getInstance()
+{
+    static UserSession userSession;
+    return userSession;
+}
+
 UserSession::UserSession()
     : currentUser(nullptr), isLogin(false), repo(UserRepo::getInstance())
 {
@@ -34,6 +40,22 @@ std::string UserSession::getPassword() const
         throw std::invalid_argument("User not logged in.\n");
 
     return currentUser->getPassword();
+}
+
+int UserSession::getHighscore() const
+{
+    if (!isLogin)
+        throw std::invalid_argument("User not logged in.\n");
+
+    return currentUser->getHighscore();
+}
+
+UserData *UserSession::getCurrentUser() const
+{
+    if (!isLogin)
+        throw std::invalid_argument("User not logged in.\n");
+
+    return currentUser;
 }
 
 void UserSession::loginUser(const std::string &username, const std::string &password)
