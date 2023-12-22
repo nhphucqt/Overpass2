@@ -10,18 +10,25 @@
 class UserSession
 {
 public:
-    UserSession();
+    static UserSession &getInstance();
+    UserSession &operator=(const UserSession &) = delete;
+    UserSession(const UserSession &) = delete;
+
     ~UserSession();
 
     bool isLoggedin() const;
     std::string getUsername() const;
     std::string getPassword() const;
+    int getHighscore() const;
+    UserData *getCurrentUser() const;
+
     void loginUser(const std::string &username, const std::string &password);
     void logoutUser();
     void loadLoginState(const std::string &filename);
     void saveLoginState(const std::string &filename);
 
 private:
+    UserSession();
     UserData *currentUser;
     UserRepo &repo;
     bool isLogin;
