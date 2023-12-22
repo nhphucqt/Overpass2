@@ -15,7 +15,7 @@ public:
     UserSession(const UserSession &) = delete;
     UserSession &operator=(const UserSession &) = delete;
 
-    UserData& getCurrentUser();
+    UserData &getCurrentUser();
 
     bool isLoggedin() const;
 
@@ -26,13 +26,15 @@ private:
     void loadLoginState(const std::string &filename);
     void saveLoginState(const std::string &filename);
 
-    UserData currentUser;
+private:
+    UserSession();
+    UserData *currentUser;
     UserRepo &repo;
     bool isLogin;
 
     UserSession();
 
-    static const char* loginStateFilename;
+    static const char *loginStateFilename;
 };
 
 #endif

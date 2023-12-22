@@ -1,7 +1,7 @@
 #include <UserSession.hpp>
 #include <cassert>
 
-const char* UserSession::loginStateFilename = "data/login.txt";
+const char *UserSession::loginStateFilename = "data/login.txt";
 
 UserSession &UserSession::getInstance()
 {
@@ -10,7 +10,8 @@ UserSession &UserSession::getInstance()
 }
 
 UserSession::UserSession()
-: isLogin(false), repo(UserRepo::getInstance()) {
+    : isLogin(false), repo(UserRepo::getInstance())
+{
     loadLoginState(loginStateFilename);
 }
 
@@ -90,7 +91,7 @@ void UserSession::saveLoginState(const std::string &filename)
     outf.close();
 }
 
-UserData& UserSession::getCurrentUser()
+UserData &UserSession::getCurrentUser()
 {
     return currentUser;
 }

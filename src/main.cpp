@@ -6,14 +6,14 @@
 
 int main()
 {
-  AppConfig &config = AppConfig::getInstance();
-  sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
-  std::string windowTitle = config.get<std::string>(ConfigKey::AppName);
+	AppConfig &config = AppConfig::getInstance();
+	sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
+	std::string windowTitle = config.get<std::string>(ConfigKey::AppName);
 
-  Application app(windowSize.x, windowSize.y, windowTitle);
-  Activity::Ptr launcher = std::make_unique<MainMenuActivity>();
-  app.addLauncher(std::move(launcher));
-  app.run();
+	Application app(windowSize.x, windowSize.y, windowTitle);
+	Activity::Ptr launcher = std::make_unique<MainMenuActivity>();
+	app.addLauncher(std::move(launcher));
+	app.run();
 
-  return 0;
+	return 0;
 }
