@@ -24,6 +24,7 @@ public:
 
 public:
 	Player();
+	~Player();
 
 	void handleEvent(const sf::Event &event, CommandQueue &commands);
 	void handleRealtimeInput(CommandQueue &commands);
@@ -36,6 +37,7 @@ private:
 	static bool isRealtimeAction(Action action);
 
 private:
+	int mScore;
 	std::map<sf::Keyboard::Key, Action> mKeyBinding;
 	std::map<Action, Command> mActionBinding;
 };

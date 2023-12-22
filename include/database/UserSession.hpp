@@ -11,9 +11,10 @@ class UserSession
 {
 public:
     static UserSession &getInstance();
-
-    UserSession(const UserSession &) = delete;
     UserSession &operator=(const UserSession &) = delete;
+    UserSession(const UserSession &) = delete;
+
+    ~UserSession();
 
     UserData &getCurrentUser();
 
@@ -27,7 +28,6 @@ private:
     void saveLoginState(const std::string &filename);
 
 private:
-    UserSession();
     UserData *currentUser;
     UserRepo &repo;
     bool isLogin;
