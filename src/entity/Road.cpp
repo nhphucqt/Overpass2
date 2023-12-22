@@ -10,6 +10,10 @@ Lane(textures->get(TextureID::Road), textures, isReverse) {
     buildLane();
 }
 
+unsigned int Road::getCategory() const {
+    return Category::Lane;
+}
+
 void Road::updateCurrent(sf::Time dt) {
     if (isReverse) {
         TrafficLight::Color curColor = trafficlight->getCurrentColor();
@@ -75,7 +79,7 @@ void Road::buildLane() {
         std::unique_ptr<Animal> fox(new Animal(Animal::Fox, *laneTextures));
         animals.push_back(fox.get());
         fox->setVelocity(-100.f, 0.f);
-        fox->setPosition(1400.f, 64.f);
+        fox->setPosition(1400.f, 0.f);
         fox->scale(-0.5, 0.5);
         this->attachView(std::move(car));
         this->attachView(std::move(fox));
@@ -95,7 +99,7 @@ void Road::buildLane() {
         std::unique_ptr<Animal> fox(new Animal(Animal::Fox, *laneTextures));
         animals.push_back(fox.get());
         fox->setVelocity(100.f, 0.f);
-        fox->setPosition(0.f, 64.f);
+        fox->setPosition(0.f, 0.f);
         fox->scale(0.5, 0.5);
         this->attachView(std::move(car));
         this->attachView(std::move(fox));

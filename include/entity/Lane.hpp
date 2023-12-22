@@ -19,6 +19,7 @@ public:
     };
     
     Lane(const sf::Texture &texture, TextureManager* textures, bool reverse = false);
+	virtual sf::FloatRect getBoundingRect() const;
 
 protected:
     TextureManager* laneTextures;

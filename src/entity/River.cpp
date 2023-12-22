@@ -7,6 +7,10 @@ Lane(textures->get(TextureID::River), textures, isReverse) {
     buildLane();
 }
 
+unsigned int River::getCategory() const {
+    return Category::River;
+}
+
 void River::updateCurrent(sf::Time dt) {
     if (isReverse) {
         Log* lastLog = logs[logs.size() - 1];

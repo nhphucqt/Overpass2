@@ -6,13 +6,10 @@ class Entity: public ViewGroup {
 public:
 	Entity() = default;
 	Entity(const sf::Texture &texture);
-	void setVelocity(sf::Vector2f velocity);
-	void setVelocity(float vx, float vy);
+	virtual void setVelocity(sf::Vector2f velocity);
+	virtual void setVelocity(float vx, float vy);
 	sf::Vector2f getVelocity() const;
-	void accelerate(sf::Vector2f velocity);
-	void accelerate(float vx, float vy);
-	virtual bool checkCollision(Entity& other);
-	virtual sf::FloatRect getGlobalBounds();
+	virtual sf::FloatRect getBoundingRect() const;
 	virtual sf::Vector2f center();
 
 protected: 

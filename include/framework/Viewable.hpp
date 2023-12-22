@@ -4,6 +4,10 @@
 #include <Command.hpp>
 #include <CommandQueue.hpp>
 #include <memory>
+#include <vector>
+#include <set>
+#include <utility>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 
 class Viewable: public sf::Drawable, 
@@ -12,6 +16,8 @@ friend class ViewGroup;
 
 public:
     typedef std::unique_ptr<Viewable> Ptr;
+
+protected:
 
 private:
     Viewable* parent;
@@ -27,7 +33,9 @@ public:
 
     sf::Transform getAbsoluteTransform() const;
 
+	virtual unsigned int getCategory() const = 0;
 	virtual void onCommand(const Command &command, sf::Time dt);
+	
 };
 
 #endif

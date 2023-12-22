@@ -11,7 +11,8 @@ class Green: public Entity {
 public:
     enum Type {Tree, Bush, CircleBush};
     Green(Type mType, const TextureManager& textures);
-    virtual unsigned int getCategory() const;
+    unsigned int getCategory() const;
+	virtual sf::FloatRect getBoundingRect() const;
     // dummy overide methods to prevent tree from moving
     void setVelocity(sf::Vector2f velocity);
     void setVelocity(float vx, float vy);

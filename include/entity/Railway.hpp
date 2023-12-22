@@ -11,6 +11,7 @@
 class Railway: public Lane {
 public:
     Railway(TextureManager* textures, ViewGroup* foreground, bool isReverse = false);
+    unsigned int getCategory() const;
 
 private:
 	Train* train;

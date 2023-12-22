@@ -23,10 +23,17 @@ Entity(textures.get(toTextureID(mType)))
 unsigned int Log::getCategory() const {
 	switch (type) {
 	case Log::Wood:
-		return Category::Wood;
+		return Category::Log;
 	case Log::Crocodile:
 		return Category::Crocodile;
 	default:
-		return Category::Wood;
+		return Category::Log;
 	}
+}
+
+sf::FloatRect Log::getBoundingRect() const {
+    sf::FloatRect rect = Entity::getBoundingRect();
+	rect.top = rect.top + rect.getSize().y / 2 - 65;
+	rect.height = 130;
+	return rect;
 }

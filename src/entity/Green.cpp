@@ -35,6 +35,15 @@ unsigned int Green::getCategory() const {
     return Category::Green;
 }
 
+sf::FloatRect Green::getBoundingRect() const {
+    sf::FloatRect rect = Entity::getBoundingRect();
+    if (type == Tree) {
+        rect.top += 90;
+        rect.height = 128;
+    }
+    return rect;
+}
+
 void Green::setVelocity(sf::Vector2f velocity) {
 }
 

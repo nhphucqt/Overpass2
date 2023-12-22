@@ -18,7 +18,6 @@ public:
     enum Color{Red, Yellow, Green};
     TrafficLight(const TextureManager& textures);
     Color getCurrentColor();
-    virtual unsigned int getCategory() const; 
 
 private:
     sf::IntRect rect;

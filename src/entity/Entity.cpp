@@ -15,16 +15,6 @@ sf::Vector2f Entity::getVelocity() const {
 	return mVelocity;
 }
 
-void Entity::accelerate(sf::Vector2f velocity) {
-	mVelocity += velocity;
-}
-
-void Entity::accelerate(float vx, float vy) {
-	mVelocity.x += vx;
-	mVelocity.y += vy;
-
-}
-
 void Entity::updateCurrent(sf::Time dt) {
 	move(mVelocity * dt.asSeconds());
 }
@@ -33,12 +23,8 @@ void Entity::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) cons
     target.draw(sprite, states);
 }
 
-bool Entity::checkCollision(Entity &other) {
-    return sprite.getGlobalBounds().intersects(other.getGlobalBounds());
-}
-
-sf::FloatRect Entity::getGlobalBounds() {
-    return sprite.getGlobalBounds();
+sf::FloatRect Entity::getBoundingRect() const {
+    return getWorldTransform().transformRect(sprite.getGlobalBounds());
 }
 
 sf::Vector2f Entity::center() {

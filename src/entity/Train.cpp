@@ -8,3 +8,10 @@ Entity(textures.get(TextureID::Train)) {
 unsigned int Train::getCategory() const {
     return Category::Train;
 }
+
+sf::FloatRect Train::getBoundingRect() const {
+    sf::FloatRect rect = Entity::getBoundingRect();
+	rect.top = rect.top + 54;
+	rect.height = 128;
+	return rect;
+}

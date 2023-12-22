@@ -18,5 +18,5 @@ Entity(textures.get(toTextureID(mType))) {
 }
 
 unsigned int Vehicle::getCategory() const {
-    return Category::Car;
+    return Category::Vehicle;
 }

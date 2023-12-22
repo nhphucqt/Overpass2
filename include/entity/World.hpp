@@ -40,7 +40,10 @@ private:
 	void loadTextures();
 	void buildScene();
 	void adaptPlayerPosition();
-	void adaptPlayerVelocity();
+
+	void handleCollisions();
+	void scroll(sf::Time dt);
+	void gameOver();
 
 private:
 	enum Layer {
@@ -50,9 +53,11 @@ private:
 	};
 
 private:
+	bool stop;
 	sf::RenderWindow &mWindow;
 	sf::View mWorldView;
 	TextureManager mTextures;
+	std::vector<Lane *> lanes;
 
 	Entity mSceneGraph;
 	std::array<ViewGroup *, LayerCount> mSceneLayers;
@@ -62,6 +67,10 @@ private:
 	sf::FloatRect mWorldBounds;
 	sf::Vector2f mSpawnPosition;
 	float mScrollSpeed;
+	sf::Clock clock;
+	int playerLaneIndex;
+	int scrollDistance;
+	int actualScrollDistance;
 };
 
 #endif
