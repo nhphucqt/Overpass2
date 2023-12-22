@@ -14,7 +14,7 @@ public:
     std::string getPassword() const;
     int getHighscore() const;
 
-    void setPassword(co nst std::string &newPassword);
+    void setPassword(const std::string &newPassword);
     void setHighscore(int newHighscore);
     bool notAUser() const;
 
