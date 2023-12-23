@@ -13,7 +13,6 @@ World::World(sf::RenderWindow& window)
 , stop(false)
 , playerLaneIndex(3)
 , scrollDistance(0)
-, actualScrollDistance(0)
 {
 	loadTextures();
 	buildScene();
@@ -66,6 +65,7 @@ void World::loadTextures() {
     mTextures.load(TextureID::Police, "../../res/textures/Police.png");
 	mTextures.load(TextureID::TrafficLight, "../../res/textures/TrafficLight.png");
 	mTextures.load(TextureID::Fox, "../../res/textures/Fox.png");
+	mTextures.load(TextureID::Bear, "../../res/textures/Bear.png");
     mTextures.load(TextureID::Wood, "../../res/textures/Wood.png");
     mTextures.load(TextureID::Tree, "../../res/textures/Tree.png");
     mTextures.load(TextureID::Bush, "../../res/textures/Bush.png");
@@ -191,7 +191,7 @@ void World::handleCollisions() {
 	bool onRiver = false;
 	for (ViewGroup::Pair pair : collisionPairs) {
 		if (matchesCategories(pair, Category::Player, Category::Lane))
-			mPlayer->setOnRiver(false);
+			onRiver = false;
 		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Animal))
@@ -199,7 +199,6 @@ void World::handleCollisions() {
 		else if (matchesCategories(pair, Category::Player, Category::Train))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Log)) {
-			mPlayer->setOnRiver(true);
 			onRiver = false;
 			if (mPlayer->getState() == PlayerNode::Idle) {
 				auto& log = static_cast<Log&>(*pair.second);
@@ -209,7 +208,6 @@ void World::handleCollisions() {
 		}
 		else if (matchesCategories(pair, Category::Player, Category::River)) {
 			onRiver = true;
-			mPlayer->setOnRiver(true);
 		}
 		else if (matchesCategories(pair, Category::Player, Category::Green)) {
 			mPlayer->moveBack();
@@ -237,6 +235,11 @@ void World::scroll(sf::Time dt) {
 		scrollDistance += scrollStep;
 		mWorldView.move(0.f, scrollStep);	
 	}
+	// else {
+	// 	float step = -24.f * dt.asSeconds();
+	// 	scrollDistance += step;
+	// 	mWorldView.move(0, step);
+	// }
 }
 
 void World::gameOver() {
