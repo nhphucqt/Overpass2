@@ -69,9 +69,9 @@ void Road::buildLane() {
 
     // create animals, animals should have the same type for consistency
     for (int i = 0; i < numOfAnimal; ++i) {
-        std::unique_ptr<Animal> bear(new Animal(Animal::Bear, *laneTextures));
+        std::unique_ptr<Animal> bear(new Animal(Animal::Wolf, *laneTextures));
         animals.push_back(bear.get());
-        bear->setPosition((laneLength + 100) / numOfAnimal * i, 24.f);
+        bear->setPosition((laneLength + 100) / numOfAnimal * i, 16.f);
         bear->setVelocity(animalVelocity * reverseScale, 0.f);
         bear->scale(reverseScale, 1);
         this->attachView(std::move(bear));

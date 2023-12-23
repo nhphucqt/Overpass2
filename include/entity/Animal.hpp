@@ -9,7 +9,7 @@
 
 class Animal: public Entity {
 public:
-    enum Type {Fox, Bear};
+    enum Type {Bear, Boar, Bunny, Deer, Fox, Wolf};
     Animal(Type mType, const TextureManager& textures);
     void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 	virtual sf::FloatRect getBoundingRect() const;
