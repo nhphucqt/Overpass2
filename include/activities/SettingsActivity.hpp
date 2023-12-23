@@ -26,6 +26,7 @@ private:
     void createBackground();
     void createTitle();
     void createBackButton();
+    void createMenu();
 };
 
 #endif

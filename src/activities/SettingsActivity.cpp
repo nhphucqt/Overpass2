@@ -2,10 +2,17 @@
 #include <AppConfig.hpp>
 #include <TextView.hpp>
 #include <ButtonView.hpp>
+#include <ToggleButtonView.hpp>
+#include <SpriteView.hpp>
 
 #include <TitlebarFactory.hpp>
 #include <BackgroundFactory.hpp>
 #include <BackButtonFactory.hpp>
+#include <SettingToggleFactory.hpp>
+
+#include <GameSetting.hpp>
+#include <MusicPlayer.hpp>
+#include <SoundPlayer.hpp>
 
 void SettingsActivity::onLoadResources() {
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
@@ -14,12 +21,15 @@ void SettingsActivity::onLoadResources() {
     mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
     mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
     mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
+    mTextureManager.load(TextureID::toggleButtonsTexture, "res/textures/ui/UI_Settings_Buttons.png");
+    mTextureManager.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
 }
 
 void SettingsActivity::onCreate() {
     createBackground();
     createTitle();
     createBackButton();
+    createMenu();
 }
 
 void SettingsActivity::onAttach() {
@@ -77,4 +87,69 @@ void SettingsActivity::createBackButton() {
             mFontManager.get(FontID::defaultFont)
         )
     );
+}
+
+void SettingsActivity::createMenu() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
+
+    SpriteView::Ptr menu = std::make_unique<SpriteView>(
+        mTextureManager.get(TextureID::settingMenuTexture),
+        sf::Vector2f(0, 0),
+        sf::Vector2f(106, 122) * 4.f,
+        sf::IntRect(139, 12, 106, 122)
+    );
+    menu->setPosition((windowSize - menu->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
+
+    ToggleButtonView::Ptr musicToggle = SettingToggleFactory::create(
+        this,
+        mTextureManager.get(TextureID::toggleButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        "Music",
+        false
+    );
+    musicToggle->setPosition((menu->get().getGlobalBounds().getSize() - musicToggle->getGlobalBounds().getSize() - sf::Vector2f(0, musicToggle->getGlobalBounds().getSize().y + 20)) / 2.f);
+    musicToggle->move(30, 0);
+
+    ToggleButtonView::Ptr soundToggle = SettingToggleFactory::create(
+        this,
+        mTextureManager.get(TextureID::toggleButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        "Sound",
+        false
+    );
+    soundToggle->move(0, musicToggle->getGlobalBounds().getSize().y + 20);
+
+    MusicPlayer& musicPlayer = MusicPlayer::getInstance();
+    SoundPlayer& soundPlayer = SoundPlayer::getInstance();
+
+    assert(musicPlayer.getVolume() == 0 || musicPlayer.getVolume() == 100);
+    assert(soundPlayer.getVolume() == 0 || soundPlayer.getVolume() == 100);
+
+    musicToggle->setState(musicPlayer.getVolume() != 0);
+    soundToggle->setState(soundPlayer.getVolume() != 0);
+
+    musicToggle->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+        ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
+        if (button->getState()) {
+            musicPlayer.setVolume(100);
+        } else {
+            musicPlayer.setVolume(0);
+        }
+        GameSetting::getInstance().saveSettingState();
+    });
+
+    soundToggle->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+        ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
+        if (button->getState()) {
+            soundPlayer.setVolume(100);
+        } else {
+            soundPlayer.setVolume(0);
+        }
+        GameSetting::getInstance().saveSettingState();
+    });
+    
+    musicToggle->attachView(std::move(soundToggle));
+    menu->attachView(std::move(musicToggle));
+    attachView(std::move(menu));
 }

@@ -9,6 +9,7 @@ UserSession::UserSession()
 UserSession::~UserSession()
 {
     saveLoginState("data/login.txt");
+    repo.updateUser(*currentUser);
 
     if (currentUser)
         delete currentUser;
@@ -25,6 +26,14 @@ std::string UserSession::getUsername() const
         throw std::invalid_argument("User not logged in.\n");
 
     return currentUser->getUsername();
+}
+
+std::string UserSession::getPassword() const
+{
+    if (!isLogin)
+        throw std::invalid_argument("User not logged in.\n");
+
+    return currentUser->getPassword();
 }
 
 void UserSession::loginUser(const std::string &username, const std::string &password)
@@ -87,6 +96,8 @@ void UserSession::loadLoginState(const std::string &filename)
             return;
         }
     }
+
+    inf.close();
 }
 
 void UserSession::saveLoginState(const std::string &filename)
@@ -98,4 +109,6 @@ void UserSession::saveLoginState(const std::string &filename)
         return;
     }
     outf << currentUser->getUsername() << ' ' << currentUser->getPassword();
+    std::cerr << "Login state saved.\n";
+    outf.close();
 }

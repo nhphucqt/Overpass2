@@ -3,12 +3,19 @@
 GameSetting::GameSetting()
     : mSoundPlayer(SoundPlayer::getInstance()), mMusicPlayer(MusicPlayer::getInstance())
 {
-    loadSettingState("data/settings.txt");
 }
 
 GameSetting::~GameSetting()
 {
-    saveSettingState("data/settings.txt");
+}
+
+GameSetting& GameSetting::getInstance() {
+    static GameSetting gameSetting;
+    return gameSetting;
+}
+
+void GameSetting::loadSettingState() {
+    loadSettingState("data/settings.txt");
 }
 
 void GameSetting::loadSettingState(const std::string &filename)
@@ -17,6 +24,9 @@ void GameSetting::loadSettingState(const std::string &filename)
     if (!inf)
     {
         std::cerr << filename + " not found.\n";
+        std::cerr << "Initialize the data...\n";
+        saveSettingState(filename);
+        loadSettingState(filename);
         return;
     }
 
@@ -26,10 +36,17 @@ void GameSetting::loadSettingState(const std::string &filename)
 
     mMusicPlayer.setVolume(musicVolume);
     mSoundPlayer.setVolume(soundVolume);
+
+    inf.close();
+}
+
+void GameSetting::saveSettingState() {
+    saveSettingState("data/settings.txt");
 }
 
 void GameSetting::saveSettingState(const std::string &filename)
 {
     std::ofstream outf(filename, std::ofstream::out | std::ofstream::trunc);
     outf << mMusicPlayer.getVolume() << ' ' << mSoundPlayer.getVolume();
+    outf.close();
 }
