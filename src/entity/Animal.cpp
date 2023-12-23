@@ -5,7 +5,8 @@ TextureID toTextureID(Animal::Type type) {
 	case Animal::Fox:
 		return TextureID::Fox;
  
-    // other animals here
+    case Animal::Bear:
+        return TextureID::Bear;
 	}
 	return TextureID::Fox;
 }
@@ -14,9 +15,18 @@ Animal::Animal(Type mType, const TextureManager& textures):
 type(mType),
 animation(textures.get(toTextureID(mType)))
 {
-    animation.setFrameSize(sf::Vector2i(890/5, 152));
-    animation.setNumFrames(5);
-    animation.setDuration(sf::seconds(1));
+    if (type == Fox) {
+        animation.setFrameSize(sf::Vector2i(890/5, 152));
+        animation.setNumFrames(5);
+        animation.setDuration(sf::seconds(1));
+        animation.scale(0.5, 0.5);
+    }
+    else if (type == Bear) {
+        animation.setFrameSize(sf::Vector2i(156 / 6, 12));
+        animation.setNumFrames(6);
+        animation.setDuration(sf::seconds(1));
+        animation.scale(5, 5);
+    }
 	// sf::FloatRect bounds = animation.getLocalBounds();
 	// animation.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
