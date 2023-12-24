@@ -18,6 +18,7 @@ public:
 
 private:
     static constexpr float laneLength = 1400.f;
+    static constexpr float padding = 100.f;
     static const int numOfVehicle = 3, numOfAnimal = 2;
     static constexpr float vehicleVelocity = 300.f;
     static constexpr float vehicleSlowVelocity = 100.f;

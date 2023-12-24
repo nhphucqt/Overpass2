@@ -19,6 +19,7 @@ void Road::updateCurrent(sf::Time dt) {
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
 
+    // vehicles responding to traffic light
     TrafficLight::Color curColor = trafficlight->getCurrentColor();
     if(curColor == TrafficLight::Color::Red)
         for(auto& x : vehicles)
@@ -30,9 +31,7 @@ void Road::updateCurrent(sf::Time dt) {
         for(auto& x : vehicles)
             x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
 
-    // add padding so that vehicles and animals do not appear out of nowhere
-    const int padding = 200;
-
+    // vehicle circling when out of view
     Vehicle* lastVehicle = vehicles.back();
     Vehicle* firstVehicle = vehicles.front();
     int distanceVehicle = laneLength/vehicles.size();
@@ -61,7 +60,7 @@ void Road::buildLane() {
     for (int i = 0; i < numOfVehicle; ++i) {
         std::unique_ptr<Vehicle> vehicle(new Vehicle(Vehicle::Car, *laneTextures));
         vehicles.push_back(vehicle.get());
-        vehicle->setPosition((laneLength + 100) / numOfVehicle * i, 64.f);
+        vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
         vehicle->setVelocity(vehicleVelocity * reverseScale, 0.f);
         vehicle->scale(reverseScale, 1);
         this->attachView(std::move(vehicle));
@@ -69,9 +68,9 @@ void Road::buildLane() {
 
     // create animals, animals should have the same type for consistency
     for (int i = 0; i < numOfAnimal; ++i) {
-        std::unique_ptr<Animal> bear(new Animal(Animal::Wolf, *laneTextures));
+        std::unique_ptr<Animal> bear(new Animal(Animal::Fox, *laneTextures));
         animals.push_back(bear.get());
-        bear->setPosition((laneLength + 100) / numOfAnimal * i, 16.f);
+        bear->setPosition((laneLength + padding) / numOfAnimal * i, 16.f);
         bear->setVelocity(animalVelocity * reverseScale, 0.f);
         bear->scale(reverseScale, 1);
         this->attachView(std::move(bear));
