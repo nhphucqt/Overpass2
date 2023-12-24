@@ -41,6 +41,10 @@ void Activity::onEvent(const sf::Event& event) {
     // Do nothing
 }
 
+void Activity::onEventProcessing() {
+    // Do nothing
+}
+
 void Activity::onAttach() {
     // Do nothing
 }

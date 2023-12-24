@@ -15,6 +15,7 @@ World::World(sf::RenderWindow& window)
 , scrollDistance(0)
 , actualScrollDistance(0)
 {
+	std::cerr << "mWorldView: " << mWorldView.getSize().x << ' ' << mWorldView.getSize().y << '\n';
 	loadTextures();
 	buildScene();
 
@@ -55,29 +56,29 @@ CommandQueue& World::getCommandQueue() {
 
 void World::loadTextures() {
 	// load entities
-	mTextures.load(TextureID::Road, "../../res/textures/Road.png");
-	mTextures.load(TextureID::River, "../../res/textures/River.png");
-    mTextures.load(TextureID::Rail, "../../res/textures/Rail.png");
-    mTextures.load(TextureID::Field, "../../res/textures/Field.png");
-	mTextures.load(TextureID::Player, "../../res/textures/Player.png");
-    mTextures.load(TextureID::Car, "../../res/textures/Car.png");
-    mTextures.load(TextureID::Ambulance, "../../res/textures/Ambulance.png");
-    mTextures.load(TextureID::Taxi, "../../res/textures/Taxi.png");
-    mTextures.load(TextureID::Police, "../../res/textures/Police.png");
-	mTextures.load(TextureID::TrafficLight, "../../res/textures/TrafficLight.png");
-	mTextures.load(TextureID::Fox, "../../res/textures/Fox.png");
-    mTextures.load(TextureID::Wood, "../../res/textures/Wood.png");
-    mTextures.load(TextureID::Tree, "../../res/textures/Tree.png");
-    mTextures.load(TextureID::Bush, "../../res/textures/Bush.png");
-    mTextures.load(TextureID::CircleBush, "../../res/textures/CircleBush.png");
-    mTextures.load(TextureID::Train, "../../res/textures/Train.png");
+	mTextures.load(TextureID::Road, "res/textures/Road.png");
+	mTextures.load(TextureID::River, "res/textures/River.png");
+    mTextures.load(TextureID::Rail, "res/textures/Rail.png");
+    mTextures.load(TextureID::Field, "res/textures/Field.png");
+	mTextures.load(TextureID::Player, "res/textures/Player.png");
+    mTextures.load(TextureID::Car, "res/textures/Car.png");
+    mTextures.load(TextureID::Ambulance, "res/textures/Ambulance.png");
+    mTextures.load(TextureID::Taxi, "res/textures/Taxi.png");
+    mTextures.load(TextureID::Police, "res/textures/Police.png");
+	mTextures.load(TextureID::TrafficLight, "res/textures/TrafficLight.png");
+	mTextures.load(TextureID::Fox, "res/textures/Fox.png");
+    mTextures.load(TextureID::Wood, "res/textures/Wood.png");
+    mTextures.load(TextureID::Tree, "res/textures/Tree.png");
+    mTextures.load(TextureID::Bush, "res/textures/Bush.png");
+    mTextures.load(TextureID::CircleBush, "res/textures/CircleBush.png");
+    mTextures.load(TextureID::Train, "res/textures/Train.png");
 	// load character
-    mTextures.load(TextureID::CharacterUp, "../../res/textures/Character/Cat-Up.png");
-    mTextures.load(TextureID::CharacterDown, "../../res/textures/Character/Cat-Down.png");
-    mTextures.load(TextureID::CharacterLeft, "../../res/textures/Character/Cat-Left.png");
-    mTextures.load(TextureID::CharacterRight, "../../res/textures/Character/Cat-Right.png");
-    mTextures.load(TextureID::CharacterIdle, "../../res/textures/Character/Cat-Idle.png");
-	mTextures.load(TextureID::GameOver, "../../res/textures/GameOver.png");
+    mTextures.load(TextureID::CharacterUp, "res/textures/Character/Cat-Up.png");
+    mTextures.load(TextureID::CharacterDown, "res/textures/Character/Cat-Down.png");
+    mTextures.load(TextureID::CharacterLeft, "res/textures/Character/Cat-Left.png");
+    mTextures.load(TextureID::CharacterRight, "res/textures/Character/Cat-Right.png");
+    mTextures.load(TextureID::CharacterIdle, "res/textures/Character/Cat-Idle.png");
+	mTextures.load(TextureID::GameOver, "res/textures/GameOver.png");
 }
 
 void World::buildScene() {
@@ -118,6 +119,7 @@ void World::buildScene() {
 	}
 	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3)); // last argument must be consistent with playerLaneIndex
 	mPlayer = player.get();
+	std::cerr << "mPlayer: " << mPlayer->getPosition().x << ", " << mPlayer->getPosition().y << std::endl;
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 
 }
@@ -160,7 +162,7 @@ void World::adaptPlayerPosition() {
 	}
 }
 
-bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2)
+bool World::matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2)
 {
 	unsigned int category1 = colliders.first->getCategory();
 	unsigned int category2 = colliders.second->getCategory();

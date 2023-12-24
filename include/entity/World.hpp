@@ -40,6 +40,7 @@ private:
 	void loadTextures();
 	void buildScene();
 	void adaptPlayerPosition();
+	bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2);
 
 	void handleCollisions();
 	void scroll(sf::Time dt);
