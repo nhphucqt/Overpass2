@@ -170,7 +170,7 @@ void World::adaptPlayerPosition() {
 	}
 }
 
-bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2)
+bool World::matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2)
 {
 	unsigned int category1 = colliders.first->getCategory();
 	unsigned int category2 = colliders.second->getCategory();
