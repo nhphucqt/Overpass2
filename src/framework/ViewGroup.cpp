@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-ViewGroup::ViewGroup(): isReverse(false) {
+ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true) {
 }
 
 void ViewGroup::attachView(Viewable::Ptr view)
@@ -45,8 +45,10 @@ void ViewGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 void ViewGroup::update(sf::Time delta) {
-    updateCurrent(delta);
-    updateChildren(delta);
+	if (isUpdate()) {
+		updateCurrent(delta);
+		updateChildren(delta);
+	}
 }
 
 void ViewGroup::updateCurrent(sf::Time delta) {
@@ -153,4 +155,12 @@ float length(sf::Vector2f vector) {
 
 float distance(const ViewGroup& lhs, const ViewGroup& rhs) {
 	return length(lhs.getWorldPosition() - rhs.getWorldPosition());
+}
+
+void ViewGroup::setUpdate(bool isUpdate) {
+	mIsUpdate = isUpdate;
+}
+
+bool ViewGroup::isUpdate() {
+	return mIsUpdate;
 }

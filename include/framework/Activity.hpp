@@ -47,6 +47,7 @@ protected:
     virtual void onLoadResources() = 0;
     virtual void onCreate() = 0;
     virtual void onEvent(const sf::Event& event);
+    virtual void onEventProcessing();
     virtual void onAttach();
     virtual void onResume();
     virtual void onPause();

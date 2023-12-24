@@ -32,12 +32,15 @@ public:
 	virtual bool isDestroyed() const;
 	void drawBoundingRect(sf::RenderTarget& target, sf::RenderStates states) const;
 
+    void setUpdate(bool isUpdate);
+    bool isUpdate();
+
 protected:
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const = 0;
 
 private:
-    bool isReverse;
+    bool isReverse, mIsUpdate;
     std::vector<Viewable::Ptr> childViews;
 
 private:
