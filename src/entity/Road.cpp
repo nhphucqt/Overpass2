@@ -38,7 +38,8 @@ void Road::updateCurrent(sf::Time dt) {
     if ((isReverse && lastVehicle->getPosition().x < -padding) || (!isReverse && lastVehicle->getPosition().x > laneLength + padding))
         vehicles[vehicles.size() - 1]->setPosition(firstVehicle->getPosition().x - padding * reverseScale - distanceVehicle * reverseScale, lastVehicle->getPosition().y);
     // make the last car becomes the first car in the next iteration
-    vehicles.erase(vehicles.end());
+    // vehicles.erase(vehicles.end());
+    vehicles.pop_back();
     vehicles.insert(vehicles.begin(), lastVehicle);
 
     Animal* lastAnimal = animals.back();
@@ -47,7 +48,8 @@ void Road::updateCurrent(sf::Time dt) {
     if ((isReverse && lastAnimal->getPosition().x < -padding) || (!isReverse && lastAnimal->getPosition().x > laneLength + padding))
         animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - padding * reverseScale - distanceAnimal * reverseScale, lastAnimal->getPosition().y);
     // make the last animal becomes the first animal in the next iteration
-    animals.erase(animals.end());
+    // animals.erase(animals.end());
+    animals.pop_back();
     animals.insert(animals.begin(), lastAnimal);
 }
 

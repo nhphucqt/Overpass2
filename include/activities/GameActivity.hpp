@@ -17,6 +17,8 @@
 #include <ViewGroup.hpp>
 #include <Player.hpp>
 
+#include <array>
+
 class GameActivity : public Activity {
 public:
     static const int ACTION_NEW_GAME = 1;
