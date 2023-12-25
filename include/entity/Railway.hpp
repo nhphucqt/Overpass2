@@ -14,6 +14,9 @@ public:
     unsigned int getCategory() const;
 
 private:
+    static constexpr float laneLength = 1400.f;
+    static constexpr float padding = 1000.f;
+    static constexpr float trainVelocity = 700.f;
 	Train* train;
     ViewGroup* foreground;
     void updateCurrent(sf::Time dt);

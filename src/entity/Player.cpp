@@ -14,7 +14,7 @@ struct PlayerMover {
 	}
 
 	void operator() (PlayerNode& player, sf::Time) const {
-		player.move(player.getVelocity() + velocity);
+		player.move(velocity);
 	}
 
 	sf::Vector2f velocity;

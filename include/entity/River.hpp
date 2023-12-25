@@ -14,6 +14,10 @@ public:
     unsigned int getCategory() const;
 
 private:
+    static constexpr float laneLength = 1400.f;
+    static constexpr float padding = 100.f;
+    static const int numOfLog = 3;
+    static constexpr float logVelocity = 200.f;
 	std::vector<Log *> logs;
     void updateCurrent(sf::Time dt);
     void buildLane();

@@ -71,7 +71,6 @@ private:
 	sf::Clock clock;
 	int playerLaneIndex;
 	int scrollDistance;
-	int actualScrollDistance;
 };
 
 #endif

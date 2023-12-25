@@ -2,10 +2,10 @@
 
 Road::Road(TextureManager *textures, bool isReverse):
 Lane(textures->get(TextureID::Road), textures, isReverse) {
-    type = Lane::Type::Road;
+    type = Lane::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
-	sf::IntRect textureRect(0, 0, 1400, 16);
+	sf::IntRect textureRect(0, 0, laneLength, 16);
     sprite.setTextureRect(textureRect);
     buildLane();
 }
@@ -15,95 +15,79 @@ unsigned int Road::getCategory() const {
 }
 
 void Road::updateCurrent(sf::Time dt) {
-    if (isReverse) {
-        TrafficLight::Color curColor = trafficlight->getCurrentColor();
-        if(curColor == TrafficLight::Color::Red)
-            for(auto& x : cars)
-                x->setVelocity(0, 0);
-        else if (curColor == TrafficLight::Color::Green)
-            for(auto& x : cars)
-                x->setVelocity(-300.f, 0.f);
-        else
-            for(auto& x : cars)
-                x->setVelocity(-100.f, 0.f);
+    // set up variables for reverse
+    int reverseScale;
+    (isReverse) ? reverseScale = -1 : reverseScale = 1;
 
-        Vehicle* lastCar = cars[cars.size() - 1];
-        Vehicle* firstCar = cars[0];
-        int distance = 1400/cars.size();
-        if (lastCar->getPosition().x < -200)
-            cars[cars.size() - 1]->setPosition(firstCar->getPosition().x + 450 + distance, lastCar->getPosition().y);
+    // vehicles responding to traffic light
+    TrafficLight::Color curColor = trafficlight->getCurrentColor();
+    if(curColor == TrafficLight::Color::Red)
+        for(auto& x : vehicles)
+            x->setVelocity(0, 0);
+    else if (curColor == TrafficLight::Color::Green)
+        for(auto& x : vehicles)
+            x->setVelocity(vehicleVelocity * reverseScale, 0.f);
+    else
+        for(auto& x : vehicles)
+            x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
 
-        Animal* lastAnimal = animals[animals.size() - 1];
-        Animal* firstAnimal = animals[0];
-        if (lastAnimal->getPosition().x < -200)
-            animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x + 450 + distance, lastAnimal->getPosition().y);
-    }
-    else {
-        TrafficLight::Color curColor = trafficlight->getCurrentColor();
-        if(curColor == TrafficLight::Color::Red)
-            for(auto& x : cars)
-                x->setVelocity(0, 0);
-        else if (curColor == TrafficLight::Color::Green)
-            for(auto& x : cars)
-                x->setVelocity(300.f, 0.f);
-        else
-            for(auto& x : cars)
-                x->setVelocity(100.f, 0.f);
+    // vehicle circling when out of view
+    Vehicle* lastVehicle = vehicles.back();
+    Vehicle* firstVehicle = vehicles.front();
+    int distanceVehicle = laneLength/vehicles.size();
+    if ((isReverse && lastVehicle->getPosition().x < -padding) || (!isReverse && lastVehicle->getPosition().x > laneLength + padding))
+        vehicles[vehicles.size() - 1]->setPosition(firstVehicle->getPosition().x - padding * reverseScale - distanceVehicle * reverseScale, lastVehicle->getPosition().y);
+    // make the last car becomes the first car in the next iteration
+    // vehicles.erase(vehicles.end());
+    vehicles.pop_back();
+    vehicles.insert(vehicles.begin(), lastVehicle);
 
-        Vehicle* lastCar = cars[cars.size() - 1];
-        Vehicle* firstCar = cars[0];
-        int distance = 1400/cars.size();
-        if (lastCar->getPosition().x > 1600)
-            cars[cars.size() - 1]->setPosition(firstCar->getPosition().x - 200 - distance, lastCar->getPosition().y);
-
-        Animal* lastAnimal = animals[animals.size() - 1];
-        Animal* firstAnimal = animals[0];
-        if (lastAnimal->getPosition().x > 1600)
-            animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - 200 - distance, lastAnimal->getPosition().y);
-    }
-    
+    Animal* lastAnimal = animals.back();
+    Animal* firstAnimal = animals.front();
+    int distanceAnimal = laneLength/animals.size();
+    if ((isReverse && lastAnimal->getPosition().x < -padding) || (!isReverse && lastAnimal->getPosition().x > laneLength + padding))
+        animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - padding * reverseScale - distanceAnimal * reverseScale, lastAnimal->getPosition().y);
+    // make the last animal becomes the first animal in the next iteration
+    // animals.erase(animals.end());
+    animals.pop_back();
+    animals.insert(animals.begin(), lastAnimal);
 }
 
 void Road::buildLane() {
+    // set up variables for reverse
+    int reverseScale;
+    (isReverse) ? reverseScale = -1 : reverseScale = 1;
+
+    // creating vehicles, vehicles should have the same type for consisteny
+    for (int i = 0; i < numOfVehicle; ++i) {
+        std::unique_ptr<Vehicle> vehicle(new Vehicle(Vehicle::Car, *laneTextures));
+        vehicles.push_back(vehicle.get());
+        vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
+        vehicle->setVelocity(vehicleVelocity * reverseScale, 0.f);
+        vehicle->scale(reverseScale, 1);
+        this->attachView(std::move(vehicle));
+    }
+
+    // create animals, animals should have the same type for consistency
+    for (int i = 0; i < numOfAnimal; ++i) {
+        std::unique_ptr<Animal> bear(new Animal(Animal::Fox, *laneTextures));
+        animals.push_back(bear.get());
+        bear->setPosition((laneLength + padding) / numOfAnimal * i, 16.f);
+        bear->setVelocity(animalVelocity * reverseScale, 0.f);
+        bear->scale(reverseScale, 1);
+        this->attachView(std::move(bear));
+    }
+
+    // reverse vehicle and animal vectors for updateCurrent
     if (isReverse) {
-        std::unique_ptr<Vehicle> car(new Vehicle(Vehicle::Car, *laneTextures));
-        cars.push_back(car.get());
-        car->setPosition(1400.f, 64.f);
-        car->setVelocity(-300.f, 0.f);
-        car->scale(-2.f, 2.f);
-        std::unique_ptr<TrafficLight> traffic(new TrafficLight(*laneTextures));
-        traffic->setPosition(1000.f, 64.f);
-        traffic->setVelocity(0.f, 0.f);
-        traffic->scale(0.6, 0.6);
-        trafficlight = traffic.get();
-        std::unique_ptr<Animal> fox(new Animal(Animal::Fox, *laneTextures));
-        animals.push_back(fox.get());
-        fox->setVelocity(-100.f, 0.f);
-        fox->setPosition(1400.f, 0.f);
-        fox->scale(-0.5, 0.5);
-        this->attachView(std::move(car));
-        this->attachView(std::move(fox));
-        this->attachView(std::move(traffic));
+        std::reverse(vehicles.begin(), vehicles.end());
+        std::reverse(animals.begin(), animals.end());
     }
-    else {
-        std::unique_ptr<Vehicle> car(new Vehicle(Vehicle::Car, *laneTextures));
-        cars.push_back(car.get());
-        car->setPosition(0.f, 64.f);
-        car->setVelocity(300.f, 0.f);
-        car->scale(2.f, 2.f);
-        std::unique_ptr<TrafficLight> traffic(new TrafficLight(*laneTextures));
-        traffic->setPosition(400.f, 64.f);
-        traffic->setVelocity(0.f, 0.f);
-        traffic->scale(0.6, 0.6);
-        trafficlight = traffic.get();
-        std::unique_ptr<Animal> fox(new Animal(Animal::Fox, *laneTextures));
-        animals.push_back(fox.get());
-        fox->setVelocity(100.f, 0.f);
-        fox->setPosition(0.f, 0.f);
-        fox->scale(0.5, 0.5);
-        this->attachView(std::move(car));
-        this->attachView(std::move(fox));
-        this->attachView(std::move(traffic));
-    }
-    
+
+    // create traffic light
+    std::unique_ptr<TrafficLight> light(new TrafficLight(*laneTextures));
+    light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 64.f);
+    light->scale(reverseScale, 1);
+    trafficlight = light.get();
+    this->attachView(std::move(light));
 }

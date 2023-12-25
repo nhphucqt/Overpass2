@@ -15,6 +15,7 @@ type(mType),
 Entity(textures.get(toTextureID(mType))) {
 	sf::FloatRect bounds = sprite.getLocalBounds();
 	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+	sprite.scale(2, 2);
 }
 
 unsigned int Vehicle::getCategory() const {

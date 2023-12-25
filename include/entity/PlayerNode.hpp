@@ -21,7 +21,6 @@ public:
     unsigned int getCategory() const;
 	virtual sf::FloatRect getBoundingRect() const;
     int getCurrentLane();
-    void setOnRiver(bool onRiver);
     void moveBack();
 
 private:
@@ -39,7 +38,6 @@ private:
     Animation moveLeft;
     Animation moveRight;
     sf::Vector2f lastPos;
-    bool onRiver;
 };
 
 #endif

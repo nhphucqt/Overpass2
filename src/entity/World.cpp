@@ -13,9 +13,7 @@ World::World(sf::RenderWindow& window)
 , stop(false)
 , playerLaneIndex(3)
 , scrollDistance(0)
-, actualScrollDistance(0)
 {
-	std::cerr << "mWorldView: " << mWorldView.getSize().x << ' ' << mWorldView.getSize().y << '\n';
 	loadTextures();
 	buildScene();
 
@@ -55,30 +53,41 @@ CommandQueue& World::getCommandQueue() {
 }
 
 void World::loadTextures() {
-	// load entities
-	mTextures.load(TextureID::Road, "res/textures/Road.png");
-	mTextures.load(TextureID::River, "res/textures/River.png");
-    mTextures.load(TextureID::Rail, "res/textures/Rail.png");
-    mTextures.load(TextureID::Field, "res/textures/Field.png");
-	mTextures.load(TextureID::Player, "res/textures/Player.png");
-    mTextures.load(TextureID::Car, "res/textures/Car.png");
-    mTextures.load(TextureID::Ambulance, "res/textures/Ambulance.png");
-    mTextures.load(TextureID::Taxi, "res/textures/Taxi.png");
-    mTextures.load(TextureID::Police, "res/textures/Police.png");
-	mTextures.load(TextureID::TrafficLight, "res/textures/TrafficLight.png");
-	mTextures.load(TextureID::Fox, "res/textures/Fox.png");
-    mTextures.load(TextureID::Wood, "res/textures/Wood.png");
-    mTextures.load(TextureID::Tree, "res/textures/Tree.png");
-    mTextures.load(TextureID::Bush, "res/textures/Bush.png");
-    mTextures.load(TextureID::CircleBush, "res/textures/CircleBush.png");
-    mTextures.load(TextureID::Train, "res/textures/Train.png");
-	// load character
-    mTextures.load(TextureID::CharacterUp, "res/textures/Character/Cat-Up.png");
-    mTextures.load(TextureID::CharacterDown, "res/textures/Character/Cat-Down.png");
-    mTextures.load(TextureID::CharacterLeft, "res/textures/Character/Cat-Left.png");
-    mTextures.load(TextureID::CharacterRight, "res/textures/Character/Cat-Right.png");
-    mTextures.load(TextureID::CharacterIdle, "res/textures/Character/Cat-Idle.png");
-	mTextures.load(TextureID::GameOver, "res/textures/GameOver.png");
+	// lanes
+	mTextures.load(TextureID::Road, "/res/textures/Lane/Road.png");
+	mTextures.load(TextureID::River, "/res/textures/Lane/River.png");
+    mTextures.load(TextureID::Rail, "/res/textures/Lane/Rail.png");
+    mTextures.load(TextureID::Field, "/res/textures/Lane/Field.png");
+	// vehicles
+    mTextures.load(TextureID::Car, "/res/textures/Vehicle/Car.png");
+    mTextures.load(TextureID::Ambulance, "/res/textures/Vehicle/Ambulance.png");
+    mTextures.load(TextureID::Taxi, "/res/textures/Vehicle/Taxi.png");
+    mTextures.load(TextureID::Police, "/res/textures/Vehicle/Police.png");
+	// traffic light
+	mTextures.load(TextureID::TrafficLight, "/res/textures/TrafficLight.png");
+	// animals
+	mTextures.load(TextureID::Bear, "/res/textures/Animal/Bear.png");
+	mTextures.load(TextureID::Boar, "/res/textures/Animal/Boar.png");
+	mTextures.load(TextureID::Bunny, "/res/textures/Animal/Bunny.png");
+	mTextures.load(TextureID::Deer, "/res/textures/Animal/Deer.png");
+	mTextures.load(TextureID::Fox, "/res/textures/Animal/Fox.png");
+	mTextures.load(TextureID::Wolf, "/res/textures/Animal/Wolf.png");
+	// log
+    mTextures.load(TextureID::Wood, "/res/textures/Wood.png");
+	// greens aka plants
+    mTextures.load(TextureID::Tree, "/res/textures/Green/Tree.png");
+    mTextures.load(TextureID::Bush, "/res/textures/Green/Bush.png");
+    mTextures.load(TextureID::CircleBush, "/res/textures/Green/CircleBush.png");
+	// train
+    mTextures.load(TextureID::Train, "/res/textures/Train.png");
+	// character animation panes
+    mTextures.load(TextureID::CharacterUp, "/res/textures/Character/Cat-Up.png");
+    mTextures.load(TextureID::CharacterDown, "/res/textures/Character/Cat-Down.png");
+    mTextures.load(TextureID::CharacterLeft, "/res/textures/Character/Cat-Left.png");
+    mTextures.load(TextureID::CharacterRight, "/res/textures/Character/Cat-Right.png");
+    mTextures.load(TextureID::CharacterIdle, "/res/textures/Character/Cat-Idle.png");
+	// game over banner
+	mTextures.load(TextureID::GameOver, "/res/textures/Lane/GameOver.png");
 }
 
 void World::buildScene() {
@@ -119,7 +128,6 @@ void World::buildScene() {
 	}
 	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3)); // last argument must be consistent with playerLaneIndex
 	mPlayer = player.get();
-	std::cerr << "mPlayer: " << mPlayer->getPosition().x << ", " << mPlayer->getPosition().y << std::endl;
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 
 }
@@ -193,7 +201,7 @@ void World::handleCollisions() {
 	bool onRiver = false;
 	for (ViewGroup::Pair pair : collisionPairs) {
 		if (matchesCategories(pair, Category::Player, Category::Lane))
-			mPlayer->setOnRiver(false);
+			onRiver = false;
 		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Animal))
@@ -201,7 +209,6 @@ void World::handleCollisions() {
 		else if (matchesCategories(pair, Category::Player, Category::Train))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Log)) {
-			mPlayer->setOnRiver(true);
 			onRiver = false;
 			if (mPlayer->getState() == PlayerNode::Idle) {
 				auto& log = static_cast<Log&>(*pair.second);
@@ -211,7 +218,6 @@ void World::handleCollisions() {
 		}
 		else if (matchesCategories(pair, Category::Player, Category::River)) {
 			onRiver = true;
-			mPlayer->setOnRiver(true);
 		}
 		else if (matchesCategories(pair, Category::Player, Category::Green)) {
 			mPlayer->moveBack();
@@ -239,6 +245,12 @@ void World::scroll(sf::Time dt) {
 		scrollDistance += scrollStep;
 		mWorldView.move(0.f, scrollStep);	
 	}
+	// view gradually move up regardless of player's movement
+	// else {
+	// 	float step = -24.f * dt.asSeconds();
+	// 	scrollDistance += step;
+	// 	mWorldView.move(0, step);
+	// }
 }
 
 void World::gameOver() {

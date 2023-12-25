@@ -17,7 +17,15 @@ public:
     unsigned int getCategory() const;
 
 private:
-	std::vector<Vehicle *> cars;
+    static constexpr float laneLength = 1400.f;
+    static constexpr float padding = 100.f;
+    static const int numOfVehicle = 3, numOfAnimal = 2;
+    static constexpr float vehicleVelocity = 300.f;
+    static constexpr float vehicleSlowVelocity = 100.f;
+    static constexpr float animalVelocity = 200.f;
+    static constexpr float trafficLightPosition = 400.f;
+
+	std::vector<Vehicle *> vehicles;
 	std::vector<Animal *> animals;
     TrafficLight* trafficlight;
 
