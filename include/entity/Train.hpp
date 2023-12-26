@@ -13,6 +13,12 @@ public:
     unsigned int getCategory() const;
     sf::FloatRect getBoundingRect() const;
 
+public:
+    struct TrainData {
+        float trainPosX;
+        float trainPosY;
+    };
+
 private:
 };
 

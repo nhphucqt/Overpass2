@@ -15,6 +15,20 @@ public:
 
 private:
     Type type;
+
+public:
+    struct VehicleData {
+        int type;
+        float posX;
+        float posY;
+        float vx;
+        float vy;
+        float scaleX;
+        float scaleY;
+    };
+    
+    VehicleData serialize() const;
+    void deserialize(VehicleData& data);
 };
 
 #endif

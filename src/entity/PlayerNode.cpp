@@ -1,6 +1,6 @@
 #include <PlayerNode.hpp>
 
-PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lanesVct, int currentLane)
+PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lanesVct, int currentLane, bool isLoad)
 : sprite(textures.get(TextureID::CharacterIdle))
 , state(State::Idle)
 , moveUp(textures.get(TextureID::CharacterUp))
@@ -11,7 +11,9 @@ PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lane
 , lanes(lanesVct)
 , onRiver(false)
 {
-    adaptPosition();
+    if (!isLoad) {
+        adaptPosition();
+    }
     lastPos = getPosition();
 	sf::FloatRect bounds = sprite.getLocalBounds();
     sprite.setTextureRect(sf::IntRect(0, 0, 14, 16));
@@ -149,4 +151,38 @@ void PlayerNode::setOnRiver(bool onRiver) {
 void PlayerNode::moveBack() {
     setPosition(lastPos);
     move(0, 0);
+}
+
+void PlayerNode::savePlayerData(const std::string& filename) {
+    std::ofstream outf(filename, std::ios::out | std::ios::binary);
+    if (outf.is_open()) {
+        PlayerData data;
+        data.state = static_cast<int>(state);
+        data.curLane = curLane;
+        data.onRiver = onRiver;
+        data.x = getPosition().x;
+
+        outf.write(reinterpret_cast<const char*>(&data), sizeof(PlayerData));
+        outf.close();
+    } else {
+        std::runtime_error("PLAYERDATA ERR: " + filename + " cannot be openned.\n");
+    }
+}
+
+void PlayerNode::loadPlayerData(const std::string& filename) {
+    std::ifstream inf(filename, std::ios::in | std::ios::binary);
+    if (inf.is_open()) {
+        PlayerData data;
+        inf.read(reinterpret_cast<char*>(&data), sizeof(data));
+        inf.close();
+
+        state = static_cast<State>(data.state);
+        curLane = data.curLane;
+        onRiver = data.onRiver;
+        setPosition(data.x, lanes[curLane]->getPosition().y + 24);
+
+        std::cout << "Player spawns at: " << data.x << ' ' << curLane << std::endl;
+    } else {
+        std::runtime_error("PLAYERDATA ERR: " + filename + " not found.\n");
+    }
 }

@@ -37,3 +37,16 @@ sf::FloatRect Log::getBoundingRect() const {
 	rect.height = 130;
 	return rect;
 }
+
+Log::LogData Log::serialize() const {
+	LogData data;
+	data.type = static_cast<int>(type);
+	data.x = getPosition().x;
+	data.y = getPosition().y;
+	return data;
+}
+
+void Log::deserialize(Log::LogData& data) {
+	type = static_cast<Type>(data.type);
+	setPosition(data.x, data.y);
+}
