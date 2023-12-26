@@ -8,6 +8,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include <Zone.hpp>
+
 class Lane: public ViewGroup {
 public:
     enum Type {
@@ -26,6 +28,7 @@ protected:
     sf::Sprite sprite;
     bool isReverse;
     Type type;
+    std::vector<Zone::Ptr> zones;
 
 private:
     virtual void updateCurrent(sf::Time dt) = 0;

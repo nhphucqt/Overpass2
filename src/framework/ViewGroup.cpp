@@ -3,22 +3,30 @@
 #include <iostream>
 #include <cassert>
 
-ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true) {
+ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true), parent(nullptr) {
 }
 
-void ViewGroup::attachView(Viewable::Ptr view)
+ViewGroup* ViewGroup::getParent() const {
+    return parent;
+}
+
+void ViewGroup::setParent(ViewGroup* parent) {
+    this->parent = parent;
+}
+
+void ViewGroup::attachView(ViewGroup::Ptr view)
 {
     view->setParent(this);
     childViews.push_back(std::move(view));
 }
 
-Viewable::Ptr ViewGroup::detachView(const Viewable& view) {
+ViewGroup::Ptr ViewGroup::detachView(const ViewGroup& view) {
     auto found = std::find_if(childViews.begin(), childViews.end(),
-    [&] (Viewable::Ptr& p) -> bool { return p.get() == &view; });
+    [&] (ViewGroup::Ptr& p) -> bool { return p.get() == &view; });
 
     assert(found != childViews.end());
 
-    Viewable::Ptr result = std::move(*found);
+    ViewGroup::Ptr result = std::move(*found);
     result->setParent(nullptr);
     childViews.erase(found);
     return result;
@@ -31,7 +39,7 @@ void ViewGroup::detachAllViews() {
     childViews.clear();
 }
 
-const std::vector<Viewable::Ptr>& ViewGroup::getViews() const {
+const std::vector<ViewGroup::Ptr>& ViewGroup::getViews() const {
 	return childViews;
 }
 
@@ -60,7 +68,7 @@ void ViewGroup::updateCurrent(sf::Time delta) {
 }
 
 void ViewGroup::updateChildren(sf::Time delta) {
-    for (Viewable::Ptr& child : childViews) {
+    for (ViewGroup::Ptr& child : childViews) {
         child->update(delta);
     }
 }
@@ -90,7 +98,7 @@ sf::Vector2f ViewGroup::getWorldPosition() const {
 sf::Transform ViewGroup::getWorldTransform() const {
 	sf::Transform transform = sf::Transform::Identity;
 
-	for (const Viewable* node = this; node != nullptr; node = node->parent)
+	for (const ViewGroup* node = this; node != nullptr; node = node->parent)
 		transform = node->getTransform() * transform;
 
 	return transform;
@@ -109,12 +117,20 @@ void ViewGroup::checkNodeCollision(const ViewGroup& node, std::set<Pair>& collis
 		collisionPairs.insert(std::minmax(this, ptr));
 	}
 
-	for(Viewable::Ptr& child : childViews)
+	for(ViewGroup::Ptr& child : childViews)
 		((ViewGroup*) child.get())->checkNodeCollision(node, collisionPairs);
 }
 
 sf::FloatRect ViewGroup::getBoundingRect() const {
 	return sf::FloatRect();
+}
+
+sf::Transform ViewGroup::getAbsoluteTransform() const {
+    sf::Transform transform = sf::Transform::Identity;
+    for (const ViewGroup* view = this; view != nullptr; view = view->getParent()) {
+        transform = view->getTransform() * transform;
+    }
+    return transform;
 }
 
 // void ViewGroup::removeWrecks() {

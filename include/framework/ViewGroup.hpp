@@ -1,9 +1,19 @@
 #ifndef VIEW_GROUP_HPP
 #define VIEW_GROUP_HPP
 
-#include <Viewable.hpp>
+#include <SFML/Graphics.hpp>
 
-class ViewGroup : public Viewable {
+#include <Command.hpp>
+#include <CommandQueue.hpp>
+
+#include <memory>
+#include <vector>
+#include <set>
+#include <utility>
+#include <cmath>
+
+class ViewGroup : public sf::Drawable, 
+                   public sf::Transformable {
 public:
     typedef std::unique_ptr<ViewGroup> Ptr;
 	typedef std::pair<ViewGroup*, ViewGroup*> Pair;
@@ -12,15 +22,20 @@ public:
     ViewGroup();
     virtual ~ViewGroup() = default;
 
-    void attachView(Viewable::Ptr view);
-    Viewable::Ptr detachView(const Viewable &view);
-    void detachAllViews();
-    const std::vector<Viewable::Ptr>& getViews() const;
+    ViewGroup* getParent() const;
+    void setParent(ViewGroup* parent);
 
-    void update(sf::Time delta) override;
+    virtual void attachView(ViewGroup::Ptr view);
+    ViewGroup::Ptr detachView(const ViewGroup &view);
+    void detachAllViews();
+    const std::vector<ViewGroup::Ptr>& getViews() const;
+
+    void update(sf::Time delta);
 	void onCommand(const Command &command, sf::Time dt);
     void setReverse(bool reverse = true);
 	virtual unsigned int getCategory() const;
+
+    sf::Transform getAbsoluteTransform() const;
 
 	sf::Vector2f getWorldPosition() const;
 	sf::Transform getWorldTransform() const;
@@ -42,7 +57,8 @@ protected:
 
 private:
     bool isReverse, mIsUpdate;
-    std::vector<Viewable::Ptr> childViews;
+    ViewGroup* parent;
+    std::vector<ViewGroup::Ptr> childViews;
 
 private:
     virtual void updateCurrent(sf::Time delta);

@@ -1,7 +1,15 @@
 #include <Road.hpp>
+#include <AppConfig.hpp>
 
 Road::Road(TextureManager *textures, bool isReverse):
 Lane(textures->get(TextureID::Road), textures, isReverse) {
+    int numLaneCells = AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells);
+    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
+    for (int i = 0; i < numLaneCells; ++i) {
+        zones.push_back(std::make_unique<Zone>(Zone::Type::Safe, cellSize));
+        zones[i]->setPosition(cellSize.x * i, 0.f);
+    }
+
     type = Lane::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
