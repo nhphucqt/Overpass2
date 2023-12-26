@@ -29,7 +29,7 @@ void FieldProperties::generate()
         {
             green_slot = LaneUtils::random_range(lbound, m_width - i);
         } while (green_slot == field_slot);
-        m_greens.emplace_back(green_slot, green_type);
+        m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
     }
 
     setExternalStatic();
