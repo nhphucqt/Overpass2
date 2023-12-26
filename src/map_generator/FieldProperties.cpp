@@ -27,7 +27,7 @@ void FieldProperties::generate()
         unsigned int green_slot;
         do
         {
-            green_slot = LaneUtils::random_range(lbound, m_width - 1);
+            green_slot = LaneUtils::random_range(lbound, m_width - i);
         } while (green_slot == field_slot);
         m_greens.emplace_back(green_slot, green_type);
     }
