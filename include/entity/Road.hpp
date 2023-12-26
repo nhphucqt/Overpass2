@@ -16,7 +16,7 @@ class Road : public Lane
 public:
     Road(TextureManager *textures, bool isReverse, unsigned int vehicles_cnt,
          unsigned int animals_cnt, Vehicle::Type vehicle_type,
-         Animal::Type animal_type, float velocity);
+         Animal::Type animal_type, float velocity, bool isLoad = false);
 
     void setNumOfVehicle(int n);
     void setNumOfAnimal(int n);
@@ -43,6 +43,17 @@ private:
 
     void updateCurrent(sf::Time dt);
     void buildLane();
+
+private:
+    struct RoadData {
+        std::vector<Vehicle::VehicleData> vehicles;
+        std::vector<Animal::AnimalData> animals;
+    };
+
+public:
+    void saveLaneData(const std::string& filename) override;
+    void loadLaneData(const std::string& filename) override;
+    
 };
 
 #endif

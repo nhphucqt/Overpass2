@@ -1,5 +1,8 @@
 #ifndef RAILWAY_HPP
 #define RAILWAY_HPP
+
+#include <iostream>
+#include <fstream>
 #include <Train.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
@@ -8,19 +11,24 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
-class Railway: public Lane {
+class Railway : public Lane
+{
 public:
-    Railway(TextureManager* textures, ViewGroup* foreground, bool isReverse = false);
+    Railway(TextureManager *textures, ViewGroup *foreground, bool isReverse = false, bool isLoad = false);
     void setTrainVelocity(float v);
 
 private:
     float laneLength;
     float padding;
     float trainVelocity;
-	Train* train;
-    ViewGroup* foreground;
+    Train *train;
+    ViewGroup *foreground;
     void updateCurrent(sf::Time dt);
     void buildLane();
+
+public:
+    void saveLaneData(const std::string &filename) override;
+    void loadLaneData(const std::string &filename) override;
 };
 
 #endif

@@ -32,7 +32,7 @@ public:
         Free
     };
     PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes,
-               MapRenderer::LaneList::const_iterator currentLane);
+               MapRenderer::LaneList::const_iterator currentLane, bool isLoad = false);
     void moveDestination(sf::Vector2f distance);
     void moveDestination(float vx, float vy);
     State getState();
@@ -80,6 +80,20 @@ private:
     std::queue<sf::Vector2i> actionQueue;
     sf::Time moveDuration;
     bool __isDead;
+    bool onRiver;
+
+private:
+    struct PlayerData
+    {
+        int state;
+        int curLane;
+        bool onRiver;
+        float x;
+    };
+
+public:
+    void savePlayerData(const std::string &filename);
+    void loadPlayerData(const std::string &filename);
 };
 
 #endif

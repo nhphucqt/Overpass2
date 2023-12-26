@@ -1,8 +1,10 @@
 #include <Log.hpp>
 #include <AppConfig.hpp>
 
-TextureID toTextureID(Log::Type type) {
-	switch (type) {
+TextureID toTextureID(Log::Type type)
+{
+	switch (type)
+	{
 	case Log::Wood:
 		return TextureID::Wood;
 
@@ -12,9 +14,8 @@ TextureID toTextureID(Log::Type type) {
 	return TextureID::Wood;
 }
 
-Log::Log(Type mType, const TextureManager& textures):
-type(mType),
-Entity(textures.get(toTextureID(mType)))
+Log::Log(Type mType, const TextureManager &textures) : type(mType),
+													   Entity(textures.get(toTextureID(mType)))
 {
 	sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
 	sf::Vector2f size(cellSize.x * 2, cellSize.y);
@@ -31,8 +32,10 @@ Entity(textures.get(toTextureID(mType)))
 	attachView(std::move(zonePtr));
 }
 
-unsigned int Log::getCategory() const {
-	switch (type) {
+unsigned int Log::getCategory() const
+{
+	switch (type)
+	{
 	case Log::Wood:
 		return Category::Log;
 	case Log::Crocodile:
@@ -42,6 +45,22 @@ unsigned int Log::getCategory() const {
 	}
 }
 
-SeqZone* Log::getSeqZone() {
+SeqZone *Log::getSeqZone()
+{
 	return seqZone;
+}
+
+Log::LogData Log::serialize() const
+{
+	LogData data;
+	data.type = static_cast<int>(type);
+	data.x = getPosition().x;
+	data.y = getPosition().y;
+	return data;
+}
+
+void Log::deserialize(Log::LogData &data)
+{
+	type = static_cast<Type>(data.type);
+	setPosition(data.x, data.y);
 }

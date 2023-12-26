@@ -12,7 +12,7 @@ void PlayerMover::operator() (PlayerNode& player, sf::Time) const {
 	player.pushAction(direction);
 }
 
-Player::Player(): mScore(0) {
+Player::Player() {
 	// Set initial key bindings
 	mKeyBinding[sf::Keyboard::Left] = MoveLeft;
 	mKeyBinding[sf::Keyboard::Right] = MoveRight;
@@ -25,13 +25,6 @@ Player::Player(): mScore(0) {
 	// Assign all categories to player's aircraft
 	for(auto& pair : mActionBinding)
 		pair.second.category = Category::Player;
-}
-
-Player::~Player() {
-	UserSession& userSession = UserSession::getInstance();
-	if (userSession.getHighscore() < mScore)
-		userSession.getCurrentUser()->setHighscore(mScore);
-	std::cout << userSession.getUsername() << " got " << mScore << " points!\n";
 }
 
 void Player::handleEvent(const sf::Event& event, CommandQueue& commands) {
@@ -52,8 +45,6 @@ void Player::handleRealtimeInput(CommandQueue& commands) {
 		// If key is pressed, lookup action and trigger corresponding command
 		if (sf::Keyboard::isKeyPressed(pair.first) && isRealtimeAction(pair.second)) {
 			commands.push(mActionBinding[pair.second]);
-			if (pair.second == Action::MoveUp)
-				mScore += 25;
 		}
 	}
 }

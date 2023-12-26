@@ -58,3 +58,16 @@ void Green::accelerate(sf::Vector2f velocity) {
 
 void Green::accelerate(float vx, float vy) {
 }
+
+Green::GreenData Green::serialize() const {
+    Green::GreenData data;
+    data.type = static_cast<int>(type);
+    data.x = getPosition().x;
+    data.y = getPosition().y;
+    return data;
+}
+
+void Green::deserialize(Green::GreenData& data) {
+    type = static_cast<Green::Type>(data.type);
+    setPosition(data.x, data.y);
+}

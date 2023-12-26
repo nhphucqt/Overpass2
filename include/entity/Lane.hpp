@@ -15,7 +15,7 @@ class SeqZone;
 class Lane: public Entity {
 public:
     enum Type {
-        Road,
+        Road = 0,
         Field,
         River,
         Railway,
@@ -40,6 +40,12 @@ private:
     virtual void updateCurrent(sf::Time dt) = 0;
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual void buildLane() = 0;
+
+public:
+    Type getType() const { return type; }
+    bool getIsReverse() const { return isReverse; }
+    virtual void saveLaneData(const std::string& filename) = 0;
+    virtual void loadLaneData(const std::string& filename) = 0;
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <Field.hpp>
 #include <RectangleView.hpp>
 
-Field::Field(TextureManager *textures, bool isReverse)
+Field::Field(TextureManager *textures, bool isReverse, bool isLoad)
     : Lane(textures->get(TextureID::Field), textures, isReverse)
 {
     type = Lane::Type::Field;
@@ -12,7 +12,10 @@ Field::Field(TextureManager *textures, bool isReverse)
     sprite.scale(4.f, 4.f);
     sf::IntRect textureRect(0, 0, 1400, 32);
     sprite.setTextureRect(textureRect);
-    buildLane();
+    if (!isLoad)
+    {
+        buildLane();
+    }
 }
 
 // buildLane is for initialization (it is called in constructor)
@@ -56,4 +59,63 @@ sf::Vector2f Field::calcGreenPosition(Green const &green, unsigned int index)
     float const CELL_SIZE =
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).x;
     return {CELL_SIZE * index + CELL_SIZE / 2, CELL_SIZE / 2};
+}
+
+void Field::saveLaneData(const std::string &filename)
+{
+    std::ofstream outf(filename, std::ios::binary);
+    if (outf.is_open())
+    {
+        int castedType = static_cast<int>(type);
+        outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
+        outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
+
+        int dataSize = greens.size();
+        outf.write(reinterpret_cast<const char *>(&dataSize), sizeof(dataSize));
+
+        for (const auto &green : greens)
+        {
+            // data.greenData.push_back(green->serialize());
+            Green::GreenData greendata = green->serialize();
+            outf.write(reinterpret_cast<const char *>(&greendata), sizeof(greendata));
+        }
+
+        outf.close();
+    }
+    else
+    {
+        std::runtime_error("FIELDDATA ERR: " + filename + " cannot be openned.\n");
+    }
+}
+
+void Field::loadLaneData(const std::string &filename)
+{
+    std::ifstream inf(filename, std::ios::binary);
+    if (inf.is_open())
+    {
+        int nType;
+        bool nIsReverse;
+        inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
+        inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
+
+        int dataSize;
+        inf.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
+        std::cout << "total greens: " << dataSize << std::endl;
+
+        for (int i = 0; i < dataSize; ++i)
+        {
+            Green::GreenData data;
+            inf.read(reinterpret_cast<char *>(&data), sizeof(data));
+            std::unique_ptr<Green> greenPtr(new Green(static_cast<Green::Type>(data.type), *laneTextures));
+            greenPtr->deserialize(data);
+            greens.push_back(greenPtr.get());
+            this->attachView(std::move(greenPtr));
+        }
+
+        inf.close();
+    }
+    else
+    {
+        std::runtime_error("FIELDDATA ERR: " + filename + " not found.\n");
+    }
 }

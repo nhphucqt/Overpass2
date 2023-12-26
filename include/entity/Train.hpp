@@ -14,6 +14,12 @@ public:
     Train(const TextureManager &textures);
     unsigned int getCategory() const;
 
+public:
+    struct TrainData {
+        float trainPosX;
+        float trainPosY;
+    };
+
 private:
 };
 

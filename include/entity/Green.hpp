@@ -26,6 +26,16 @@ public:
     void accelerate(sf::Vector2f velocity);
     void accelerate(float vx, float vy);
 
+public:
+    struct GreenData {
+        int type;
+        float x;
+        float y;
+    };
+
+    GreenData serialize() const;
+    void deserialize(GreenData& data);
+
 private:
     Type type;
 };

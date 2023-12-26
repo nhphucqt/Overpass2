@@ -13,7 +13,7 @@
 class River : public Lane
 {
 public:
-    River(TextureManager *textures, bool isReverse, float velocity);
+    River(TextureManager *textures, bool isReverse, float velocity, bool isLoad);
     void setNumOfLog(int n);
     void setLogVelocity(float v);
 
@@ -28,6 +28,10 @@ private:
 
     void pushLogZones(Log *log);
     void removeLogZones(Log *log);
+
+public:
+    void saveLaneData(const std::string &filename) override;
+    void loadLaneData(const std::string &filename) override;
 };
 
 #endif

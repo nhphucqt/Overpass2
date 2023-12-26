@@ -10,7 +10,8 @@
 
 #include <SeqZone.hpp>
 
-class Log: public Entity {
+class Log : public Entity
+{
 public:
     enum Type
     {
@@ -22,11 +23,22 @@ public:
     Log(Type mType, const TextureManager &textures);
     unsigned int getCategory() const;
 
-    SeqZone* getSeqZone();
+    SeqZone *getSeqZone();
 
 private:
     Type type;
-    SeqZone* seqZone;
+    SeqZone *seqZone;
+
+public:
+    struct LogData
+    {
+        int type;
+        float x;
+        float y;
+    };
+
+    LogData serialize() const;
+    void deserialize(LogData &data);
 };
 
 #endif

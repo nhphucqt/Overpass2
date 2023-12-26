@@ -3,6 +3,10 @@
 
 #include "SFML/System/Vector2.hpp"
 
+#include "SFML/System/Vector2.hpp"
+
+#include <fstream>
+#include <iostream>
 #include <Green.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
@@ -14,7 +18,7 @@
 class Field : public Lane
 {
 public:
-    Field(TextureManager *textures, bool isReverse = false);
+    Field(TextureManager *textures, bool isReverse = false, bool isLoad = false);
     void add(std::unique_ptr<Green> green, unsigned int index);
 
 private:
@@ -25,6 +29,15 @@ private:
     std::vector<Green *> greens;
     void updateCurrent(sf::Time dt);
     void buildLane();
+
+    struct FieldData
+    {
+        std::vector<Green::GreenData> greenData;
+    };
+
+public:
+    void saveLaneData(const std::string &filename) override;
+    void loadLaneData(const std::string &filename) override;
 };
 
 #endif

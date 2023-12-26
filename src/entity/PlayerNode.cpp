@@ -77,12 +77,11 @@ void PlayerNode::moveDestination(sf::Vector2f distance)
         }
     }
     sf::Vector2f playerPos = getWorldTransform().transformPoint(getOrigin());
-    sf::Vector2f dest = playerPos + distance
-                        + getAbsoluteVelocity() * getMoveDuration().asSeconds();
+    sf::Vector2f dest = playerPos + distance + getAbsoluteVelocity() * getMoveDuration().asSeconds();
     Zone *targetZone =
         (*curLane)->getTargetZone(this, dest, getMoveDuration().asSeconds());
-    transitionHandler.setTransition((Entity *) getParent(),
-                                    (Entity *) targetZone,
+    transitionHandler.setTransition((Entity *)getParent(),
+                                    (Entity *)targetZone,
                                     sf::seconds(getMoveDuration().asSeconds()));
     setLastParent(getParent());
     ViewGroup::Ptr thisPtr = getParent()->detachView(*this);
@@ -158,7 +157,7 @@ void PlayerNode::updateMove(sf::Time delta)
         if (!transitionHandler.isFinished())
         {
             sf::Vector2f velo =
-                ((Entity *) getLastParent())->getAbsoluteVelocity();
+                ((Entity *)getLastParent())->getAbsoluteVelocity();
             setPosition(transitionHandler.update(delta));
             if (transitionHandler.isFinished())
             {
@@ -318,4 +317,46 @@ void PlayerNode::setDead()
 bool PlayerNode::isDead() const
 {
     return __isDead;
+}
+
+void PlayerNode::savePlayerData(const std::string &filename)
+{
+    std::ofstream outf(filename, std::ios::out | std::ios::binary);
+    if (outf.is_open())
+    {
+        PlayerData data;
+        data.state = static_cast<int>(state);
+        data.curLane = curLane;
+        data.onRiver = onRiver;
+        data.x = getPosition().x;
+
+        outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
+        outf.close();
+    }
+    else
+    {
+        std::runtime_error("PLAYERDATA ERR: " + filename + " cannot be openned.\n");
+    }
+}
+
+void PlayerNode::loadPlayerData(const std::string &filename)
+{
+    std::ifstream inf(filename, std::ios::in | std::ios::binary);
+    if (inf.is_open())
+    {
+        PlayerData data;
+        inf.read(reinterpret_cast<char *>(&data), sizeof(data));
+        inf.close();
+
+        state = static_cast<State>(data.state);
+        curLane = data.curLane;
+        onRiver = data.onRiver;
+        setPosition(data.x, lanes[curLane]->getPosition().y + 24);
+
+        std::cout << "Player spawns at: " << data.x << ' ' << curLane << std::endl;
+    }
+    else
+    {
+        std::runtime_error("PLAYERDATA ERR: " + filename + " not found.\n");
+    }
 }
