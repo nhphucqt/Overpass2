@@ -27,7 +27,6 @@ public:
 
 private:
     Type type;
-    SeqZone *seqZone;
 
 public:
     struct LogData

@@ -64,3 +64,16 @@ void Log::deserialize(Log::LogData &data)
 	type = static_cast<Type>(data.type);
 	setPosition(data.x, data.y);
 }
+
+Log::LogData Log::serialize() const {
+	LogData data;
+	data.type = static_cast<int>(type);
+	data.x = getPosition().x;
+	data.y = getPosition().y;
+	return data;
+}
+
+void Log::deserialize(Log::LogData& data) {
+	type = static_cast<Type>(data.type);
+	setPosition(data.x, data.y);
+}

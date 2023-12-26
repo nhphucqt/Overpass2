@@ -20,6 +20,12 @@ public:
         float trainPosY;
     };
 
+public:
+    struct TrainData {
+        float trainPosX;
+        float trainPosY;
+    };
+
 private:
 };
 

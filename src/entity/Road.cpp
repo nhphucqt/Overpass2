@@ -83,15 +83,10 @@ void Road::updateCurrent(sf::Time dt)
         for (auto &x : vehicles)
             x->setVelocity(0, 0);
 }
-}
 else if (curColor == TrafficLight::Color::Green) for (auto &x : vehicles)
     x->setVelocity(vehicleVelocity *reverseScale, 0.f);
-}
-}
 else for (auto &x : vehicles)
     x->setVelocity(vehicleSlowVelocity *reverseScale, 0.f);
-}
-}
 
 // vehicle circling when out of view
 Vehicle *lastVehicle = vehicles.back();

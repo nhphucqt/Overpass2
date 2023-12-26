@@ -1,6 +1,9 @@
 #ifndef RIVER_HPP
 #define RIVER_HPP
 
+#include <iostream>
+#include <fstream>
+#include <Log.hpp>
 #include <Lane.hpp>
 #include <Log.hpp>
 #include <ResourceID.hpp>
