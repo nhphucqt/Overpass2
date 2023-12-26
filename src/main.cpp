@@ -26,16 +26,33 @@
 // }
 
 #include <Game.hpp>
+#include <UserRepo.hpp>
 
 #include <stdexcept>
 #include <iostream>
 
 int main() {
-	try {
-		Game game;
-		game.run();
+	UserRepo& repo = UserRepo::getInstance();
+	// repo.addUser(UserData("pikachu", "123", 100, 200, 300, 400));
+	UserData pikachu = repo.getUserByLogin("pikachu", "123");
+	pikachu.setHighscore(500, UserData::GameMode::easy);
+	repo.updateUser(pikachu);
+	// repo.addUser(UserData("Raichu", "456", 800, 400, 200, 100));
+	// repo.addUser(UserData("Charlizard", "789", 3000, 4000, 5000, 6000));
+	// repo.addUser(UserData("Sqirtle", "1011", 100, 300, 200, 100));
+
+
+	UserRepo::Leaderboard leaderboard = repo.getLeaderboard(UserData::GameMode::easy);
+	for (int i = 0; i < leaderboard.size(); ++i)
+	{
+		std::cout << leaderboard.at(i).first << " " << leaderboard.at(i).second << std::endl;
 	}
-	catch (std::exception& e) {
-		std::cout << "\nEXCEPTION: " << e.what() << std::endl;
-	}
+
+	// try {
+	// 	Game game;
+	// 	game.run();
+	// }
+	// catch (std::exception& e) {
+	// 	std::cout << "\nEXCEPTION: " << e.what() << std::endl;
+	// }
 }

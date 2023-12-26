@@ -3,7 +3,9 @@
 UserRepo::UserRepo()
     : db("data/users.db", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE)
 {
-    db.exec("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, highscore INTEGER);");
+    // db.exec("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, highscore INTEGER);");
+    db.exec("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT);");
+    db.exec("CREATE TABLE IF NOT EXISTS highscores (username TEXT PRIMARY KEY, easy INTEGER, medium INTEGER, hard INTEGER, endless INTEGER);");
 }
 
 UserRepo &UserRepo::getInstance()
@@ -19,14 +21,17 @@ SQLite::Database &UserRepo::getDatabase()
 
 UserData UserRepo::getUserByLogin(const std::string &username, const std::string &password) const
 {
-    SQLite::Statement query(db, "SELECT * FROM users WHERE username = ? AND password = ?;");
-    query.bind(1, username);
-    query.bind(2, password);
+    SQLite::Statement userQuery(db, "SELECT * FROM users WHERE username = ? AND password = ?;");
+    userQuery.bind(1, username);
+    userQuery.bind(2, password);
 
-    if (query.executeStep())
-        return UserData(query.getColumn(0), query.getColumn(1), query.getColumn(2));
+    SQLite::Statement scoreQuery(db, "SELECT * FROM highscores WHERE username = ?;");
+    scoreQuery.bind(1, username);
 
-    return UserData("", "", -1);
+    if (userQuery.executeStep() && scoreQuery.executeStep())
+        return UserData(userQuery.getColumn(0), userQuery.getColumn(1), scoreQuery.getColumn(1), scoreQuery.getColumn(2), scoreQuery.getColumn(3), scoreQuery.getColumn(4));
+
+    return UserData("", "");
 }
 
 bool UserRepo::checkUser(const std::string &username, const std::string &password) const
@@ -35,13 +40,32 @@ bool UserRepo::checkUser(const std::string &username, const std::string &passwor
     return !user.notAUser();
 }
 
-UserRepo::Leaderboard UserRepo::getLeaderboard() const
+UserRepo::Leaderboard UserRepo::getLeaderboard(UserData::GameMode gameMode) const
 {
-    UserRepo::Leaderboard leaderboard;
-    SQLite::Statement query(db, "SELECT * FROM users ORDER BY highscore DESC LIMIT 20;");
-    while (query.executeStep())
+    std::string GameModeQuery;
+    switch (gameMode)
     {
-        std::pair<std::string, int> userScore(query.getColumn(0), query.getColumn(2));
+    case UserData::GameMode::easy:
+        GameModeQuery = "easy";
+        break;
+    case UserData::GameMode::medium:
+        GameModeQuery = "medium";
+        break;
+    case UserData::GameMode::hard:
+        GameModeQuery = "hard";
+        break;
+    case UserData::GameMode::endless:
+        GameModeQuery = "endless";
+        break;
+    default:
+        throw std::runtime_error("REPO ERR: Unknown Game mode.\n");
+    }
+
+    UserRepo::Leaderboard leaderboard;
+    SQLite::Statement scoreQuery(db, "SELECT * FROM highscores ORDER BY " + GameModeQuery + " DESC LIMIT 20;");
+    while (scoreQuery.executeStep())
+    {
+        std::pair<std::string, int> userScore(scoreQuery.getColumn(0), scoreQuery.getColumn(static_cast<int>(gameMode) + 1));
         leaderboard.emplace_back(userScore);
     }
     return leaderboard;
@@ -50,40 +74,58 @@ UserRepo::Leaderboard UserRepo::getLeaderboard() const
 void UserRepo::addUser(const UserData &user)
 {
     if (user.notAUser())
-        throw std::runtime_error("Updating not a user");
+        throw std::runtime_error("REPO ERR: Updating not a user");
 
-    SQLite::Statement query(db, "INSERT INTO users (username, password, highscore) VALUES (?, ?, ?);");
-    query.bind(1, user.getUsername());
-    query.bind(2, user.getPassword());
-    query.bind(3, user.getHighscore());
+    SQLite::Statement userQuery(db, "INSERT INTO users (username, password) VALUES (?, ?);");
+    userQuery.bind(1, user.getUsername());
+    userQuery.bind(2, user.getPassword());
 
-    query.exec();
+    SQLite::Statement scoreQuery(db, "INSERT INTO highscores (username, easy, medium, hard, endless) VALUES (?, ?, ?, ?, ?);");
+    scoreQuery.bind(1, user.getUsername());
+    scoreQuery.bind(2, user.getHighscore().at(UserData::GameMode::easy));
+    scoreQuery.bind(3, user.getHighscore().at(UserData::GameMode::medium));
+    scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::hard));
+    scoreQuery.bind(5, user.getHighscore().at(UserData::GameMode::endless));
+
+    userQuery.exec();
+    scoreQuery.exec();
 }
 
 void UserRepo::updateUser(const UserData &user)
 {
     if (user.notAUser())
-        throw std::runtime_error("Updating not a user");
+        throw std::runtime_error("REPO ERR: Updating not a user");
 
     if (!userExist(user.getUsername()))
         throw std::runtime_error("User with username " + user.getUsername() + " not found.");
 
-    SQLite::Statement query(db, "UPDATE users SET password = ?, highscore = ? WHERE username = ?;");
-    query.bind(1, user.getPassword());
-    query.bind(2, user.getHighscore());
-    query.bind(3, user.getUsername());
+    SQLite::Statement userQuery(db, "UPDATE users SET password = ? WHERE username = ?;");
+    userQuery.bind(1, user.getPassword());
+    userQuery.bind(2, user.getUsername());
 
-    query.exec();
+    SQLite::Statement scoreQuery(db, "UPDATE highscores SET easy = ?, medium = ?, hard = ?, endless = ? WHERE username = ?;");
+    scoreQuery.bind(1, user.getHighscore().at(UserData::GameMode::easy));
+    scoreQuery.bind(2, user.getHighscore().at(UserData::GameMode::medium));
+    scoreQuery.bind(3, user.getHighscore().at(UserData::GameMode::hard));
+    scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::endless));
+    scoreQuery.bind(5, user.getUsername());
+
+    userQuery.exec();
+    scoreQuery.exec();
 }
 
 void UserRepo::deleteUser(const std::string &username)
 {
     if (!userExist(username))
-        throw std::runtime_error("User with username " + username + " not found.");
+        throw std::runtime_error("REPO ERR: User with username " + username + " not found.");
 
-    SQLite::Statement query(db, "DELETE FROM users WHERE username = ?;");
-    query.bind(1, username);
-    query.exec();
+    SQLite::Statement userQuery(db, "DELETE FROM users WHERE username = ?;");
+    userQuery.bind(1, username);
+
+    SQLite::Statement scoreQuery(db, "DELETE FROM highscores WHERE username = ?;");
+    scoreQuery.bind(1, username);
+
+    userQuery.exec();
 }
 
 bool UserRepo::userExist(const std::string &username)
