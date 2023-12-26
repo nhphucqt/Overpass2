@@ -130,10 +130,6 @@ void RankingActivity::createBoard() {
         return;
     }
 
-    for (auto bar : leaderboard) {
-        std::cerr << bar.first << " " << bar.second << std::endl;
-    }
-
     int limit = 7;
     int fontSize = 64;
     sf::Vector2f size(board->get().getGlobalBounds().getSize().x - 60, 80);
