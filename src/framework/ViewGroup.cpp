@@ -7,7 +7,7 @@ ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true) {
 }
 
 void ViewGroup::attachView(Viewable::Ptr view)
-{
+{	
     view->setParent(this);
     childViews.push_back(std::move(view));
 }

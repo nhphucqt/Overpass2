@@ -19,6 +19,20 @@ private:
     Type type;
     Animation animation;
     void updateCurrent(sf::Time dt);
+
+public:
+    struct AnimalData {
+        int type;
+        float posX;
+        float posY;
+        float vx;
+        float vy;
+        float scaleX;
+        float scaleY;
+    };
+    
+    AnimalData serialize() const;
+    void deserialize(AnimalData& data);
 };
 
 #endif

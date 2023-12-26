@@ -74,3 +74,23 @@ void Animal::updateCurrent(sf::Time dt) {
 unsigned int Animal::getCategory() const {
     return Category::Animal;
 }
+
+Animal::AnimalData Animal::serialize() const {
+    AnimalData data;
+    data.type = static_cast<int>(type);
+	data.posX = getPosition().x;
+	data.posY = getPosition().y;
+	data.vx = getVelocity().x;
+	data.vy = getVelocity().y;
+	data.scaleX = getScale().x;
+	data.scaleY = getScale().y;
+
+    return data;
+}
+
+void Animal::deserialize(Animal::AnimalData& data) {
+    type = static_cast<Type>(data.type);
+    setPosition(data.posX, data.posY);
+	setVelocity(data.vx, data.vy);
+	setScale(data.scaleX, data.scaleY);
+}

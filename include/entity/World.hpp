@@ -14,6 +14,8 @@
 #include <PlayerNode.hpp>
 #include <CommandQueue.hpp>
 #include <Command.hpp>
+#include <UserSession.hpp>
+#include <UtilitySave.hpp>
 
 #include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -25,13 +27,15 @@
 #include <cmath>
 
 // Forward declaration
-namespace sf {
+namespace sf
+{
 	class RenderWindow;
 }
 
-class World : private sf::NonCopyable {
+class World : private sf::NonCopyable
+{
 public:
-	explicit World(sf::RenderWindow &window);
+	explicit World(sf::RenderWindow &window, bool isLoad = false);
 	void update(sf::Time dt);
 	void draw();
 	CommandQueue &getCommandQueue();
@@ -39,15 +43,18 @@ public:
 private:
 	void loadTextures();
 	void buildScene();
+	void loadScene(const std::string &filename);
+	void saveScene(const std::string &filename);
 	void adaptPlayerPosition();
-	bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2);
+	bool matchesCategories(ViewGroup::Pair &colliders, Category::Type type1, Category::Type type2);
 
 	void handleCollisions();
 	void scroll(sf::Time dt);
 	void gameOver();
 
 private:
-	enum Layer {
+	enum Layer
+	{
 		Background,
 		Aboveground,
 		LayerCount
@@ -71,6 +78,11 @@ private:
 	sf::Clock clock;
 	int playerLaneIndex;
 	int scrollDistance;
+	int actualScrollDistance;
+
+public:
+	void saveGameState(const std::string &filepath);
+	void loadGameState(const std::string &filepath);
 };
 
 #endif

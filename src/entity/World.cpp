@@ -1,11 +1,19 @@
 #include <World.hpp>
+#include <UtilitySave.hpp>
+#include <UserSession.hpp>
 
-World::World(sf::RenderWindow &window)
-	: mWindow(window), mWorldView(window.getDefaultView()), mTextures(), mSceneGraph(), mSceneLayers(), mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10), mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f), mScrollSpeed(-600.f), clock(), stop(false), playerLaneIndex(3), scrollDistance(0)
+World::World(sf::RenderWindow &window, bool isLoad)
+	: mWindow(window), mWorldView(window.getDefaultView()), mTextures(), mSceneGraph(), mSceneLayers(), mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10), mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f), mScrollSpeed(-600.f), clock(), stop(false), playerLaneIndex(3), scrollDistance(0), actualScrollDistance(0)
 {
 	loadTextures();
-	buildScene();
-
+	if (!isLoad)
+	{
+		buildScene();
+	}
+	else
+	{
+		loadGameState("data/" + UserSession::getInstance().getUsername());
+	}
 	// Prepare the view
 	mWorldView.setCenter(mSpawnPosition);
 }
@@ -33,6 +41,16 @@ void World::update(sf::Time dt)
 	// Apply movements
 	mSceneGraph.update(dt);
 	adaptPlayerPosition();
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	{
+		saveGameState("data/" + UserSession::getInstance().getUsername());
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
+	{
+		loadGameState("data/" + UserSession::getInstance().getUsername());
+	}
 }
 
 void World::draw()
@@ -164,7 +182,7 @@ void World::adaptPlayerPosition()
 		// position.y = position.y - 1;
 		// velocity.y = 0;
 		// isChanged = true;
-		gameOver();
+		// gameOver();
 	}
 
 	if (isChanged)
@@ -207,7 +225,7 @@ void World::handleCollisions()
 	for (ViewGroup::Pair pair : collisionPairs)
 	{
 		if (matchesCategories(pair, Category::Player, Category::Lane))
-			onRiver = false;
+			mPlayer->setOnRiver(false);
 		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Animal))
@@ -216,6 +234,7 @@ void World::handleCollisions()
 			gameOver();
 		else if (matchesCategories(pair, Category::Player, Category::Log))
 		{
+			mPlayer->setOnRiver(true);
 			onRiver = false;
 			if (mPlayer->getState() == PlayerNode::Idle)
 			{
@@ -235,7 +254,9 @@ void World::handleCollisions()
 	}
 
 	if (onRiver)
-		gameOver();
+	{
+		// gameOver();
+	}
 }
 
 void World::scroll(sf::Time dt)
@@ -274,4 +295,106 @@ void World::gameOver()
 	banner->setPosition(viewBounds.getPosition().x, viewBounds.getPosition().y + 300);
 	mSceneLayers[Aboveground]->attachView(std::move(banner));
 	stop = true;
+	// DeleteDirContent("data/" + UserSession::getInstance().getUsername());
+}
+
+void World::saveGameState(const std::string &filepath)
+{
+	std::error_code err;
+	if (!CreateDirectoryRecursive(filepath, err))
+	{
+		std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
+	}
+	if (mPlayer)
+	{
+		mPlayer->savePlayerData(filepath + "/player.dat");
+	}
+	std::ofstream laneValues(filepath + "/lane.txt");
+	if (lanes.size() > 0)
+	{
+		for (int i = 0; i < lanes.size(); ++i)
+		{
+			std::string ith = (i < 10) ? "0" + std::to_string(i) : std::to_string(i);
+			lanes.at(i)->saveLaneData(filepath + "/l" + ith + ".dat");
+			laneValues << static_cast<int>(lanes.at(i)->getType()) << ' ' << static_cast<int>(lanes.at(i)->getIsReverse()) << "\n";
+		}
+	}
+}
+
+void World::loadGameState(const std::string &filepath)
+{
+	for (std::size_t i = 0; i < LayerCount; ++i)
+	{
+		std::unique_ptr<ViewGroup> layer(new Entity());
+		mSceneLayers[i] = layer.get();
+
+		mSceneGraph.attachView(std::move(layer));
+	}
+	mSceneLayers[Background]->setReverse(true);
+
+	std::ifstream laneIndex(filepath + "/lane.txt");
+	if (!laneIndex)
+	{
+		throw std::runtime_error("LOAD ERR: lane.txt not found.\n");
+	}
+
+	std::vector<std::pair<int, int>> laneIndexVector;
+	while (laneIndex)
+	{
+		std::pair<int, int> indexPair;
+		laneIndex >> indexPair.first >> indexPair.second;
+		laneIndexVector.push_back(indexPair);
+	}
+
+	std::vector<std::string> loadFiles;
+	for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(filepath))
+	{
+		std::string dir = dirEntry.path().filename();
+		if (dir != "player.dat" && dir != "lane.txt")
+		{
+			loadFiles.push_back(dir);
+		}
+	}
+	std::sort(loadFiles.begin(), loadFiles.end(), sortDir);
+
+	for (int i = 0; auto &dirEntry : loadFiles)
+	{
+		std::cout << "loading " << dirEntry << std::endl;
+
+		std::unique_ptr<Lane> lane;
+		switch (static_cast<Lane::Type>(laneIndexVector.at(i).first))
+		{
+		case Lane::Type::Road:
+			lane.reset(new Road(&mTextures, static_cast<bool>(laneIndexVector.at(i).second), true));
+			lane->loadLaneData(filepath + "/" + dirEntry);
+			break;
+		case Lane::Type::River:
+			lane.reset(new River(&mTextures, static_cast<bool>(laneIndexVector.at(i).second), true));
+			lane->loadLaneData(filepath + "/" + dirEntry);
+			break;
+		case Lane::Type::Field:
+			lane.reset(new Field(&mTextures, static_cast<bool>(laneIndexVector.at(i).second), true));
+			lane->loadLaneData(filepath + "/" + dirEntry);
+			break;
+		case Lane::Type::Railway:
+			lane.reset(new Railway(&mTextures, mSceneLayers[Aboveground], static_cast<bool>(laneIndexVector.at(i).second), true));
+			lane->loadLaneData(filepath + "/" + dirEntry);
+			break;
+		default:
+			throw std::runtime_error("LOAD ERR: Lane type not found");
+		}
+
+		lanes.push_back(lane.get());
+		lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128 * i);
+		mSceneLayers[Background]->attachView(std::move(lane));
+
+		++i;
+	}
+
+	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3, true)); // last argument must be consistent with playerLaneIndex
+	mPlayer = player.get();
+
+	mPlayer->loadPlayerData(filepath + "/player.dat");
+	// mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayer->getPosition().y);
+	mSceneLayers[Aboveground]->attachView(std::move(player));
 }

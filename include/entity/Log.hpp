@@ -16,6 +16,16 @@ public:
 
 private:
     Type type;
+
+public:
+    struct LogData {
+        int type;
+        float x;
+        float y;
+    };
+    
+    LogData serialize() const;
+    void deserialize(LogData& data);
 };
 
 #endif
