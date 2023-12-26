@@ -74,7 +74,15 @@ void GameActivity::onAttach() {
 
 	srand(time(NULL));
 	int laneTypeCount = Lane::Type::Count;
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 5; ++i) {
+    	bool reverse = rand() % 2;
+		std::unique_ptr<Lane> lane;
+		lane.reset(new Field(&mTextures, reverse));
+		lanes.push_back(lane.get());
+		lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128*i);
+		mSceneLayers[Background]->attachView(std::move(lane));
+	}
+	for (int i = 5; i < 50; ++i) {
     	int randLane = rand() % laneTypeCount;
     	bool reverse = rand() % 2;
 		std::unique_ptr<Lane> lane;

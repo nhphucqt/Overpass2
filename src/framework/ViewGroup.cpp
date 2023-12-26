@@ -31,6 +31,10 @@ void ViewGroup::detachAllViews() {
     childViews.clear();
 }
 
+const std::vector<Viewable::Ptr>& ViewGroup::getViews() const {
+	return childViews;
+}
+
 void ViewGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     states.transform *= getTransform();
     drawCurrent(target, states);

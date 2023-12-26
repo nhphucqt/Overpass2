@@ -15,6 +15,7 @@ public:
     void attachView(Viewable::Ptr view);
     Viewable::Ptr detachView(const Viewable &view);
     void detachAllViews();
+    const std::vector<Viewable::Ptr>& getViews() const;
 
     void update(sf::Time delta) override;
 	void onCommand(const Command &command, sf::Time dt);
