@@ -126,6 +126,7 @@ void UserRepo::deleteUser(const std::string &username)
     scoreQuery.bind(1, username);
 
     userQuery.exec();
+    scoreQuery.exec();
 }
 
 bool UserRepo::userExist(const std::string &username)
