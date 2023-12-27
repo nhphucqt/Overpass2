@@ -1,6 +1,6 @@
 #include <River.hpp>
 
-River::River(TextureManager *textures, bool isReverse, bool isLoad) : Lane(textures->get(TextureID::River), textures, isReverse)
+River::River(TextureManager *textures, bool isReverse) : Lane(textures->get(TextureID::River), textures, isReverse)
 {
     type = Lane::Type::River;
     textures->get(TextureID::River).setRepeated(true);
