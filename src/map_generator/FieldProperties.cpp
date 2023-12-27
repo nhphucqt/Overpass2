@@ -2,7 +2,8 @@
 
 #include "LaneProperties.hpp"
 
-FieldProperties::FieldProperties(int map_width, GameActivity::GameLevel level,
+FieldProperties::FieldProperties(unsigned int map_width,
+                                 GameActivity::GameLevel level,
                                  LaneProperties const *prev_lane)
     : LaneProperties(map_width, level),
       m_prev_lane(prev_lane)

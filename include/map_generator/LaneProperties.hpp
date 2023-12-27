@@ -12,7 +12,7 @@ unsigned int random_range(int l, int r);
 class LaneProperties
 {
 public:
-    LaneProperties(int map_width, GameActivity::GameLevel level);
+    LaneProperties(unsigned int map_width, GameActivity::GameLevel level);
 
     virtual void generate() = 0;
     virtual Lane::Type getType() const = 0;

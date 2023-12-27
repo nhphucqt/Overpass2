@@ -6,7 +6,7 @@
 class RailwayProperties : public LaneProperties
 {
 public:
-    RailwayProperties(int map_width, GameActivity::GameLevel level);
+    RailwayProperties(unsigned int map_width, GameActivity::GameLevel level);
 
     virtual void generate() override;
     virtual Lane::Type getType() const override;

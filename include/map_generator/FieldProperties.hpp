@@ -13,7 +13,7 @@ public:
     // {pos, type}
     using Greens = std::vector<std::pair<unsigned int, Green::Type>>;
 
-    FieldProperties(int map_width, GameActivity::GameLevel level,
+    FieldProperties(unsigned int map_width, GameActivity::GameLevel level,
                     LaneProperties const *prev_lane = nullptr);
 
     virtual void generate() override;
