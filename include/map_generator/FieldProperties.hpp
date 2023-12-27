@@ -2,7 +2,6 @@
 #define PAVEMENT_PROPERTIES_HPP
 
 #include "Green.hpp"
-#include "Lane.hpp"
 #include "LaneProperties.hpp"
 
 #include <utility>

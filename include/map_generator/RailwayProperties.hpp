@@ -3,16 +3,20 @@
 
 #include "LaneProperties.hpp"
 
-class RailProperties : public LaneProperties
+class RailwayProperties : public LaneProperties
 {
 public:
-    RailProperties(int map_width, Level::Type level);
-    
+    RailwayProperties(int map_width, GameActivity::GameLevel level);
+
     virtual void generate() override;
     virtual Lane::Type getType() const override;
+    virtual void setExternalStatic() const override;
+    bool isReverse() const;
 
 private:
     using LaneProperties::m_level;
+
+    bool m_reverse_p;
 };
 
 #endif
