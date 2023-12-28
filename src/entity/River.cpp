@@ -72,8 +72,8 @@ void River::updateCurrent(sf::Time dt)
                                            lastLog->getPosition().y);
     }
     // make the last car becomes the first car in the next iteration
-    logs.pop_back();
-    logs.insert(logs.begin(), lastLog);
+    // logs.erase(logs.end());
+    std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
 }
 
 void River::buildLane()
@@ -165,14 +165,6 @@ void River::loadLaneData(const std::string &filename)
             std::unique_ptr<Log> logPtr(new Log(static_cast<Log::Type>(data.type), *laneTextures));
             logPtr->deserialize(data);
             logs.push_back(logPtr.get());
-            if (nIsReverse)
-            {
-                logPtr->setVelocity(-150.f, 0.f);
-            }
-            else
-            {
-                logPtr->setVelocity(150.f, 0.f);
-            }
             this->attachView(std::move(logPtr));
         }
 
@@ -231,14 +223,6 @@ void River::loadLaneData(const std::string &filename)
             std::unique_ptr<Log> logPtr(new Log(static_cast<Log::Type>(data.type), *laneTextures));
             logPtr->deserialize(data);
             logs.push_back(logPtr.get());
-            if (nIsReverse)
-            {
-                logPtr->setVelocity(-150.f, 0.f);
-            }
-            else
-            {
-                logPtr->setVelocity(150.f, 0.f);
-            }
             this->attachView(std::move(logPtr));
         }
 

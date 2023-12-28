@@ -22,11 +22,16 @@ public:
 
 public:
     struct TrainData {
-        float trainPosX;
-        float trainPosY;
+        float posX;
+        float posY;
+        float vx;
+        float vy;
+        float scaleX;
+        float scaleY;
     };
 
-private:
+    TrainData serialize() const;
+    void deserialize(TrainData& data);
 };
 
 #endif
