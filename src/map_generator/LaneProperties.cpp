@@ -13,3 +13,9 @@ LaneProperties::LaneProperties(unsigned int map_width,
       m_level(level)
 {
 }
+
+void LaneProperties::createLane()
+{
+    generate();
+    setExternalStatic();
+}

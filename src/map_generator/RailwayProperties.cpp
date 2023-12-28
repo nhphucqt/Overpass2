@@ -8,11 +8,6 @@ RailwayProperties::RailwayProperties(unsigned int map_width,
 {
 }
 
-void RailwayProperties::generate()
-{
-    m_reverse_p = LaneUtils::random_range(0, 1);
-}
-
 Lane::Type RailwayProperties::getType() const
 {
     return Lane::Type::Railway;
@@ -22,3 +17,10 @@ bool RailwayProperties::isReverse() const
 {
     return m_reverse_p;
 }
+
+void RailwayProperties::generate()
+{
+    m_reverse_p = LaneUtils::random_range(0, 1);
+}
+
+void RailwayProperties::setExternalStatic() const {}

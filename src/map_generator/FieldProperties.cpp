@@ -10,6 +10,16 @@ FieldProperties::FieldProperties(unsigned int map_width,
 {
 }
 
+Lane::Type FieldProperties::getType() const
+{
+    return Lane::Type::Field;
+}
+
+FieldProperties::Greens const &FieldProperties::getGreens() const
+{
+    return m_greens;
+}
+
 void FieldProperties::generate()
 {
     unsigned int green_cnt = LaneUtils::random_range(0, m_width - 1);
@@ -32,19 +42,9 @@ void FieldProperties::generate()
         } while (green_slot == field_slot);
         m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
     }
-
-    setExternalStatic();
 }
 
-Lane::Type FieldProperties::getType() const
-{
-    return Lane::Type::Field;
-}
-
-FieldProperties::Greens const &FieldProperties::getGreens() const
-{
-    return m_greens;
-}
+void FieldProperties::setExternalStatic() const {}
 
 std::vector<unsigned int> FieldProperties::find_prev_lane_fields()
 {
@@ -67,5 +67,3 @@ std::vector<unsigned int> FieldProperties::find_prev_lane_fields()
 
     return prev_lane_fields;
 }
-
-void FieldProperties::setExternalStatic() const {}

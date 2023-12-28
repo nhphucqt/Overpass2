@@ -14,11 +14,13 @@ class LaneProperties
 public:
     LaneProperties(unsigned int map_width, GameActivity::GameLevel level);
 
-    virtual void generate() = 0;
+    void createLane();
     virtual Lane::Type getType() const = 0;
-    virtual void setExternalStatic() const = 0;
 
 protected:
+    virtual void generate() = 0;
+    virtual void setExternalStatic() const = 0;
+
     int m_width;
     GameActivity::GameLevel m_level;
 };

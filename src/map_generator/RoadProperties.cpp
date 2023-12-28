@@ -4,23 +4,15 @@ RoadProperties::RoadProperties(unsigned int map_width,
                                GameActivity::GameLevel level)
     : LaneProperties(map_width, level),
       m_vehicles_cnt(LEVEL_VEHICLES_CNTS[static_cast<unsigned int>(level)]),
-      m_animals_cnt(LEVEL_ANIMALS_CNT[static_cast<unsigned int>(level)]),
+      m_animals_cnt(LEVEL_ANIMALS_CNTS[static_cast<unsigned int>(level)]),
       m_velocity(LEVEL_VELOCITIES[static_cast<unsigned int>(level)])
 {
-}
-
-void RoadProperties::generate()
-{
-    m_reverse_p = LaneUtils::random_range(0, 1);
-    m_has_animal_p = LaneUtils::random_range(0, 1);
 }
 
 Lane::Type RoadProperties::getType() const
 {
     return Lane::Type::Road;
 }
-
-void RoadProperties::setExternalStatic() const {}
 
 bool RoadProperties::isReverse() const
 {
@@ -37,7 +29,27 @@ unsigned int RoadProperties::getAnimalsCnt() const
     return m_has_animal_p ? m_animals_cnt : 0;
 }
 
+Animal::Type RoadProperties::getAminalType() const
+{
+    return m_animal_type;
+}
+
+Vehicle::Type RoadProperties::getVehicleType() const
+{
+    return m_vehicle_type;
+}
+
 float RoadProperties::getVelocity() const
 {
     return m_velocity;
 }
+
+void RoadProperties::generate()
+{
+    m_reverse_p = LaneUtils::random_range(0, 1);
+    m_has_animal_p = LaneUtils::random_range(0, 1);
+    m_animal_type = static_cast<Animal::Type>(LaneUtils::random_range(0, 5));
+    m_vehicle_type = static_cast<Vehicle::Type>(LaneUtils::random_range(0, 3));
+}
+
+void RoadProperties::setExternalStatic() const {}
