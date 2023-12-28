@@ -52,6 +52,9 @@ private:
 	void scroll(sf::Time dt);
 	void gameOver();
 
+	void saveGameState(const std::string &filepath);
+	void loadGameState(const std::string &filepath);
+
 private:
 	enum Layer
 	{
@@ -79,10 +82,6 @@ private:
 	int playerLaneIndex;
 	int scrollDistance;
 	int actualScrollDistance;
-
-public:
-	void saveGameState(const std::string &filepath);
-	void loadGameState(const std::string &filepath);
 };
 
 #endif
