@@ -1,44 +1,47 @@
 #ifndef MAP_GENERATOR_HPP
 #define MAP_GENERATOR_HPP
 
-#include <memory>
-#include <queue>
-#include <SFML/System/Vector2.hpp>
-
+#include "FieldProperties.hpp"
+#include "GameActivity.hpp"
 #include "LaneProperties.hpp"
-#include "StreetProperties.hpp"
+#include "RailwayProperties.hpp"
 #include "RiverProperties.hpp"
-#include "PavementProperties.hpp"
-#include "RailProperties.hpp"
+#include "RoadProperties.hpp"
+
+#include <SFML/System/Vector2.hpp>
+#include <list>
+#include <memory>
 
 class MapGenerator
 {
 public:
-    using LaneQueue = std::queue<std::unique_ptr<LaneProperties>>;
-    
-    MapGenerator(int map_width, int map_height, Level::Type level);
+    using LaneList = std::list<std::unique_ptr<LaneProperties>>;
+
+    MapGenerator(unsigned int map_width, unsigned int map_max_height,
+                 GameActivity::GameLevel level);
 
     void moveView();
-    LaneQueue const& getLanes() const;
-    
+    LaneList const &getLanes() const;
+
 private:
-    static const int MAX_RIVER_WIDTH;
-    static const int LEVEL_MAX_CONSECUTIVE_LANES_CNT[Level::TYPES_CNT];
-    
-    static std::unique_ptr<LaneProperties> createLane(Lane::Type type,
-                                                      int width,
-                                                      Level::Type level);
-    
+    static constexpr unsigned int OUT_OF_VIEW_LANES_CNT = 10;
+    static constexpr unsigned int MAX_RIVER_WIDTH = 5;
+    static constexpr unsigned int LEVEL_MAX_CONS_NONFIELDS_CNTS[] = {5, 9, 13};
+
     void initialize();
+    void updateContext();
     std::unique_ptr<LaneProperties> generateLane() const;
     Lane::Type generateLaneType() const;
-    void updateContext();
+    std::unique_ptr<LaneProperties> createLaneWithType(Lane::Type type) const;
 
-    sf::Vector2i m_sizes;
-    int &m_width, &m_height;
-    Level::Type m_level;
-    int m_river_width, m_consecutive_lanes_cnt;
-    LaneQueue m_lanes;
+    sf::Vector2u const m_sizes;
+    unsigned int const &m_width;
+    unsigned int const &m_max_height;
+    GameActivity::GameLevel const m_level;
+    LaneList m_lanes;
+
+    unsigned int m_river_width;
+    unsigned int m_cons_nonfields_cnt;
 };
 
 #endif

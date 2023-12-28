@@ -21,8 +21,8 @@ protected:
     virtual void generate() = 0;
     virtual void setExternalStatic() const = 0;
 
-    int m_width;
-    GameActivity::GameLevel m_level;
+    unsigned int const m_width;
+    GameActivity::GameLevel const m_level;
 };
 
 #endif
