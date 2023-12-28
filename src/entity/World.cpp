@@ -228,11 +228,17 @@ void World::handleCollisions()
 		if (matchesCategories(pair, Category::Player, Category::Lane))
 			onRiver = false;
 		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
-			gameOver();
+		{
+			// gameOver();
+		}
 		else if (matchesCategories(pair, Category::Player, Category::Animal))
-			gameOver();
+		{
+			// gameOver();
+		}
 		else if (matchesCategories(pair, Category::Player, Category::Train))
-			gameOver();
+		{
+			// gameOver();
+		}
 		else if (matchesCategories(pair, Category::Player, Category::Log))
 		{
 			onRiver = false;
@@ -255,7 +261,7 @@ void World::handleCollisions()
 
 	if (onRiver)
 	{
-		gameOver();
+		// gameOver();
 	}
 }
 
@@ -391,12 +397,12 @@ void World::loadGameState(const std::string &filepath)
 		++i;
 	}
 
-	// std::cout << "Here is fine\n";
-
 	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3, true)); // last argument must be consistent with playerLaneIndex
 	mPlayer = player.get();
 
 	mPlayer->loadPlayerData(filepath + "/player.dat");
+	playerLaneIndex = mPlayer->getCurrentLane();
+
 	mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayer->getPosition().y);
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 }
