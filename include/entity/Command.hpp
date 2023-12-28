@@ -15,6 +15,7 @@ struct Command {
 
 	std::function<void(ViewGroup &, sf::Time)> action;
 	unsigned int category;
+	bool isUsed;
 };
 
 template <typename GameObject, typename Function>

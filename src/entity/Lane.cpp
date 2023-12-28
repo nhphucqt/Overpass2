@@ -1,8 +1,16 @@
 #include <Lane.hpp>
+#include <AppConfig.hpp>
 
 Lane::Lane(const sf::Texture &texture, TextureManager *textures, bool reverse): sprite(texture), laneTextures(textures), isReverse(reverse) {
-	sf::IntRect textureRect(0, 0, 1400, 128);
+    AppConfig& config = AppConfig::getInstance();
+    int numLaneCells = config.get<int>(ConfigKey::NumLaneCells);
+    sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
+	sf::IntRect textureRect(0, 0, numLaneCells * int(cellSize.x), (int)cellSize.y);
     sprite.setTextureRect(textureRect);
+
+    SeqZone::Ptr zonePtr = std::make_unique<SeqZone>(Zone::Type::Safe, cellSize, numLaneCells);
+    seqZone = zonePtr.get();
+    attachView(std::move(zonePtr));
 }
 
 sf::FloatRect Lane::getBoundingRect() const {
@@ -11,4 +19,16 @@ sf::FloatRect Lane::getBoundingRect() const {
 
 void Lane::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(sprite, states);
+}
+
+bool Lane::receivePlayer(ViewGroup* player) {
+    return seqZone->receivePlayer(player);
+}
+
+bool Lane::spawnPlayer(ViewGroup::Ptr player) {
+    return seqZone->spawnPlayer(std::move(player));
+}
+
+unsigned int Lane::getCategory() const {
+    return Category::Lane;
 }

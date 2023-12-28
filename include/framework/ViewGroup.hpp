@@ -1,9 +1,19 @@
 #ifndef VIEW_GROUP_HPP
 #define VIEW_GROUP_HPP
 
-#include <Viewable.hpp>
+#include <SFML/Graphics.hpp>
 
-class ViewGroup : public Viewable {
+#include <Command.hpp>
+#include <CommandQueue.hpp>
+
+#include <memory>
+#include <vector>
+#include <set>
+#include <utility>
+#include <cmath>
+
+class ViewGroup : public sf::Drawable, 
+                   public sf::Transformable {
 public:
     typedef std::unique_ptr<ViewGroup> Ptr;
 	typedef std::pair<ViewGroup*, ViewGroup*> Pair;
@@ -12,26 +22,24 @@ public:
     ViewGroup();
     virtual ~ViewGroup() = default;
 
-    void attachView(Viewable::Ptr view);
-    Viewable::Ptr detachView(const Viewable &view);
-    void detachAllViews();
-    const std::vector<Viewable::Ptr>& getViews() const;
+    ViewGroup* getParent() const;
+    void setParent(ViewGroup* parent);
 
-    void update(sf::Time delta) override;
-	void onCommand(const Command &command, sf::Time dt);
+    void attachView(ViewGroup::Ptr view);
+    ViewGroup::Ptr detachView(const ViewGroup &view);
+    void detachAllViews();
+    const std::vector<ViewGroup::Ptr>& getViews() const;
+
+    void update(sf::Time delta);
+	void onCommand(Command &command, sf::Time dt);
     void setReverse(bool reverse = true);
 	virtual unsigned int getCategory() const;
 
 	sf::Vector2f getWorldPosition() const;
 	sf::Transform getWorldTransform() const;
 
-    void checkSceneCollision(const ViewGroup& sceneGraph, std::set<Pair>& collisionPairs);
-	void checkNodeCollision(const ViewGroup& node, std::set<Pair>& collisionPairs);
-	// void removeWrecks();
-	virtual sf::FloatRect getBoundingRect() const;
 	virtual bool isMarkedForRemoval() const;
-	virtual bool isDestroyed() const;
-	void drawBoundingRect(sf::RenderTarget& target, sf::RenderStates states) const;
+    virtual bool isDestroyed() const;
 
     void setUpdate(bool isUpdate);
     bool isUpdate();
@@ -42,14 +50,12 @@ protected:
 
 private:
     bool isReverse, mIsUpdate;
-    std::vector<Viewable::Ptr> childViews;
+    ViewGroup* parent;
+    std::vector<ViewGroup::Ptr> childViews;
 
 private:
     virtual void updateCurrent(sf::Time delta);
     void updateChildren(sf::Time delta);
 };
-
-bool collision(const ViewGroup& lhs, const ViewGroup& rhs);
-float distance(const ViewGroup& lhs, const ViewGroup& rhs);
 
 #endif

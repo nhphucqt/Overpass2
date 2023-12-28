@@ -4,4 +4,5 @@
 Command::Command()
 : action()
 , category(Category::None)
+, isUsed(false)
 {}

@@ -63,7 +63,6 @@ void LevelsActivity::onActivityResult(int requestCode, int resultCode, Intent::P
         if (resultCode == (int)ResultCode::RESULT_OK) {
             int titleType = data->getExtra<int>("titleType", -1);
             if (titleType == -1) {
-                std::cerr << " >> MainMenuActivity::onActivityResult: titleType is not set" << std::endl;
                 return;
             }
             Intent::Ptr intent = Intent::Builder()
