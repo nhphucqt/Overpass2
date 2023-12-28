@@ -1,22 +1,18 @@
 #include <River.hpp>
 
-River::River(TextureManager *textures, bool isReverse) : Lane(textures->get(TextureID::River), textures, isReverse)
-{
+River::River(TextureManager *textures, bool isReverse, bool isLoad) : Lane(textures->get(TextureID::River), textures, isReverse) {
     type = Lane::Type::River;
     textures->get(TextureID::River).setRepeated(true);
-    if (!isLoad)
-    {
+    if (!isLoad) {
         buildLane();
     }
 }
 
-unsigned int River::getCategory() const
-{
+unsigned int River::getCategory() const {
     return Category::River;
 }
 
-void River::updateCurrent(sf::Time dt)
-{
+void River::updateCurrent(sf::Time dt) {
     // set up variables for reverse
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
@@ -29,19 +25,16 @@ void River::updateCurrent(sf::Time dt)
         logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale, lastLog->getPosition().y);
     // make the last car becomes the first car in the next iteration
     // logs.erase(logs.end());
-    logs.pop_back();
-    logs.insert(logs.begin(), lastLog);
+    std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
 }
 
-void River::buildLane()
-{
+void River::buildLane() {
     // set up variables for reverse
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
 
     // creating vehicles, vehicles should have the same type for consisteny
-    for (int i = 0; i < numOfLog; ++i)
-    {
+    for (int i = 0; i < numOfLog; ++i) {
         std::unique_ptr<Log> log(new Log(Log::Wood, *laneTextures));
         logs.push_back(log.get());
         log->setPosition((laneLength + 100) / numOfLog * i, 64.f);
@@ -51,17 +44,14 @@ void River::buildLane()
     }
 
     // reverse log vector for updateCurrent
-    if (isReverse)
-    {
+    if (isReverse) {
         std::reverse(logs.begin(), logs.end());
     }
 }
 
-void River::saveLaneData(const std::string &filename)
-{
+void River::saveLaneData(const std::string &filename) {
     std::ofstream outf(filename, std::ios::binary);
-    if (outf.is_open())
-    {
+    if (outf.is_open()) {
         int castedType = static_cast<int>(type);
         outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
@@ -69,25 +59,20 @@ void River::saveLaneData(const std::string &filename)
         int dataSize = logs.size();
         outf.write(reinterpret_cast<const char *>(&dataSize), sizeof(dataSize));
 
-        for (const auto &log : logs)
-        {
+        for (const auto &log : logs) {
             Log::LogData data = log->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
         }
 
         outf.close();
-    }
-    else
-    {
+    } else {
         std::runtime_error("RIVERDATA ERR: " + filename + " cannot be openned.\n");
     }
 }
 
-void River::loadLaneData(const std::string &filename)
-{
+void River::loadLaneData(const std::string &filename) {
     std::ifstream inf(filename, std::ios::binary);
-    if (inf.is_open())
-    {
+    if (inf.is_open()) {
         int nType;
         bool nIsReverse;
         inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
@@ -97,28 +82,17 @@ void River::loadLaneData(const std::string &filename)
         inf.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
         std::cout << "log size: " << dataSize << std::endl;
 
-        for (int i = 0; i < dataSize; ++i)
-        {
+        for (int i = 0; i < dataSize; ++i) {
             Log::LogData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
             std::unique_ptr<Log> logPtr(new Log(static_cast<Log::Type>(data.type), *laneTextures));
             logPtr->deserialize(data);
             logs.push_back(logPtr.get());
-            if (nIsReverse)
-            {
-                logPtr->setVelocity(-150.f, 0.f);
-            }
-            else
-            {
-                logPtr->setVelocity(150.f, 0.f);
-            }
             this->attachView(std::move(logPtr));
         }
 
         inf.close();
-    }
-    else
-    {
+    } else {
         std::runtime_error("RIVERDATA ERR: " + filename + " not found.\n");
     }
 }

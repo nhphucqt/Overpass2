@@ -24,10 +24,6 @@ private:
 	std::vector<Log *> logs;
     void updateCurrent(sf::Time dt);
     void buildLane();
-
-    struct RiverData {
-        std::vector<Log::LogData> logsData;  
-    };
     
 public:
     void saveLaneData(const std::string& filename) override;

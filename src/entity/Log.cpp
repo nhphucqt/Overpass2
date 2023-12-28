@@ -41,12 +41,18 @@ sf::FloatRect Log::getBoundingRect() const {
 Log::LogData Log::serialize() const {
 	LogData data;
 	data.type = static_cast<int>(type);
-	data.x = getPosition().x;
-	data.y = getPosition().y;
+	data.posX = getPosition().x;
+	data.posY = getPosition().y;
+	data.vx = getVelocity().x;
+	data.vy = getVelocity().y;
+	data.scaleX = getScale().x;
+	data.scaleY = getScale().y;
 	return data;
 }
 
 void Log::deserialize(Log::LogData& data) {
 	type = static_cast<Type>(data.type);
-	setPosition(data.x, data.y);
+	setPosition(data.posX, data.posY);
+	setVelocity(data.vx, data.vy);
+	setScale(data.scaleX, data.scaleY);
 }

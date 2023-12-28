@@ -43,9 +43,7 @@ void Railway::saveLaneData(const std::string& filename) {
         outf.write(reinterpret_cast<const char*>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char*>(&isReverse), sizeof(isReverse));
 
-        Train::TrainData data;
-        data.trainPosX = train->getPosition().x;
-        data.trainPosY = train->getPosition().y;
+        Train::TrainData data = train->serialize();
         outf.write(reinterpret_cast<const char*>(&data), sizeof(data));
 
         outf.close();
@@ -65,20 +63,10 @@ void Railway::loadLaneData(const std::string& filename) {
         Train::TrainData data;
         inf.read(reinterpret_cast<char*>(&data), sizeof(data));
         inf.close();
-        std::cout << "train is at: " << data.trainPosX << ' ' << data.trainPosY << std::endl;
+        std::cout << "train is at: " << data.posX << ' ' << data.posY << std::endl;
 
         std::unique_ptr<Train> mTrain(new Train(*laneTextures));
-        mTrain->scale(0.5, 0.5);
-        train = mTrain.get();
-        if (nIsReverse) {
-            mTrain->scale(-1.f, 1.f);
-            mTrain->setPosition(data.trainPosX, data.trainPosY);
-            mTrain->setVelocity(-700.f, 0.f);
-        }
-        else {
-            mTrain->setPosition(data.trainPosX, data.trainPosY);
-            mTrain->setVelocity(700.f, 0.f);
-        }
+        mTrain->deserialize(data);
         this->attachView(std::move(mTrain)); 
     } else {
         std::runtime_error("RAILWAYDATA ERR: " + filename + " not found.\n");

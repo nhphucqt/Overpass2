@@ -1,13 +1,15 @@
 #include <Road.hpp>
 
-Road::Road(TextureManager *textures, bool isReverse) : Lane(textures->get(TextureID::Road), textures, isReverse)
+Road::Road(TextureManager *textures, bool isReverse, bool isLoad) : Lane(textures->get(TextureID::Road), textures, isReverse)
 {
     type = Lane::Type::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
     sf::IntRect textureRect(0, 0, laneLength, 16);
     sprite.setTextureRect(textureRect);
-    buildLane();
+    if (!isLoad) {
+        buildLane();
+    }
 }
 
 unsigned int Road::getCategory() const
@@ -41,8 +43,8 @@ void Road::updateCurrent(sf::Time dt)
         vehicles[vehicles.size() - 1]->setPosition(firstVehicle->getPosition().x - padding * reverseScale - distanceVehicle * reverseScale, lastVehicle->getPosition().y);
     // make the last car becomes the first car in the next iteration
     // vehicles.erase(vehicles.end());
-    vehicles.pop_back();
-    vehicles.insert(vehicles.begin(), lastVehicle);
+    std::rotate(vehicles.rbegin(), vehicles.rbegin() + 1, vehicles.rend());
+
 
     Animal *lastAnimal = animals.back();
     Animal *firstAnimal = animals.front();
@@ -51,8 +53,7 @@ void Road::updateCurrent(sf::Time dt)
         animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - padding * reverseScale - distanceAnimal * reverseScale, lastAnimal->getPosition().y);
     // make the last animal becomes the first animal in the next iteration
     // animals.erase(animals.end());
-    animals.pop_back();
-    animals.insert(animals.begin(), lastAnimal);
+    std::rotate(animals.rbegin(), animals.rbegin() + 1, animals.rend());
 }
 
 void Road::buildLane()
@@ -107,12 +108,12 @@ void Road::saveLaneData(const std::string &filename)
         outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
 
-        int vehicleDataSize = cars.size();
+        int vehicleDataSize = vehicles.size();
         int animalDataSize = animals.size();
         outf.write(reinterpret_cast<const char *>(&vehicleDataSize), sizeof(vehicleDataSize));
         outf.write(reinterpret_cast<const char *>(&animalDataSize), sizeof(animalDataSize));
 
-        for (auto &vehicle : cars)
+        for (auto &vehicle : vehicles)
         {
             Vehicle::VehicleData data = vehicle->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
@@ -149,13 +150,15 @@ void Road::loadLaneData(const std::string &filename)
         std::cout << "vehicle size: " << vehicleDataSize << std::endl;
         std::cout << "animal size: " << animalDataSize << std::endl;
 
+        int reverseScale = (nIsReverse) ? -1 : 1;
+
         for (int i = 0; i < vehicleDataSize; ++i)
         {
             Vehicle::VehicleData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
             std::unique_ptr<Vehicle> vehiclePtr(new Vehicle(static_cast<Vehicle::Type>(data.type), *laneTextures));
             vehiclePtr->deserialize(data);
-            cars.push_back(vehiclePtr.get());
+            vehicles.push_back(vehiclePtr.get());
             this->attachView(std::move(vehiclePtr));
         }
         for (int i = 0; i < animalDataSize; ++i)
@@ -168,32 +171,13 @@ void Road::loadLaneData(const std::string &filename)
             this->attachView(std::move(animalPtr));
         }
 
-        std::unique_ptr<TrafficLight> traffic(new TrafficLight(*laneTextures));
-        traffic->setPosition(1000.f, 64.f);
-        traffic->setVelocity(0.f, 0.f);
-        traffic->scale(0.6, 0.6);
-        trafficlight = traffic.get();
-        this->attachView(std::move(traffic));
+        std::unique_ptr<TrafficLight> light(new TrafficLight(*laneTextures));
+        light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 64.f);
+        light->scale(reverseScale, 1);
+        trafficlight = light.get();
+        this->attachView(std::move(light));
     }
-    else
-    {
-        std::unique_ptr<Vehicle> car(new Vehicle(Vehicle::Car, *laneTextures));
-        cars.push_back(car.get());
-        car->setPosition(0.f, 64.f);
-        car->setVelocity(300.f, 0.f);
-        car->scale(2.f, 2.f);
-        std::unique_ptr<TrafficLight> traffic(new TrafficLight(*laneTextures));
-        traffic->setPosition(400.f, 64.f);
-        traffic->setVelocity(0.f, 0.f);
-        traffic->scale(0.6, 0.6);
-        trafficlight = traffic.get();
-        std::unique_ptr<Animal> fox(new Animal(Animal::Fox, *laneTextures));
-        animals.push_back(fox.get());
-        fox->setVelocity(100.f, 0.f);
-        fox->setPosition(0.f, 0.f);
-        fox->scale(0.5, 0.5);
-        this->attachView(std::move(car));
-        this->attachView(std::move(fox));
-        this->attachView(std::move(traffic));
+    else {
+        std::runtime_error("ROADDATA ERR: " + filename + " not found.\n");
     }
 }

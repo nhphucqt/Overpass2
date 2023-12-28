@@ -20,8 +20,12 @@ private:
 public:
     struct LogData {
         int type;
-        float x;
-        float y;
+        float posX;
+        float posY;
+        float vx;
+        float vy;
+        float scaleX;
+        float scaleY;
     };
     
     LogData serialize() const;

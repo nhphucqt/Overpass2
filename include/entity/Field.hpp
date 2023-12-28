@@ -19,10 +19,6 @@ private:
     std::vector<Green *> greens;
     void updateCurrent(sf::Time dt);
     void buildLane();
-
-    struct FieldData {
-        std::vector<Green::GreenData> greenData;    
-    };
     
 public:
     void saveLaneData(const std::string& filename) override;
