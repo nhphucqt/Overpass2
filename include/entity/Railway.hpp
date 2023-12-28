@@ -11,7 +11,6 @@
 class Railway: public Lane {
 public:
     Railway(TextureManager* textures, ViewGroup* foreground, bool isReverse = false);
-    unsigned int getCategory() const;
 
 private:
     static constexpr float laneLength = 1400.f;

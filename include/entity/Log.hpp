@@ -7,15 +7,19 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 
+#include <SeqZone.hpp>
+
 class Log: public Entity {
 public:
     enum Type {Wood, Crocodile};
     Log(Type mType, const TextureManager& textures);
     unsigned int getCategory() const;
-	sf::FloatRect getBoundingRect() const;
+
+    SeqZone* getSeqZone();
 
 private:
     Type type;
+    SeqZone* seqZone;
 };
 
 #endif

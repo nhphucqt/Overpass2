@@ -115,13 +115,10 @@ void ProfileActivity::createProfile() {
     );
     menu->setPosition((windowSize - menu->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
 
-    std::cerr << "ProfileActivity::createProfile():" << "\n";
-
     bool isLogin = false;
     {
         UserSession userSession;
         isLogin = userSession.isLoggedin();
-        std::cerr << "ProfileActivity::createProfile(): isLogin = " << userSession.isLoggedin() << "\n";
     }
     
     if (isLogin) {

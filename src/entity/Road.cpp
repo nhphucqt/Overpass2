@@ -3,23 +3,12 @@
 
 Road::Road(TextureManager *textures, bool isReverse):
 Lane(textures->get(TextureID::Road), textures, isReverse) {
-    int numLaneCells = AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells);
-    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
-    for (int i = 0; i < numLaneCells; ++i) {
-        zones.push_back(std::make_unique<Zone>(Zone::Type::Safe, cellSize));
-        zones[i]->setPosition(cellSize.x * i, 0.f);
-    }
-
     type = Lane::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
 	sf::IntRect textureRect(0, 0, laneLength, 16);
     sprite.setTextureRect(textureRect);
-    buildLane();
-}
-
-unsigned int Road::getCategory() const {
-    return Category::Lane;
+    buildLane();   
 }
 
 void Road::updateCurrent(sf::Time dt) {
@@ -70,7 +59,7 @@ void Road::buildLane() {
     for (int i = 0; i < numOfVehicle; ++i) {
         std::unique_ptr<Vehicle> vehicle(new Vehicle(Vehicle::Car, *laneTextures));
         vehicles.push_back(vehicle.get());
-        vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
+        // vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
         vehicle->setVelocity(vehicleVelocity * reverseScale, 0.f);
         vehicle->scale(reverseScale, 1);
         this->attachView(std::move(vehicle));

@@ -1,6 +1,8 @@
 #include <PlayerNode.hpp>
+#include <Vector2dUtils.hpp>
+#include <AppConfig.hpp>
 
-PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lanesVct, int currentLane)
+PlayerNode::PlayerNode(const TextureManager& textures, std::list<Lane *>& lanesVct, std::list<Lane*>::iterator currentLane)
 : sprite(textures.get(TextureID::CharacterIdle))
 , state(State::Idle)
 , moveUp(textures.get(TextureID::CharacterUp))
@@ -9,54 +11,73 @@ PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lane
 , moveRight(textures.get(TextureID::CharacterRight))
 , curLane(currentLane)
 , lanes(lanesVct)
+, transitionLayer(nullptr)
+, lastParent(nullptr)
+, __isDead(false)
 {
-    adaptPosition();
-    lastPos = getPosition();
-	sf::FloatRect bounds = sprite.getLocalBounds();
+    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
+    setSize(cellSize);
+    
+    setMoveDuration(sf::seconds(0.2f));
+
     sprite.setTextureRect(sf::IntRect(0, 0, 14, 16));
 
     moveUp.setFrameSize(sf::Vector2i(14, 16));
     moveUp.setNumFrames(4);
-    moveUp.setDuration(sf::seconds(0.5));
+    moveUp.setDuration(getMoveDuration());
 
     moveDown.setFrameSize(sf::Vector2i(14, 16));
     moveDown.setNumFrames(4);
-    moveDown.setDuration(sf::seconds(0.5));
+    moveDown.setDuration(getMoveDuration());
 
-    moveLeft.setFrameSize(sf::Vector2i(10, 16));
+    moveLeft.setFrameSize(sf::Vector2i(14, 16));
     moveLeft.setNumFrames(4);
-    moveLeft.setDuration(sf::seconds(0.5));
+    moveLeft.setDuration(getMoveDuration());
 
-    moveRight.setFrameSize(sf::Vector2i(10, 16));
+    moveRight.setFrameSize(sf::Vector2i(14, 16));
     moveRight.setNumFrames(4);
-    moveRight.setDuration(sf::seconds(0.5));
+    moveRight.setDuration(getMoveDuration());
+
+    moveUp.setOrigin(moveUp.getLocalBounds().getSize() / 2.f);
+    moveDown.setOrigin(moveDown.getLocalBounds().getSize() / 2.f);
+    moveLeft.setOrigin(moveLeft.getLocalBounds().getSize() / 2.f);
+    moveRight.setOrigin(moveRight.getLocalBounds().getSize() / 2.f);
+
+    moveUp.setPosition(getBoundingRect().getSize() / 2.f);
+    moveDown.setPosition(getBoundingRect().getSize() / 2.f);
+    moveLeft.setPosition(getBoundingRect().getSize() / 2.f);
+    moveRight.setPosition(getBoundingRect().getSize() / 2.f);
 
     sprite.scale(5, 5);
     moveUp.scale(5, 5);
     moveDown.scale(5, 5);
     moveLeft.scale(5, 5);
     moveRight.scale(5, 5);
+    sprite.setOrigin(sprite.getLocalBounds().getSize() / 2.f);
+    sprite.setPosition(getBoundingRect().getSize() / 2.f);
+    setHitBox(sprite.getGlobalBounds());
+
 }
 
-void PlayerNode::move(sf::Vector2f velocity) {
-    if (velocity == sf::Vector2f(0, 0))
-        state = State::Idle;
-    else if (velocity.y < 0 && velocity.x == 0)
-        state = State::MoveUp;
-    else if (velocity.y > 0 && velocity.x == 0)
-        state = State::MoveDown;
-    else if (velocity.x < 0 && velocity.y == 0)
-        state = State::MoveLeft;
-    else if (velocity.x > 0 && velocity.y == 0)
-        state = State::MoveRight;
-    else
-        state = State::Free;
-    Entity::setVelocity(velocity);
+void PlayerNode::moveDestination(sf::Vector2f distance) {
+    if (distance.x == 0) { // up down
+        if (distance.y < 0)
+            ++curLane;
+        else
+            --curLane;
+    }
+    transitionHandler.setTransition(
+        getWorldTransform().transformPoint(getOrigin()),
+        getWorldTransform().transformPoint(getOrigin() + distance),
+        sf::seconds(getMoveDuration().asSeconds())
+    );
+    setLastParent(getParent());
+    ViewGroup::Ptr thisPtr = getParent()->detachView(*this);
+    transitionLayer->attachView(std::move(thisPtr));
 }
 
-void PlayerNode::move(float vx, float vy) {
-    sf::Vector2f velocity(vx, vy);
-    move(velocity);
+void PlayerNode::moveDestination(float vx, float vy) {
+    return moveDestination(sf::Vector2f(vx, vy));
 }
 
 PlayerNode::State PlayerNode::getState() {
@@ -74,9 +95,44 @@ void PlayerNode::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) 
         target.draw(moveRight, states);
     else
 	    target.draw(sprite, states);
+
+    drawBoundingRect(target, states);
+}
+
+void PlayerNode::updateMove(sf::Time delta) {
+    if (!isActionQueueEmpty()) {
+        if (transitionHandler.isFinished()) {
+            sf::Vector2i action = getCurrentAction();
+            runAction(action);
+            if (action.y < 0 && action.x == 0)
+                state = State::MoveUp;
+            else if (action.y > 0 && action.x == 0)
+                state = State::MoveDown;
+            else if (action.x < 0 && action.y == 0)
+                state = State::MoveLeft;
+            else if (action.x > 0 && action.y == 0)
+                state = State::MoveRight;
+            else
+                state = State::Free;
+        }
+        if (!transitionHandler.isFinished()) {
+            sf::Vector2f velo = ((Entity*)getLastParent())->getAbsoluteVelocity();
+            transitionHandler.move(velo * delta.asSeconds());
+            setPosition(transitionHandler.update(delta));
+            if (transitionHandler.isFinished()) {
+                if (!(*curLane)->receivePlayer(this)) {
+                    setDead();
+                }
+                popAction();
+                state = State::Idle;
+            }
+        }
+    }
 }
 
 void PlayerNode::updateCurrent(sf::Time delta) {
+    updateMove(delta);
+
     if (state == MoveUp) {
         moveUp.update(delta);
         moveUp.setRepeating(true);
@@ -98,50 +154,88 @@ void PlayerNode::updateCurrent(sf::Time delta) {
         sprite.setTextureRect(sf::IntRect(0, 16 * state, 14, 16));
     }
 
-    sf::Vector2f curPos = getPosition();
-    sf::Vector2f posDiff = curPos - lastPos;
-
-    if (posDiff.y <= -128) {
-        move(0, 0);
-        lastPos = curPos;
-        ++curLane;
-    }
-    else if (posDiff.y >= 128) {
-        move(0, 0);
-        lastPos = curPos;
-        --curLane;
-    }
-    else if (posDiff.x <= -64 || posDiff.x >= 64) {
-        move(0, 0);
-        lastPos = curPos;
-    }
-    else if (posDiff.x <= -64 || posDiff.x >= 64) {
-        lastPos = curPos;
-    }
-
-    if (state == Idle)
-        adaptPosition();
-
     Entity::updateCurrent(delta);
-}
-
-void PlayerNode::adaptPosition() {
-    setPosition(getPosition().x, lanes[curLane]->getPosition().y + 24);
 }
 
 unsigned int PlayerNode::getCategory() const {
     return Category::Player;
 }
 
-sf::FloatRect PlayerNode::getBoundingRect() const {
-    return getWorldTransform().transformRect(sprite.getGlobalBounds());
-}
-
-int PlayerNode::getCurrentLane() {
+std::list<Lane*>::iterator PlayerNode::getCurrentLane() {
     return curLane;
 }
 
 void PlayerNode::moveBack() {
-    setPosition(lastPos);
-    move(0, 0);
+    sf::Vector2i action = getCurrentAction();
+    clearActionQueue();
+    pushAction(action);
+    if (action.y < 0) { // go up
+        curLane--;
+    } else if (action.y > 0) {
+        curLane++;
+    }
+    transitionHandler.setIsReversed(true);
+}
+
+void PlayerNode::runAction(const sf::Vector2i& direction) {
+    if (direction == sf::Vector2i(0, 0))
+        return;
+
+    if (direction.y < 0 && direction.x == 0)
+        moveDestination(0, -128);
+    else if (direction.y > 0 && direction.x == 0)
+        moveDestination(0, 128);
+    else if (direction.x < 0 && direction.y == 0)
+        moveDestination(-128, 0);
+    else if (direction.x > 0 && direction.y == 0)
+        moveDestination(128, 0);
+}
+
+void PlayerNode::setTransitionLayer(ViewGroup* layer) {
+    transitionLayer = layer;
+}
+
+void PlayerNode::setLastParent(ViewGroup* parent) {
+    lastParent = parent;
+}
+
+ViewGroup* PlayerNode::getLastParent() {
+    return lastParent;
+}
+
+void PlayerNode::pushAction(sf::Vector2i action) {
+    actionQueue.push(action);
+}
+
+void PlayerNode::popAction() {
+    actionQueue.pop();
+}
+
+sf::Vector2i PlayerNode::getCurrentAction() {
+    return actionQueue.front();
+}
+
+bool PlayerNode::isActionQueueEmpty() const {
+    return actionQueue.empty();
+}
+
+void PlayerNode::clearActionQueue() {
+    while (!actionQueue.empty())
+        actionQueue.pop();
+}
+
+void PlayerNode::setMoveDuration(sf::Time duration) {
+    moveDuration = duration;
+}
+
+sf::Time PlayerNode::getMoveDuration() const {
+    return moveDuration;
+}
+
+void PlayerNode::setDead() {
+    __isDead = true;
+}
+
+bool PlayerNode::isDead() const {
+    return __isDead;
 }

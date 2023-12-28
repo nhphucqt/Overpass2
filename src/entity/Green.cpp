@@ -1,4 +1,5 @@
 #include <Green.hpp>
+#include <AppConfig.hpp>
 
 TextureID toTextureID(Green::Type type) {
 	switch (type) {
@@ -18,6 +19,8 @@ Green::Green(Type mType, const TextureManager &textures):
 type(mType),
 Entity(textures.get(toTextureID(mType)))
 {
+    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
+    setSize(cellSize);
     if (type == Green::Tree)
         sprite.scale(6, 6);
     else if (type == Green::Bush)
@@ -26,22 +29,20 @@ Entity(textures.get(toTextureID(mType)))
         sprite.scale(3, 3);
     sf::FloatRect bounds = sprite.getLocalBounds();
     if (type == Green::Tree)
-        sprite.setOrigin(bounds.width / 2.f, bounds.height);
+        sprite.setOrigin(bounds.width / 2.f, bounds.height - 10);
     else
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+
+    sprite.setPosition(getBoundingRect().getSize() / 2.f);
+    sf::FloatRect rect = Entity::getBoundingRect();
+    if (type == Tree) {;
+        rect.height = 128;
+    }
+    setHitBox(rect);
 }
 
 unsigned int Green::getCategory() const {
     return Category::Green;
-}
-
-sf::FloatRect Green::getBoundingRect() const {
-    sf::FloatRect rect = Entity::getBoundingRect();
-    if (type == Tree) {
-        rect.top += 90;
-        rect.height = 128;
-    }
-    return rect;
 }
 
 void Green::setVelocity(sf::Vector2f velocity) {

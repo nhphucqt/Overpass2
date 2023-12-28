@@ -25,28 +25,21 @@ public:
     ViewGroup* getParent() const;
     void setParent(ViewGroup* parent);
 
-    virtual void attachView(ViewGroup::Ptr view);
+    void attachView(ViewGroup::Ptr view);
     ViewGroup::Ptr detachView(const ViewGroup &view);
     void detachAllViews();
     const std::vector<ViewGroup::Ptr>& getViews() const;
 
     void update(sf::Time delta);
-	void onCommand(const Command &command, sf::Time dt);
+	void onCommand(Command &command, sf::Time dt);
     void setReverse(bool reverse = true);
 	virtual unsigned int getCategory() const;
-
-    sf::Transform getAbsoluteTransform() const;
 
 	sf::Vector2f getWorldPosition() const;
 	sf::Transform getWorldTransform() const;
 
-    void checkSceneCollision(const ViewGroup& sceneGraph, std::set<Pair>& collisionPairs);
-	void checkNodeCollision(const ViewGroup& node, std::set<Pair>& collisionPairs);
-	// void removeWrecks();
-	virtual sf::FloatRect getBoundingRect() const;
 	virtual bool isMarkedForRemoval() const;
-	virtual bool isDestroyed() const;
-	void drawBoundingRect(sf::RenderTarget& target, sf::RenderStates states) const;
+    virtual bool isDestroyed() const;
 
     void setUpdate(bool isUpdate);
     bool isUpdate();
@@ -64,8 +57,5 @@ private:
     virtual void updateCurrent(sf::Time delta);
     void updateChildren(sf::Time delta);
 };
-
-bool collision(const ViewGroup& lhs, const ViewGroup& rhs);
-float distance(const ViewGroup& lhs, const ViewGroup& rhs);
 
 #endif

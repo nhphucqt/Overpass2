@@ -35,7 +35,7 @@ int TextView::getCharacterSize() const {
 }
 
 sf::FloatRect TextView::getGlobalBounds() const {
-    return getAbsoluteTransform().transformRect(text.getGlobalBounds());
+    return getWorldTransform().transformRect(text.getGlobalBounds());
 }
 
 bool TextView::isMouseHovering(const sf::Vector2f& mousePoint) const {

@@ -1,4 +1,5 @@
 #include <Animal.hpp>
+#include <AppConfig.hpp>
 
 TextureID toTextureID(Animal::Type type) {
 	switch (type) {
@@ -53,16 +54,21 @@ animation(textures.get(toTextureID(mType)))
     }
     animation.setDuration(sf::seconds(1));
     animation.scale(5, 5);
+
+    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
+    setSize(cellSize);
+    sf::FloatRect bounds = animation.getLocalBounds();
+    animation.setOrigin(bounds.getSize() / 2.f);
+    animation.setPosition(cellSize / 2.f);
+    setHitBox(animation.getGlobalBounds());
 	// sf::FloatRect bounds = animation.getLocalBounds();
 	// animation.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
 
 void Animal::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(animation, states);
-}
 
-sf::FloatRect Animal::getBoundingRect() const {
-    return getWorldTransform().transformRect(animation.getGlobalBounds());
+    drawBoundingRect(target, states);
 }
 
 void Animal::updateCurrent(sf::Time dt) {

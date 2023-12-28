@@ -50,6 +50,8 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
     ${CMAKE_SOURCE_DIR}/src/map_generator/*.cpp
     ${CMAKE_SOURCE_DIR}/src/database/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/animation/*.cpp
 )
 
 # option(CMAKE_USE_WIN32_THREADS_INIT "using WIN32 threads" ON)
@@ -70,6 +72,8 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/entity
     ${CMAKE_SOURCE_DIR}/include/map_generator
     ${CMAKE_SOURCE_DIR}/include/database
+    ${CMAKE_SOURCE_DIR}/include/utils
+    ${CMAKE_SOURCE_DIR}/include/animation
 )
 
 if(WIN32)

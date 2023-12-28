@@ -7,6 +7,8 @@
 #include <ActivityFactory.hpp>
 #include <DemoActivity.hpp>
 
+#include <iterator>
+
 void GameActivity::onLoadResources() {
 	// lanes
 	mTextures.load(TextureID::Road, "res/textures/Lane/Road.png");
@@ -53,6 +55,7 @@ void GameActivity::onCreate() {
 
 void GameActivity::onAttach() {
     sf::RenderWindow& window = getActivityManager()->getWindow();
+	// window.setKeyRepeatEnabled(false);
     mWorldView = window.getDefaultView(); 
     mWorldBounds = sf::FloatRect(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10);
     mSpawnPosition = sf::Vector2f(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f);
@@ -107,9 +110,12 @@ void GameActivity::onAttach() {
 		mSceneLayers[Background]->attachView(std::move(lane));
 	}
 
-	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3)); // last argument must be consistent with playerLaneIndex
+	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, std::next(lanes.begin(), 3))); // last argument must be consistent with playerLaneIndex
 	mPlayerNode = player.get();
-	mSceneLayers[Aboveground]->attachView(std::move(player));
+	mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+	mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+	(*std::next(lanes.begin(), 3))->spawnPlayer(std::move(player));
+	// mSceneLayers[Aboveground]->attachView(std::move(player));
     // createTitle();
 
 	mWorldView.setCenter(mSpawnPosition);
@@ -133,7 +139,7 @@ void GameActivity::onEvent(const sf::Event& event) {
 }
 
 void GameActivity::onEventProcessing() {
-    mPlayer.handleRealtimeInput(getCommandQueue());
+    // mPlayer.handleRealtimeInput(getCommandQueue());
 }
 
 void GameActivity::updateCurrent(sf::Time dt) {
@@ -143,7 +149,8 @@ void GameActivity::updateCurrent(sf::Time dt) {
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty()) {
 		if (mPlayerNode->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.1) {
-			onCommand(mCommandQueue.pop(), dt);
+			Command command = mCommandQueue.pop();
+			onCommand(command, dt);
 			clock.restart();
 		}
 		else
@@ -152,7 +159,7 @@ void GameActivity::updateCurrent(sf::Time dt) {
 
 	handleCollisions();
 	// Apply movements
-	adaptPlayerPosition();
+	// adaptPlayerPosition();
 }
 
 void GameActivity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -161,61 +168,6 @@ void GameActivity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states
 
 void GameActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
     // ...
-}
-
-void GameActivity::createTitle() {
-    AppConfig& config = AppConfig::getInstance();
-    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
-
-    Intent* intent = getIntent();
-    int action = intent->getAction();
-    int level = intent->getExtra<int>("level", -2);
-
-    sf::Color color = sf::Color::Black;
-    int fontSize = 50;
-
-    TextView::Ptr title = std::make_unique<TextView>("Game", mFontManager.get(FontID::defaultFont), sf::Vector2f(), fontSize, color);
-    if (action == ACTION_NEW_GAME) {
-        switch (level) {
-            case 0:
-                title->setText("Game - Easy");
-                break;
-            case 1:
-                title->setText("Game - Medium");
-                break;
-            case 2:
-                title->setText("Game - Hard");
-                break;
-            case 3:
-                title->setText("Game - Endless");
-                break;
-            default:
-                title->setText("Game - Unknown");
-                break;
-        }
-    } else {
-        title->setText("Game - Continue");
-    }
-    sf::Vector2f position((windowSize.x-title->getGlobalBounds().getSize().x)/2, 50);
-    title->setPosition(position);
-
-    attachView(std::move(title));
-}
-
-void GameActivity::createBackButton() {
-    float width = 50;
-    float height = 50;
-    sf::Vector2f size(width, height);
-    sf::Vector2f position(20, 20);
-    sf::Color color = sf::Color(150, 150, 150, 255);
-    int fontSize = 50;
-
-    ButtonView::Ptr backButton = std::make_unique<ButtonView>(mFontManager.get(FontID::defaultFont), "<", fontSize, position, size, color);
-    backButton->setTextColor(sf::Color::Black);
-    backButton->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
-        finish();
-    });
-    attachView(std::move(backButton));
 }
 
 void GameActivity::adaptPlayerPosition() {
@@ -279,43 +231,31 @@ bool GameActivity::matchesCategories(ViewGroup::Pair& colliders, Category::Type 
 
 void GameActivity::handleCollisions() {
 	std::set<ViewGroup::Pair> collisionPairs;
-	mPlayerNode->checkSceneCollision(*lanes[mPlayerNode->getCurrentLane()], collisionPairs);
-	if (lanes.size() > mPlayerNode->getCurrentLane() + 1)
-		mPlayerNode->checkSceneCollision(*lanes[mPlayerNode->getCurrentLane() + 1], collisionPairs);
-	mPlayerNode->checkSceneCollision(*lanes[mPlayerNode->getCurrentLane() - 1], collisionPairs);
+	mPlayerNode->checkSceneCollision(**mPlayerNode->getCurrentLane(), collisionPairs);
+	if (lanes.end() != std::next(mPlayerNode->getCurrentLane()))
+		mPlayerNode->checkSceneCollision(**std::next(mPlayerNode->getCurrentLane()), collisionPairs);
+	mPlayerNode->checkSceneCollision(**std::prev(mPlayerNode->getCurrentLane()), collisionPairs);
 
 	bool onRiver = false;
 	for (ViewGroup::Pair pair : collisionPairs) {
-		if (matchesCategories(pair, Category::Player, Category::Lane))
-			onRiver = false;
-		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
-			gameOver();
-		else if (matchesCategories(pair, Category::Player, Category::Animal))
-			gameOver();
-		else if (matchesCategories(pair, Category::Player, Category::Train))
-			gameOver();
-		else if (matchesCategories(pair, Category::Player, Category::Log)) {
-			onRiver = false;
-			if (mPlayerNode->getState() == PlayerNode::Idle) {
-				auto& log = static_cast<Log&>(*pair.second);
-				mPlayerNode->setVelocity(log.getVelocity());
-			}
-			break;
-		}
-		else if (matchesCategories(pair, Category::Player, Category::River)) {
-			onRiver = true;
-		}
-		else if (matchesCategories(pair, Category::Player, Category::Green)) {
+		if (matchesCategories(pair, Category::Player, Category::Vehicle)
+		 || matchesCategories(pair, Category::Player, Category::Animal)
+		 || matchesCategories(pair, Category::Player, Category::Train)) {
+			mPlayerNode->setDead();
+		} else if (matchesCategories(pair, Category::Player, Category::Green)) {
 			mPlayerNode->moveBack();
 		}
 	}
 
-	if (onRiver)
+	if (mPlayerNode->isDead()) {
 		gameOver();
+	}
 }
 
 void GameActivity::scroll(sf::Time dt) {
-	int currentLaneIndex = mPlayerNode->getCurrentLane();
+	AppConfig& config = AppConfig::getInstance();
+	sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
+	int currentLaneIndex = std::distance(lanes.begin(), mPlayerNode->getCurrentLane());
 	if (currentLaneIndex > playerLaneIndex) {
 		scrollDistance += 128.f;
 		++playerLaneIndex;
@@ -331,12 +271,6 @@ void GameActivity::scroll(sf::Time dt) {
 		scrollDistance += scrollStep;
 		mWorldView.move(0.f, scrollStep);	
 	}
-	// view gradually move up regardless of player's movement
-	// else {
-	// 	float step = -24.f * dt.asSeconds();
-	// 	scrollDistance += step;
-	// 	mWorldView.move(0, step);
-	// }
 }
 
 void GameActivity::gameOver() {
