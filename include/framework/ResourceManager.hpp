@@ -1,13 +1,12 @@
 #ifndef RESOURCE_MANAGER
 #define RESOURCE_MANAGER
 
-#include <ResourceID.hpp>
-#include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <iostream>
-#include <memory>
-#include <map>
+#include <SFML/Graphics.hpp>
 #include <cassert>
+#include <iostream>
+#include <map>
+#include <memory>
 
 template <typename Resource, typename Identifier>
 class ResourceManager

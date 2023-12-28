@@ -48,8 +48,10 @@ void RoadProperties::generate()
 {
     m_reverse_p = LaneUtils::random_range(0, 1);
     m_has_animal_p = LaneUtils::random_range(0, 1);
-    m_animal_type = static_cast<Animal::Type>(LaneUtils::random_range(0, 5));
-    m_vehicle_type = static_cast<Vehicle::Type>(LaneUtils::random_range(0, 3));
+    m_animal_type = static_cast<Animal::Type>(LaneUtils::random_range(
+        0, static_cast<unsigned int>(Animal::Type::Count) - 1));
+    m_vehicle_type = static_cast<Vehicle::Type>(LaneUtils::random_range(
+        0, static_cast<unsigned int>(Vehicle::Type::Count) - 1));
 }
 
 void RoadProperties::setExternalStatic() const {}

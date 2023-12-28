@@ -16,8 +16,10 @@ public:
         Car,
         Taxi,
         Police,
-        Ambulance
+        Ambulance,
+        Count
     };
+
     Vehicle(Type mType, const TextureManager &textures);
     unsigned int getCategory() const;
 

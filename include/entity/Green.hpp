@@ -10,14 +10,14 @@
 class Green : public Entity
 {
 public:
-    static constexpr unsigned int GreenTypeCnt = 3;
-
     enum Type
     {
         Tree,
         Bush,
-        CircleBush
+        CircleBush,
+        Count
     };
+
     Green(Type mType, const TextureManager &textures);
     unsigned int getCategory() const;
     virtual sf::FloatRect getBoundingRect() const;

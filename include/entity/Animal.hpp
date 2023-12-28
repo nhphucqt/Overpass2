@@ -1,18 +1,30 @@
 #ifndef ANIMAL_HPP
 #define ANIMAL_HPP
-#include <Entity.hpp>
+
 #include <Animation.hpp>
+#include <Entity.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 
-class Animal: public Entity {
+class Animal : public Entity
+{
 public:
-    enum Type {Bear, Boar, Bunny, Deer, Fox, Wolf};
-    Animal(Type mType, const TextureManager& textures);
-    void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
-	virtual sf::FloatRect getBoundingRect() const;
+    enum Type
+    {
+        Bear,
+        Boar,
+        Bunny,
+        Deer,
+        Fox,
+        Wolf,
+        Count
+    };
+
+    Animal(Type mType, const TextureManager &textures);
+    void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual sf::FloatRect getBoundingRect() const;
     unsigned int getCategory() const;
 
 private:

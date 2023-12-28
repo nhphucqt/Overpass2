@@ -32,8 +32,8 @@ void FieldProperties::generate()
     }
     for (int i = 0; i < green_cnt; ++i)
     {
-        unsigned int green_type =
-            LaneUtils::random_range(0, Green::GreenTypeCnt);
+        unsigned int green_type = LaneUtils::random_range(
+            0, static_cast<unsigned int>(Green::Type::Count) - 1);
         unsigned int lbound = (i == 0 ? 0 : m_greens.back().first + 1);
         unsigned int green_slot;
         do

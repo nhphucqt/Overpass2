@@ -19,5 +19,6 @@ float RiverProperties::getVelocity() const
 
 void RiverProperties::generate()
 {
-    m_log_type = static_cast<Log::Type>(LaneUtils::random_range(0, 1));
+    m_log_type = static_cast<Log::Type>(LaneUtils::random_range(
+        0, static_cast<unsigned int>(Log::Type::Count) - 1));
 }
