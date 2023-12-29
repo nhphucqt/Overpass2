@@ -119,7 +119,7 @@ void RankingActivity::createBoard() {
     );
     board->setPosition((windowSize - board->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
 
-    UserRepo::Leaderboard leaderboard = UserRepo::getInstance().getLeaderboard();
+    UserRepo::Leaderboard leaderboard = UserRepo::getInstance().getLeaderboard(UserData::GameMode::easy);
 
     if (leaderboard.empty()) {
         TextView::Ptr emptyView = std::make_unique<TextView>("No data", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, 0), 64, sf::Color::White);
