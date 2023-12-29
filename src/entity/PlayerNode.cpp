@@ -66,9 +66,14 @@ void PlayerNode::moveDestination(sf::Vector2f distance) {
         else
             --curLane;
     }
+    sf::Vector2f playerPos = getWorldTransform().transformPoint(getOrigin());
+    sf::Vector2f dest = playerPos + distance + getAbsoluteVelocity() * getMoveDuration().asSeconds();
+    // std::cerr << "start: " << playerPos.x << " " << playerPos.y << " --> " << dest.x << " " << dest.y << std::endl;
+    Zone* targetZone = (*curLane)->getTargetZone(this, dest, getMoveDuration().asSeconds());
+    // std::cerr << "target: " << targetZone->getCenter().x << " " << targetZone->getCenter().y << ' ' << targetZone->isSafe() << std::endl;
     transitionHandler.setTransition(
-        getWorldTransform().transformPoint(getOrigin()),
-        getWorldTransform().transformPoint(getOrigin() + distance),
+        (Entity*)getParent(),
+        (Entity*)targetZone,
         sf::seconds(getMoveDuration().asSeconds())
     );
     setLastParent(getParent());
@@ -117,7 +122,6 @@ void PlayerNode::updateMove(sf::Time delta) {
         }
         if (!transitionHandler.isFinished()) {
             sf::Vector2f velo = ((Entity*)getLastParent())->getAbsoluteVelocity();
-            transitionHandler.move(velo * delta.asSeconds());
             setPosition(transitionHandler.update(delta));
             if (transitionHandler.isFinished()) {
                 if (!(*curLane)->receivePlayer(this)) {

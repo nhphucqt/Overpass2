@@ -26,6 +26,7 @@ public:
 	virtual sf::FloatRect getBoundingRect() const;
     virtual bool receivePlayer(ViewGroup* player);
     virtual bool spawnPlayer(ViewGroup::Ptr player);
+    virtual Zone* getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
     virtual unsigned int getCategory() const;
 
 protected:

@@ -29,6 +29,10 @@ bool Lane::spawnPlayer(ViewGroup::Ptr player) {
     return seqZone->spawnPlayer(std::move(player));
 }
 
+Zone* Lane::getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const {
+    return seqZone->getTargetZone(player, dest, dt);
+}
+
 unsigned int Lane::getCategory() const {
     return Category::Lane;
 }

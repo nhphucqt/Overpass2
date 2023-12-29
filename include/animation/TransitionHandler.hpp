@@ -5,6 +5,7 @@
 #include <SFML/System/Time.hpp>
 
 #include <memory>
+#include <Entity.hpp>
 
 class TransitionHandler {
 public:
@@ -29,18 +30,18 @@ public:
     };
 
 private:
-    sf::Vector2f start, end;
+    Entity* start;
+    Entity* end;
     sf::Time duration;
     sf::Time elapsedTime;
     bool isReversed;
     std::unique_ptr<TransitionFunction> transitionFunction;
 
 public:
-    void setTransition(sf::Vector2f start, sf::Vector2f end, sf::Time duration, TransitionFunction* transitionFunction = new TransitionFunctionBenzier());
+    void setTransition(Entity* start, Entity* end, sf::Time duration, TransitionFunction* transitionFunction = new TransitionFunctionBenzier());
     sf::Vector2f update(sf::Time delta);
     sf::Vector2f getCurrent() const;
     bool isFinished() const;
-    void move(sf::Vector2f distance);
     void setIsReversed(bool isReversed);
 };
 

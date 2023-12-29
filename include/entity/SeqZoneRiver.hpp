@@ -14,6 +14,8 @@ public:
     SeqZoneRiver(Zone::Type type, sf::Vector2f cellSize, int numZone);
     virtual int getNearestZoneIndex(ViewGroup* player) const override;
     virtual Zone* getNearestZone(ViewGroup* player) const override;
+    virtual int getTargetZoneIndex(ViewGroup* player, const sf::Vector2f& dest, float dt) const override;
+    virtual Zone* getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const override;
 };
 
 #endif

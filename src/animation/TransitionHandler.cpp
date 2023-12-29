@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-void TransitionHandler::setTransition(sf::Vector2f start, sf::Vector2f end, sf::Time duration, TransitionFunction* transitionFunction) {
+void TransitionHandler::setTransition(Entity* start, Entity* end, sf::Time duration, TransitionFunction* transitionFunction) {
     this->start = start;
     this->end = end;
     this->duration = duration;
@@ -21,22 +21,25 @@ sf::Vector2f TransitionHandler::update(sf::Time delta) {
         if (elapsedTime < sf::Time::Zero)
             elapsedTime = sf::Time::Zero;
     }
+    sf::Vector2f startPos = start->getWorldCenter();
+    sf::Vector2f endPos = end->getWorldCenter();
+    // std::cerr << "start: " << startPos.x << " " << startPos.y << std::endl;
+    // std::cerr << "end: " << endPos.x << " " << endPos.y << std::endl;
+    sf::Vector2f pos = getCurrent();
+    // std::cerr << "pos: " << pos.x << " " << pos.y << std::endl;
     return getCurrent();
 }
 
 sf::Vector2f TransitionHandler::getCurrent() const {
     float t = elapsedTime.asSeconds() / duration.asSeconds();
     float ratio = transitionFunction->operator()(t);
-    return start + (end - start) * ratio;
+    sf::Vector2f startPos = start->getWorldCenter();
+    sf::Vector2f endPos = end->getWorldCenter();
+    return startPos + (endPos - startPos) * ratio;
 }
 
 bool TransitionHandler::isFinished() const {
     return isReversed ? elapsedTime == sf::Time::Zero : elapsedTime == duration;
-}
-
-void TransitionHandler::move(sf::Vector2f distance) {
-    start += distance;
-    end += distance;
 }
 
 void TransitionHandler::setIsReversed(bool isReversed) {

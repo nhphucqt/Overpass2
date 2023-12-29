@@ -30,6 +30,11 @@ sf::Vector2f Entity::getVelocity() const {
 	return mVelocity;
 }
 
+sf::Vector2f Entity::getWorldCenter() const {
+	sf::FloatRect rect = getBoundingRect();
+	return sf::Vector2f(rect.left + rect.width/2, rect.top + rect.height/2);
+}
+
 void Entity::updateCurrent(sf::Time dt) {
 	move(mVelocity * dt.asSeconds());
 }
