@@ -2,7 +2,7 @@
 #include <Vector2dUtils.hpp>
 #include <iostream>
 
-const float SeqZoneRiver::THRESHOLD = 80.f;
+const float SeqZoneRiver::THRESHOLD = 70.f;
 
 SeqZoneRiver::SeqZoneRiver(Zone::Type type, sf::Vector2f cellSize, int numZone): SeqZone(type, cellSize, numZone) {}
 
