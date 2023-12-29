@@ -8,16 +8,9 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
-namespace DEFAULT {
-    float LANELENGTH = 1400.f;
-    float PADDING = 1000.f;
-    float TRAINVELOCITY = 700.f;
-};
-
 class Railway: public Lane {
 public:
     Railway(TextureManager* textures, ViewGroup* foreground, bool isReverse = false);
-    unsigned int getCategory() const;
     void setTrainVelocity(float v);
 
 private:

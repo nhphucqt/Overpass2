@@ -9,18 +9,9 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SeqZoneRiver.hpp>
 
-namespace DEFAULT {
-    const float LANELENGTH = 1400.f;
-    const float PADDING = 100.f;
-    const int NUMOFLOG = 3;
-    const float LOGVELOCITY = 200.f;
-};
-
-
 class River: public Lane {
 public:
     River(TextureManager* textures, bool isReverse = false);
-    unsigned int getCategory() const;
     void setNumOfLog(int n);
     void setlogVelocity(float v);
 

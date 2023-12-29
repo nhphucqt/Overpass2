@@ -1,5 +1,11 @@
 #include <Railway.hpp>
 
+namespace DEFAULT {
+    const float LANELENGTH = 1400.f;
+    const float PADDING = 1000.f;
+    const float TRAINVELOCITY = 700.f;
+};
+
 Railway::Railway(TextureManager *textures, ViewGroup* foreview, bool isReverse)
 : Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview)
 , laneLength(DEFAULT::LANELENGTH)
@@ -12,10 +18,6 @@ Railway::Railway(TextureManager *textures, ViewGroup* foreview, bool isReverse)
 	sf::IntRect textureRect(0, 0, 1400, 16);
     sprite.setTextureRect(textureRect);
     buildLane();
-}
-
-unsigned int Railway::getCategory() const {
-    return Category::Lane;
 }
 
 void Railway::setTrainVelocity(float v) {

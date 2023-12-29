@@ -1,6 +1,13 @@
 #include <River.hpp>
 #include <AppConfig.hpp>
 
+namespace DEFAULT {
+    const float LANELENGTH = 1400.f;
+    const float PADDING = 100.f;
+    const int NUMOFLOG = 3;
+    const float LOGVELOCITY = 200.f;
+};
+
 River::River(TextureManager *textures, bool isReverse)
 : Lane(textures->get(TextureID::River), textures, isReverse)
 , laneLength(DEFAULT::LANELENGTH)
@@ -19,10 +26,6 @@ River::River(TextureManager *textures, bool isReverse)
     type = Lane::Type::River;
     textures->get(TextureID::River).setRepeated(true);
     buildLane();
-}
-
-unsigned int River::getCategory() const {
-    return Category::River;
 }
 
 void River::setNumOfLog(int n) {

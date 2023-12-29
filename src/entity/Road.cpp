@@ -1,6 +1,17 @@
 #include <Road.hpp>
 #include <AppConfig.hpp>
 
+namespace DEFAULT {
+    const float LANELENGTH = 1400.f;
+    const float PADDING = 100.f;
+    const int NUMOFVEHICLE = 3;
+    const int NUMOFANIMAL = 2;
+    const float VEHICLEVELOCITY = 300.f;
+    const float VEHICLESLOWVELOCITY = 100.f;
+    const float ANIMALVELOCITY = 200.f;
+    const float TRAFFICLIGHTPOSITION = 400.f;
+};
+
 Road::Road(TextureManager *textures, bool isReverse)
 : Lane(textures->get(TextureID::Road), textures, isReverse)
 , laneLength(DEFAULT::LANELENGTH)
