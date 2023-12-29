@@ -74,6 +74,7 @@ void River::updateCurrent(sf::Time dt)
     // make the last car becomes the first car in the next iteration
     // logs.erase(logs.end());
     std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
+    std::cout << "river is fine2\n";
 }
 
 void River::buildLane()

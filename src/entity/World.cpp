@@ -9,21 +9,23 @@ World::World(sf::RenderWindow &window, bool isLoad)
 	if (!isLoad)
 	{
 		buildScene();
+		mWorldView.setCenter(mSpawnPosition);
 	}
 	else
 	{
 		loadGameState("data/" + UserSession::getInstance().getUsername());
+		mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayer->getPosition().y);
 	}
-	// Prepare the view
-	mWorldView.setCenter(mSpawnPosition);
 }
 
 void World::update(sf::Time dt)
 {
+	std::cout << "world update is fine1\n";
 	if (stop)
 		return;
 	// Scroll the world
 	scroll(dt);
+	std::cout << "world update is fine2\n";
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty())
@@ -36,21 +38,20 @@ void World::update(sf::Time dt)
 		else
 			mCommandQueue.pop();
 	}
+	std::cout << "world update is fine3\n";
 
 	handleCollisions();
+	std::cout << "world update is fine4\n";
 	// Apply movements
 	mSceneGraph.update(dt);
+	std::cout << "world update is fine5\n";
 	adaptPlayerPosition();
+	std::cout << "world update is fine6\n";
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
 		std::cout << "Save data.\n";
 		saveGameState("data/" + UserSession::getInstance().getUsername());
-	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
-	{
-		loadGameState("data/" + UserSession::getInstance().getUsername());
 	}
 }
 
@@ -216,11 +217,18 @@ bool World::matchesCategories(ViewGroup::Pair &colliders, Category::Type type1, 
 
 void World::handleCollisions()
 {
+	std::cout << "collision is fine1\n";
+
 	std::set<ViewGroup::Pair> collisionPairs;
 	mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane()], collisionPairs);
+	std::cout << "collision is fine2\n";
+
+	std::cout << "Lane size: " << lanes.size() << " playerLane: " << mPlayer->getCurrentLane() + 1 << std::endl;
 	if (lanes.size() > mPlayer->getCurrentLane() + 1)
-		mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane() + 1], collisionPairs);
-	mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane() - 1], collisionPairs);
+		mPlayer->checkSceneCollision(*lanes.at(mPlayer->getCurrentLane() + 1), collisionPairs);
+	if (mPlayer->getCurrentLane() > 0)
+		mPlayer->checkSceneCollision(*lanes.at(mPlayer->getCurrentLane() - 1), collisionPairs);
+	std::cout << "collision is fine3\n";
 
 	bool onRiver = false;
 	for (ViewGroup::Pair pair : collisionPairs)
@@ -229,15 +237,15 @@ void World::handleCollisions()
 			onRiver = false;
 		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
 		{
-			// gameOver();
+			gameOver();
 		}
 		else if (matchesCategories(pair, Category::Player, Category::Animal))
 		{
-			// gameOver();
+			gameOver();
 		}
 		else if (matchesCategories(pair, Category::Player, Category::Train))
 		{
-			// gameOver();
+			gameOver();
 		}
 		else if (matchesCategories(pair, Category::Player, Category::Log))
 		{
@@ -258,10 +266,11 @@ void World::handleCollisions()
 			mPlayer->moveBack();
 		}
 	}
+	std::cout << "collision is fine4\n";
 
 	if (onRiver)
 	{
-		// gameOver();
+		gameOver();
 	}
 }
 
@@ -301,7 +310,7 @@ void World::gameOver()
 	banner->setPosition(viewBounds.getPosition().x, viewBounds.getPosition().y + 300);
 	mSceneLayers[Aboveground]->attachView(std::move(banner));
 	stop = true;
-	// DeleteDirContent("data/" + UserSession::getInstance().getUsername());
+	DeleteDirContent("data/" + UserSession::getInstance().getUsername());
 }
 
 void World::saveGameState(const std::string &filepath)
@@ -316,13 +325,14 @@ void World::saveGameState(const std::string &filepath)
 		mPlayer->savePlayerData(filepath + "/player.dat");
 	}
 	std::ofstream laneValues(filepath + "/lane.txt");
+	laneValues << mPlayer->getCurrentLane() << '\n';
 	if (lanes.size() > 0)
 	{
 		for (int i = 0; i < lanes.size(); ++i)
 		{
 			std::string ith = (i < 10) ? "0" + std::to_string(i) : std::to_string(i);
 			lanes.at(i)->saveLaneData(filepath + "/l" + ith + ".dat");
-			laneValues << static_cast<int>(lanes.at(i)->getType()) << ' ' << static_cast<int>(lanes.at(i)->getIsReverse()) << "\n";
+			laneValues << static_cast<int>(lanes.at(i)->getType()) << ' ' << static_cast<int>(lanes.at(i)->getIsReverse()) << '\n';
 		}
 	}
 }
@@ -343,7 +353,8 @@ void World::loadGameState(const std::string &filepath)
 	{
 		throw std::runtime_error("LOAD ERR: lane.txt not found.\n");
 	}
-
+	int playerCurrentLane;
+	laneIndex >> playerCurrentLane;
 	std::vector<std::pair<int, int>> laneIndexVector;
 	while (laneIndex)
 	{
@@ -351,17 +362,9 @@ void World::loadGameState(const std::string &filepath)
 		laneIndex >> indexPair.first >> indexPair.second;
 		laneIndexVector.push_back(indexPair);
 	}
+	laneIndex.close();
 
-	std::vector<std::string> loadFiles;
-	for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(filepath))
-	{
-		std::string dir = dirEntry.path().filename();
-		if (dir != "player.dat" && dir != "lane.txt")
-		{
-			loadFiles.push_back(dir);
-		}
-	}
-	std::sort(loadFiles.begin(), loadFiles.end(), sortDir);
+	std::vector<std::string> loadFiles = getSortedFileNames(filepath);
 
 	for (int i = 0; auto &dirEntry : loadFiles)
 	{
@@ -397,12 +400,11 @@ void World::loadGameState(const std::string &filepath)
 		++i;
 	}
 
-	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, 3, true)); // last argument must be consistent with playerLaneIndex
+	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, playerCurrentLane)); // last argument must be consistent with playerLaneIndex
 	mPlayer = player.get();
 
 	mPlayer->loadPlayerData(filepath + "/player.dat");
 	playerLaneIndex = mPlayer->getCurrentLane();
 
-	mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayer->getPosition().y);
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 }

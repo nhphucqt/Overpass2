@@ -12,5 +12,6 @@
 bool CreateDirectoryRecursive(const std::string &dirName, std::error_code &err);
 void DeleteDirContent(const std::string& dirPath);
 bool sortDir(const std::string& filenameA, const std::string& filenameB);
+std::vector<std::string> getSortedFileNames(const std::string& filepath);
 
 #endif

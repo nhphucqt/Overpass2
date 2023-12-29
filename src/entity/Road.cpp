@@ -88,6 +88,7 @@ void Road::updateCurrent(sf::Time dt)
     else
         for (auto &x : vehicles)
             x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
+    std::cout << "road is fine1\n";
 
     // vehicle circling when out of view
     Vehicle *lastVehicle = vehicles.back();
@@ -100,8 +101,8 @@ void Road::updateCurrent(sf::Time dt)
             lastVehicle->getPosition().y);
     }
     // make the last car becomes the first car in the next iteration
-    vehicles.pop_back();
-    vehicles.insert(vehicles.begin(), lastVehicle);
+    // vehicles.erase(vehicles.end());
+    std::rotate(vehicles.rbegin(), vehicles.rbegin() + 1, vehicles.rend());
 
     Animal *lastAnimal = animals.back();
     Animal *firstAnimal = animals.front();

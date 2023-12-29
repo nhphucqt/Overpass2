@@ -86,7 +86,6 @@ private:
     struct PlayerData
     {
         int state;
-        int curLane;
         bool onRiver;
         float x;
     };

@@ -143,6 +143,7 @@ void Railway::loadLaneData(const std::string &filename)
         std::cout << "train is at: " << data.posX << ' ' << data.posY << std::endl;
 
         std::unique_ptr<Train> mTrain(new Train(*laneTextures));
+        train = mTrain.get();
         mTrain->deserialize(data);
         this->attachView(std::move(mTrain));
     }

@@ -196,13 +196,16 @@ void PlayerNode::updateCurrent(sf::Time delta)
         moveRight.update(delta);
         moveRight.setRepeating(true);
     }
+    std::cout << "player is fine1\n";
 
     if (state != Idle && state != Free)
     {
         sprite.setTextureRect(sf::IntRect(0, 16 * state, 14, 16));
     }
+    std::cout << "player is fine2\n";
 
     Entity::updateCurrent(delta);
+    std::cout << "player is fine5\n";
 }
 
 unsigned int PlayerNode::getCategory() const
@@ -349,7 +352,6 @@ void PlayerNode::loadPlayerData(const std::string &filename)
         inf.close();
 
         state = static_cast<State>(data.state);
-        curLane = data.curLane;
         onRiver = data.onRiver;
         setPosition(data.x, lanes[curLane]->getPosition().y + 24);
 
@@ -368,7 +370,6 @@ void PlayerNode::savePlayerData(const std::string &filename)
     {
         PlayerData data;
         data.state = static_cast<int>(state);
-        data.curLane = curLane;
         data.onRiver = onRiver;
         data.x = getPosition().x;
 
@@ -391,7 +392,6 @@ void PlayerNode::loadPlayerData(const std::string &filename)
         inf.close();
 
         state = static_cast<State>(data.state);
-        curLane = data.curLane;
         onRiver = data.onRiver;
         setPosition(data.x, lanes[curLane]->getPosition().y + 24);
 
