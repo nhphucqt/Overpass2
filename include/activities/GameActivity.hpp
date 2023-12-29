@@ -18,6 +18,7 @@
 #include <Player.hpp>
 
 #include <array>
+#include <list>
 
 class GameActivity : public Activity {
 public:
@@ -44,7 +45,7 @@ private:
     FontManager mFontManager;
 	TextureManager mTextures;
     bool stop;
-	std::vector<Lane*> lanes;
+	std::list<Lane*> lanes;
 
 	std::array<ViewGroup *, LayerCount> mSceneLayers;
 	CommandQueue mCommandQueue;
@@ -74,11 +75,6 @@ protected:
     void updateCurrent(sf::Time dt) override;
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
 	virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-private:
-    void createTitle();
-    void createBackButton();
-
 
 private:
 	void adaptPlayerPosition();

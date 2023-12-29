@@ -14,21 +14,26 @@ enum class TextureID
     toggleButtonsTexture,
     settingMenuTexture,
     iconsTexture,
+
     // lanes
     Road,
     River,
     Rail,
     Field,
+
     // logs
     Wood,
     Crocodile,
+
     // vehicles
     Car,
     Ambulance,
     Taxi,
     Police,
+
     // train
     Train,
+
     // animals
     Bear,
     Boar,
@@ -36,18 +41,22 @@ enum class TextureID
     Deer,
     Fox,
     Wolf,
+
     // traffic light
     TrafficLight,
+
     // greens aka plants
     Tree,
     Bush,
     CircleBush,
+
     // character animation panes
     CharacterUp,
     CharacterDown,
     CharacterLeft,
     CharacterRight,
     CharacterIdle,
+
     // game over banner
     GameOver,
 };

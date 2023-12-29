@@ -1,33 +1,31 @@
 #ifndef RIVER_PROPERTIES_HPP
 #define RIVER_PROPERTIES_HPP
 
-#include <vector>
-
 #include "LaneProperties.hpp"
+#include "Log.hpp"
+#include "River.hpp"
 
 class RiverProperties : public LaneProperties
 {
 public:
-    enum class CellType
-    {
-        Water = 0, NonWater
-    };
-    
-    RiverProperties(int map_width, Level::Type level);
-    
-    virtual void generate() override;
+    RiverProperties(unsigned int map_width, GameActivity::GameLevel level);
+
     virtual Lane::Type getType() const override;
     float getVelocity() const;
-    std::vector<CellType> const& getCells() const;
+    Log::Type getLogType() const;
+
+protected:
+    virtual void generate() override;
+    virtual void setExternalStatic() const override;
 
 private:
-    static const int CELL_TYPES_CNT;
-    static const float LEVEL_VELOCITIES[Level::TYPES_CNT];
-    
+    static constexpr float LEVEL_VELOCITIES[] = {200.f, 250.f, 300.f};
+
     using LaneProperties::m_level;
-    
-    float m_velocity;
-    std::vector<CellType> m_cells;
+    using LaneProperties::m_width;
+
+    float const m_velocity;
+    Log::Type m_log_type;
 };
 
 #endif

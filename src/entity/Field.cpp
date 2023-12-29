@@ -1,4 +1,6 @@
 #include <Field.hpp>
+#include <AppConfig.hpp>
+#include <RectangleView.hpp>
 
 Field::Field(TextureManager *textures, bool isReverse):
 Lane(textures->get(TextureID::Field), textures, isReverse) {
@@ -8,6 +10,14 @@ Lane(textures->get(TextureID::Field), textures, isReverse) {
 	sf::IntRect textureRect(0, 0, 1400, 32);
     sprite.setTextureRect(textureRect);
     buildLane();
+
+}
+
+// buildLane is for initialization (it is called in constructor)
+// add is for later processes
+void Field::add(std::unique_ptr<Green> &green) {
+    greens.push_back(green.get());
+    this->attachView(std::move(green));
 }
 
 // buildLane is for initialization (it is called in constructor)
@@ -34,5 +44,4 @@ void Field::buildLane() {
     // this->attachView(std::move(tree));
     // this->attachView(std::move(bush));
     // this->attachView(std::move(circleBush));
-
 }

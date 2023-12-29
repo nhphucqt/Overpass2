@@ -1,39 +1,28 @@
 #ifndef LANE_PROPERTIES_HPP
 #define LANE_PROPERTIES_HPP
 
-#include <memory>
+#include "GameActivity.hpp"
+#include "Lane.hpp"
 
-namespace Lane
+namespace LaneUtils
 {
-    enum class Type : int
-    {
-        Street = 0, River, Pavement, Rail
-    };
-
-    const int TYPES_CNT = 4;
-}
-
-namespace Level
-{
-    enum class Type : int
-    {
-        Easy = 0, Medium, Hard
-    };
-
-    const int TYPES_CNT = 3;
+unsigned int random_range(int l, int r);
 }
 
 class LaneProperties
 {
 public:
-    LaneProperties(int map_width, Level::Type level);
-    
-    virtual void generate() = 0;
+    LaneProperties(unsigned int map_width, GameActivity::GameLevel level);
+
+    void createLane();
     virtual Lane::Type getType() const = 0;
 
 protected:
-    int m_width;
-    Level::Type m_level;
+    virtual void generate() = 0;
+    virtual void setExternalStatic() const = 0;
+
+    unsigned int const m_width;
+    GameActivity::GameLevel const m_level;
 };
 
 #endif

@@ -115,13 +115,10 @@ void ProfileActivity::createProfile() {
     );
     menu->setPosition((windowSize - menu->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
 
-    std::cerr << "ProfileActivity::createProfile():" << "\n";
-
     bool isLogin = false;
     {
         UserSession userSession;
         isLogin = userSession.isLoggedin();
-        std::cerr << "ProfileActivity::createProfile(): isLogin = " << userSession.isLoggedin() << "\n";
     }
     
     if (isLogin) {
@@ -176,15 +173,15 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
 
     usernameView->attachView(std::move(underlineView));
 
-    TextView::Ptr highScoreView = std::make_unique<TextView>(
-        "High Score: " + std::to_string(userData->getHighscore()),
-        mFontManager.get(FontID::defaultFont),
-        sf::Vector2f(),
-        64,
-        sf::Color::White
-    ); 
-    highScoreView->move(0, usernameView->getGlobalBounds().getSize().y + 50);
-    usernameView->attachView(std::move(highScoreView));
+    // TextView::Ptr highScoreView = std::make_unique<TextView>(
+    //     "High Score: " + std::to_string(userData->getHighscore()),
+    //     mFontManager.get(FontID::defaultFont),
+    //     sf::Vector2f(),
+    //     64,
+    //     sf::Color::White
+    // ); 
+    // highScoreView->move(0, usernameView->getGlobalBounds().getSize().y + 50);
+    // usernameView->attachView(std::move(highScoreView));
 
 
     SpriteButtonView::Ptr logoutButton = MenuButtonFactory::create(

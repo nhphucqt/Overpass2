@@ -1,24 +1,15 @@
 #include <Player.hpp>
-#include <PlayerNode.hpp>
 #include <CommandQueue.hpp>
 
 #include <map>
 #include <string>
 #include <algorithm>
 
+PlayerMover::PlayerMover(int x, int y): direction(x, y) {}
 
-struct PlayerMover {
-	PlayerMover(float vx, float vy)
-	: velocity(vx, vy)
-	{
-	}
-
-	void operator() (PlayerNode& player, sf::Time) const {
-		player.move(velocity);
-	}
-
-	sf::Vector2f velocity;
-};
+void PlayerMover::operator() (PlayerNode& player, sf::Time) const {
+	player.pushAction(direction);
+}
 
 Player::Player() {
 	// Set initial key bindings
@@ -40,8 +31,9 @@ void Player::handleEvent(const sf::Event& event, CommandQueue& commands) {
 	{
 		// Check if pressed key appears in key binding, trigger command if so
 		auto found = mKeyBinding.find(event.key.code);
-		if (found != mKeyBinding.end() && !isRealtimeAction(found->second))
+		if (found != mKeyBinding.end() && isRealtimeAction(found->second)) {
 			commands.push(mActionBinding[found->second]);
+		}
 	}
 }
 
@@ -82,10 +74,10 @@ sf::Keyboard::Key Player::getAssignedKey(Action action) const {
 void Player::initializeActions() {
 	const float playerSpeed = 400.f;
 
-	mActionBinding[MoveLeft].action	 = derivedAction<PlayerNode>(PlayerMover(-playerSpeed, 0.f));
-	mActionBinding[MoveRight].action = derivedAction<PlayerNode>(PlayerMover(+playerSpeed, 0.f));
-	mActionBinding[MoveUp].action    = derivedAction<PlayerNode>(PlayerMover(0.f, -playerSpeed));
-	mActionBinding[MoveDown].action  = derivedAction<PlayerNode>(PlayerMover(0.f, +playerSpeed));
+	mActionBinding[MoveLeft].action	 = derivedAction<PlayerNode>(PlayerMover(-1, 0));
+	mActionBinding[MoveRight].action = derivedAction<PlayerNode>(PlayerMover(1, 0));
+	mActionBinding[MoveUp].action    = derivedAction<PlayerNode>(PlayerMover(0, -1));
+	mActionBinding[MoveDown].action  = derivedAction<PlayerNode>(PlayerMover(0, 1));
 }
 
 bool Player::isRealtimeAction(Action action) {

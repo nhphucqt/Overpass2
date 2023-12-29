@@ -1,4 +1,5 @@
 #include <Animation.hpp>
+#include <iostream>
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -53,6 +54,7 @@ bool Animation::isRepeating() const {
 
 void Animation::restart() {
 	mCurrentFrame = 0;
+	mElapsedTime = sf::Time::Zero;
 }
 
 bool Animation::isFinished() const {
@@ -60,7 +62,7 @@ bool Animation::isFinished() const {
 }
 
 sf::FloatRect Animation::getLocalBounds() const {
-	return sf::FloatRect(getOrigin(), static_cast<sf::Vector2f>(getFrameSize()));
+	return sf::FloatRect(sf::Vector2f(), static_cast<sf::Vector2f>(getFrameSize()));
 }
 
 sf::FloatRect Animation::getGlobalBounds() const {
@@ -72,39 +74,20 @@ void Animation::update(sf::Time dt) {
 	mElapsedTime += dt;
 
 	sf::Vector2i textureBounds(mSprite.getTexture()->getSize());
-	sf::IntRect textureRect = mSprite.getTextureRect();
 
-	if (mCurrentFrame == 0)
-		textureRect = sf::IntRect(0, 0, mFrameSize.x, mFrameSize.y);
-
-	// While we have a frame to process
-	while (mElapsedTime >= timePerFrame && (mCurrentFrame <= mNumFrames || mRepeat))
-	{
-		// Move the texture rect left
-		textureRect.left += textureRect.width;
-
-		// If we reach the end of the texture
-		if (textureRect.left + textureRect.width > textureBounds.x)
-		{
-			// Move it down one line
-			textureRect.left = 0;
-			textureRect.top += textureRect.height;
-		}
-
-		// And progress to next frame
+	if (mElapsedTime >= timePerFrame) {
 		mElapsedTime -= timePerFrame;
-		if (mRepeat)
-		{
+		if (mRepeat) {
 			mCurrentFrame = (mCurrentFrame + 1) % mNumFrames;
-
-			if (mCurrentFrame == 0)
-				textureRect = sf::IntRect(0, 0, mFrameSize.x, mFrameSize.y);
-		}
-		else
-		{
-			mCurrentFrame++;
+		} else {
+			mCurrentFrame = std::min(mCurrentFrame + 1, mNumFrames-1);
 		}
 	}
+
+	int numCol = textureBounds.x / mFrameSize.x;
+	int x = mCurrentFrame % numCol;
+	int y = mCurrentFrame / numCol;
+	sf::IntRect textureRect(x * mFrameSize.x, y * mFrameSize.y, mFrameSize.x, mFrameSize.y);
 
 	mSprite.setTextureRect(textureRect);
 }

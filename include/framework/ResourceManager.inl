@@ -1,5 +1,3 @@
-#include <ResourceManager.hpp>
-
 template <typename Resource, typename Identifier>
 inline void ResourceManager<Resource, Identifier>::load(Identifier id, const std::string &filename)
 {

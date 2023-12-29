@@ -88,9 +88,7 @@ void MainMenuActivity::onActivityResult(int requestCode, int resultCode, Intent:
     } else if (requestCode == REQUEST_TITLEBAR_BUTTONS) {
         if (resultCode == (int)ResultCode::RESULT_OK) {
             int titleType = data->getExtra<int>("titleType", -1);
-            std::cerr << " >> MainMenuActivity::onActivityResult: titleType = " << titleType << std::endl;
             if (titleType == -1) {
-                std::cerr << " >> MainMenuActivity::onActivityResult: titleType is not set" << std::endl;
                 return;
             }
             Intent::Ptr intent = Intent::Builder()

@@ -1,4 +1,5 @@
 #include <Road.hpp>
+#include <AppConfig.hpp>
 
 Road::Road(TextureManager *textures, bool isReverse)
 : Lane(textures->get(TextureID::Road), textures, isReverse)
@@ -16,11 +17,7 @@ Road::Road(TextureManager *textures, bool isReverse)
     sprite.scale(8.f, 8.f);
 	sf::IntRect textureRect(0, 0, laneLength, 16);
     sprite.setTextureRect(textureRect);
-    buildLane();
-}
-
-unsigned int Road::getCategory() const {
-    return Category::Lane;
+    buildLane();   
 }
 
 void Road::setNumOfVehicle(int n) {
@@ -94,7 +91,7 @@ void Road::buildLane() {
     for (int i = 0; i < numOfVehicle; ++i) {
         std::unique_ptr<Vehicle> vehicle(new Vehicle(Vehicle::Car, *laneTextures));
         vehicles.push_back(vehicle.get());
-        vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
+        // vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
         vehicle->setVelocity(vehicleVelocity * reverseScale, 0.f);
         vehicle->scale(reverseScale, 1);
         this->attachView(std::move(vehicle));

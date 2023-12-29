@@ -1,12 +1,11 @@
 #ifndef ROAD_HPP
 #define ROAD_HPP
 
-#include <Lane.hpp>
-#include <TrafficLight.hpp>
 #include <Animal.hpp>
-#include <Vehicle.hpp>
+#include <Lane.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -22,7 +21,8 @@ namespace DEFAULT {
     float TRAFFICLIGHTPOSITION = 400.f;
 };
 
-class Road: public Lane {
+class Road : public Lane
+{
 public:
     Road(TextureManager* textures, bool isReverse = false);
     unsigned int getCategory() const;
@@ -43,9 +43,9 @@ private:
     float animalVelocity;
     float trafficLightPosition;
 
-	std::vector<Vehicle *> vehicles;
-	std::vector<Animal *> animals;
-    TrafficLight* trafficlight;
+    std::vector<Vehicle *> vehicles;
+    std::vector<Animal *> animals;
+    TrafficLight *trafficlight;
 
     void updateCurrent(sf::Time dt);
     void buildLane();

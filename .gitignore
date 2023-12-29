@@ -4,3 +4,4 @@ notes/
 .vscode/
 .cache/
 data/*
+.clang-format

@@ -7,6 +7,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SeqZoneRiver.hpp>
 
 namespace DEFAULT {
     const float LANELENGTH = 1400.f;
@@ -14,6 +15,7 @@ namespace DEFAULT {
     const int NUMOFLOG = 3;
     const float LOGVELOCITY = 200.f;
 };
+
 
 class River: public Lane {
 public:
@@ -30,6 +32,9 @@ private:
 	std::vector<Log *> logs;
     void updateCurrent(sf::Time dt);
     void buildLane();
+
+    void pushLogZones(Log* log);
+    void removeLogZones(Log* log);
 };
 
 #endif
