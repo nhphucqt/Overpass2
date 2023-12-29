@@ -21,12 +21,6 @@ sf::Vector2f TransitionHandler::update(sf::Time delta) {
         if (elapsedTime < sf::Time::Zero)
             elapsedTime = sf::Time::Zero;
     }
-    sf::Vector2f startPos = start->getWorldCenter();
-    sf::Vector2f endPos = end->getWorldCenter();
-    // std::cerr << "start: " << startPos.x << " " << startPos.y << std::endl;
-    // std::cerr << "end: " << endPos.x << " " << endPos.y << std::endl;
-    sf::Vector2f pos = getCurrent();
-    // std::cerr << "pos: " << pos.x << " " << pos.y << std::endl;
     return getCurrent();
 }
 
