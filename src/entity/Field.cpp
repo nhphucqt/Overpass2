@@ -20,13 +20,6 @@ void Field::add(std::unique_ptr<Green> &green) {
     this->attachView(std::move(green));
 }
 
-// buildLane is for initialization (it is called in constructor)
-// add is for later processes
-void Field::add(std::unique_ptr<Green> &green) {
-    greens.push_back(green.get());
-    this->attachView(std::move(green));
-}
-
 void Field::updateCurrent(sf::Time dt) {
     // currently update nothing because bushes don't move
 }
