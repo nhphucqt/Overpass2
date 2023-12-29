@@ -17,10 +17,13 @@ unsigned int Railway::getCategory() const {
 }
 
 void Railway::updateCurrent(sf::Time dt) {
+	std::cout << "train is fine1\n";
+
     if (isReverse && train->getPosition().x < -padding)
         train->setPosition(train->getPosition().x + laneLength + padding + train->getBoundingRect().width, train->getPosition().y); 
     else if (!isReverse && train->getPosition().x > laneLength + padding)
             train->setPosition(train->getPosition().x - laneLength - 2 * padding, train->getPosition().y); 
+	std::cout << "train is fine2\n";
 }
 
 void Railway::buildLane() {
@@ -66,6 +69,7 @@ void Railway::loadLaneData(const std::string& filename) {
         std::cout << "train is at: " << data.posX << ' ' << data.posY << std::endl;
 
         std::unique_ptr<Train> mTrain(new Train(*laneTextures));
+        train = mTrain.get();
         mTrain->deserialize(data);
         this->attachView(std::move(mTrain)); 
     } else {

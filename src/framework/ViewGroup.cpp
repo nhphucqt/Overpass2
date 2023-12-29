@@ -94,7 +94,6 @@ sf::Transform ViewGroup::getWorldTransform() const {
 
 void ViewGroup::checkSceneCollision(const ViewGroup &sceneGraph, std::set<Pair> &collisionPairs) {
 	checkNodeCollision(sceneGraph, collisionPairs);
-
 	for (auto& child : sceneGraph.childViews)
 		checkSceneCollision(*((ViewGroup*) child.get()), collisionPairs);
 }

@@ -34,6 +34,7 @@ void Road::updateCurrent(sf::Time dt)
     else
         for (auto &x : vehicles)
             x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
+	std::cout << "road is fine1\n";
 
     // vehicle circling when out of view
     Vehicle *lastVehicle = vehicles.back();
@@ -41,9 +42,11 @@ void Road::updateCurrent(sf::Time dt)
     int distanceVehicle = laneLength / vehicles.size();
     if ((isReverse && lastVehicle->getPosition().x < -padding) || (!isReverse && lastVehicle->getPosition().x > laneLength + padding))
         vehicles[vehicles.size() - 1]->setPosition(firstVehicle->getPosition().x - padding * reverseScale - distanceVehicle * reverseScale, lastVehicle->getPosition().y);
+	std::cout << "road is fine2\n";
     // make the last car becomes the first car in the next iteration
     // vehicles.erase(vehicles.end());
     std::rotate(vehicles.rbegin(), vehicles.rbegin() + 1, vehicles.rend());
+	std::cout << "road is fine3\n";
 
 
     Animal *lastAnimal = animals.back();
@@ -51,9 +54,11 @@ void Road::updateCurrent(sf::Time dt)
     int distanceAnimal = laneLength / animals.size();
     if ((isReverse && lastAnimal->getPosition().x < -padding) || (!isReverse && lastAnimal->getPosition().x > laneLength + padding))
         animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - padding * reverseScale - distanceAnimal * reverseScale, lastAnimal->getPosition().y);
+	std::cout << "road is fine4\n";
     // make the last animal becomes the first animal in the next iteration
     // animals.erase(animals.end());
     std::rotate(animals.rbegin(), animals.rbegin() + 1, animals.rend());
+	std::cout << "road is fine5\n";
 }
 
 void Road::buildLane()

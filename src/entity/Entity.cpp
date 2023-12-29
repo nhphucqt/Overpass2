@@ -1,4 +1,5 @@
 #include <Entity.hpp>
+#include <iostream>
 
 Entity::Entity(const sf::Texture &texture): sprite(texture) {}
 
@@ -17,6 +18,7 @@ sf::Vector2f Entity::getVelocity() const {
 
 void Entity::updateCurrent(sf::Time dt) {
 	move(mVelocity * dt.asSeconds());
+	// std::cout << "entity is fine1\n";
 }
 
 void Entity::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {

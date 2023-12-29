@@ -23,9 +23,11 @@ void River::updateCurrent(sf::Time dt) {
     int distance = laneLength / logs.size();
     if ((isReverse && lastLog->getPosition().x < -padding) || (!isReverse && lastLog->getPosition().x > laneLength + padding))
         logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale, lastLog->getPosition().y);
+	std::cout << "river is fine1\n";
     // make the last car becomes the first car in the next iteration
     // logs.erase(logs.end());
     std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
+	std::cout << "river is fine2\n";
 }
 
 void River::buildLane() {

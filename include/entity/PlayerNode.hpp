@@ -18,7 +18,7 @@ class PlayerNode : public Entity
 {
 public:
     enum State {MoveDown, MoveUp, MoveLeft, MoveRight, Idle, Mounted, Free};
-    PlayerNode(const TextureManager &textures, std::vector<Lane *>& lanes, int currentLane = 0, bool isLoad = false);
+    PlayerNode(const TextureManager &textures, std::vector<Lane *>& lanes, int currentLane = 0);
     void move(sf::Vector2f velocity);
     void move(float vx, float vy);
     State getState();
@@ -47,7 +47,6 @@ private:
 private:
     struct PlayerData {
         int state;
-        int curLane;
         bool onRiver;
         float x;
     };

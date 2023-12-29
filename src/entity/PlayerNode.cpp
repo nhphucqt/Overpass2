@@ -1,6 +1,6 @@
 #include <PlayerNode.hpp>
 
-PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lanesVct, int currentLane, bool isLoad)
+PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lanesVct, int currentLane)
 : sprite(textures.get(TextureID::CharacterIdle))
 , state(State::Idle)
 , moveUp(textures.get(TextureID::CharacterUp))
@@ -10,9 +10,7 @@ PlayerNode::PlayerNode(const TextureManager& textures, std::vector<Lane *>& lane
 , curLane(currentLane)
 , lanes(lanesVct)
 {
-    if (!isLoad) {
-        adaptPosition();
-    }
+    adaptPosition();
     lastPos = getPosition();
 	sf::FloatRect bounds = sprite.getLocalBounds();
     sprite.setTextureRect(sf::IntRect(0, 0, 14, 16));
@@ -95,10 +93,12 @@ void PlayerNode::updateCurrent(sf::Time delta) {
         moveRight.update(delta);
         moveRight.setRepeating(true);
     }
+	std::cout << "player is fine1\n";
 
     if (state != Idle && state != Free) {
         sprite.setTextureRect(sf::IntRect(0, 16 * state, 14, 16));
     }
+	std::cout << "player is fine2\n";
 
     sf::Vector2f curPos = getPosition();
     sf::Vector2f posDiff = curPos - lastPos;
@@ -120,15 +120,18 @@ void PlayerNode::updateCurrent(sf::Time delta) {
     else if (posDiff.x <= -64 || posDiff.x >= 64) {
         lastPos = curPos;
     }
+	std::cout << "player is fine3\n";
 
     if (state == Idle)
         adaptPosition();
+	std::cout << "player is fine4\n";
 
     Entity::updateCurrent(delta);
+	std::cout << "player is fine5\n";
 }
 
 void PlayerNode::adaptPosition() {
-    setPosition(getPosition().x, lanes[curLane]->getPosition().y + 24);
+    setPosition(getPosition().x, lanes.at(curLane)->getPosition().y + 24);
 }
 
 unsigned int PlayerNode::getCategory() const {
@@ -153,7 +156,6 @@ void PlayerNode::savePlayerData(const std::string& filename) {
     if (outf.is_open()) {
         PlayerData data;
         data.state = static_cast<int>(state);
-        data.curLane = curLane;
         data.onRiver = onRiver;
         data.x = getPosition().x;
 
@@ -172,7 +174,6 @@ void PlayerNode::loadPlayerData(const std::string& filename) {
         inf.close();
 
         state = static_cast<State>(data.state);
-        curLane = data.curLane;
         onRiver = data.onRiver;
         setPosition(data.x, lanes[curLane]->getPosition().y + 24);
 
