@@ -33,7 +33,7 @@ void RectangleView::drawCurrent(sf::RenderTarget& target, sf::RenderStates state
 }
 
 sf::FloatRect RectangleView::getGlobalBounds() const {
-    return getAbsoluteTransform().transformRect(mRect.getGlobalBounds());
+    return getWorldTransform().transformRect(mRect.getGlobalBounds());
 }
 
 bool RectangleView::isMouseHovering(const sf::Vector2f& mousePoint) const {

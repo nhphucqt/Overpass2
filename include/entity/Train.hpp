@@ -13,7 +13,6 @@ class Train : public Entity
 public:
     Train(const TextureManager &textures);
     unsigned int getCategory() const;
-    sf::FloatRect getBoundingRect() const;
 
 private:
 };

@@ -2,6 +2,7 @@
 #define PLAYER_HPP
 
 #include <Command.hpp>
+#include <PlayerNode.hpp>
 
 #include <SFML/Window/Event.hpp>
 
@@ -37,6 +38,15 @@ private:
 private:
 	std::map<sf::Keyboard::Key, Action> mKeyBinding;
 	std::map<Action, Command> mActionBinding;
+};
+
+class PlayerMover {
+public:
+	PlayerMover(int x, int y);
+	void operator() (PlayerNode& player, sf::Time) const;
+
+private:
+	sf::Vector2i direction;
 };
 
 #endif

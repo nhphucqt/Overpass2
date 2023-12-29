@@ -12,6 +12,8 @@ enum class ConfigKey
     AppName,
     WindowSize,
     FPS,
+    CellSize,
+    NumLaneCells,
     ConfigCount
 };
 

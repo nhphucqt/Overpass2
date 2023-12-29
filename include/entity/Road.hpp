@@ -14,8 +14,7 @@
 class Road : public Lane
 {
 public:
-    Road(TextureManager *textures, bool isReverse = false);
-    unsigned int getCategory() const;
+    Road(TextureManager* textures, bool isReverse = false);
 
 private:
     static constexpr float laneLength = 1400.f;

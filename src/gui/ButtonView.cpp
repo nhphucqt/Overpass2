@@ -77,7 +77,7 @@ void ButtonView::setTextColor(const sf::Color& color) {
 }
 
 sf::FloatRect ButtonView::getGlobalBounds() const {
-    return getAbsoluteTransform().transformRect(mRect.getGlobalBounds());
+    return getWorldTransform().transformRect(mRect.getGlobalBounds());
 }
 
 bool ButtonView::isMouseHovering(const sf::Vector2f& mousePoint) const {

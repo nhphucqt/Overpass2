@@ -6,38 +6,68 @@
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
 #include <Lane.hpp>
+#include <TransitionHandler.hpp>
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
+#include <list>
+
+class Lane;
+
 class PlayerNode : public Entity {
 public:
+    typedef std::unique_ptr<PlayerNode> Ptr;
+
     enum State {MoveDown, MoveUp, MoveLeft, MoveRight, Idle, Mounted, Free};
-    PlayerNode(const TextureManager &textures, std::vector<Lane *>& lanes, int currentLane = 0);
-    void move(sf::Vector2f velocity);
-    void move(float vx, float vy);
+    PlayerNode(const TextureManager &textures, std::list<Lane *>& lanes, std::list<Lane*>::iterator currentLane);
+    void moveDestination(sf::Vector2f distance);
+    void moveDestination(float vx, float vy);
     State getState();
     unsigned int getCategory() const;
-	virtual sf::FloatRect getBoundingRect() const;
-    int getCurrentLane();
+    std::list<Lane*>::iterator getCurrentLane();
     void moveBack();
+
+    void runAction(const sf::Vector2i& direction);
+
+    void setTransitionLayer(ViewGroup* layer);
+
+    void setLastParent(ViewGroup* parent);
+    ViewGroup* getLastParent();
+
+    void pushAction(sf::Vector2i action);
+    void popAction();
+    sf::Vector2i getCurrentAction();
+    bool isActionQueueEmpty() const;
+    void clearActionQueue();
+
+    void setMoveDuration(sf::Time duration);
+    sf::Time getMoveDuration() const;
+
+    void setDead();
+    bool isDead() const;
 
 private:
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     void updateCurrent(sf::Time delta);
-    void adaptPosition();
+    void updateMove(sf::Time delta);
 
 private:
     State state;
-    int curLane;
-    std::vector<Lane *>& lanes;
+    std::list<Lane*>::iterator curLane;
+    std::list<Lane *>& lanes;
     sf::Sprite sprite;
     Animation moveUp;
     Animation moveDown;
     Animation moveLeft;
     Animation moveRight;
-    sf::Vector2f lastPos;
+    TransitionHandler transitionHandler;
+    ViewGroup* transitionLayer;
+    ViewGroup* lastParent;
+    std::queue<sf::Vector2i> actionQueue;
+    sf::Time moveDuration;
+    bool __isDead;
 };
 
 #endif

@@ -50,4 +50,6 @@ inline AppConfig::AppConfig()
     set(ConfigKey::AppName, std::string("Overpass"));
     set(ConfigKey::WindowSize, sf::Vector2f(1400, 900));
     set(ConfigKey::FPS, int(60));
+    set(ConfigKey::NumLaneCells, int(11));
+    set(ConfigKey::CellSize, sf::Vector2f(128, 128));
 }

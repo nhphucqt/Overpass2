@@ -8,6 +8,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include <SeqZoneRiver.hpp>
+
 class River: public Lane {
 public:
     River(TextureManager* textures, bool isReverse = false);
@@ -21,6 +23,9 @@ private:
 	std::vector<Log *> logs;
     void updateCurrent(sf::Time dt);
     void buildLane();
+
+    void pushLogZones(Log* log);
+    void removeLogZones(Log* log);
 };
 
 #endif

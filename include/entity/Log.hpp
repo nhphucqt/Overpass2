@@ -8,8 +8,9 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-class Log : public Entity
-{
+#include <SeqZone.hpp>
+
+class Log: public Entity {
 public:
     enum Type
     {
@@ -20,10 +21,12 @@ public:
 
     Log(Type mType, const TextureManager &textures);
     unsigned int getCategory() const;
-    sf::FloatRect getBoundingRect() const;
+
+    SeqZone* getSeqZone();
 
 private:
     Type type;
+    SeqZone* seqZone;
 };
 
 #endif
