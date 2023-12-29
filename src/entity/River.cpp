@@ -36,7 +36,7 @@ void River::updateCurrent(sf::Time dt) {
     if ((isReverse && lastLog->getPosition().x < -padding) || (!isReverse && lastLog->getPosition().x > laneLength + padding))
         logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale, lastLog->getPosition().y);
     // make the last car becomes the first car in the next iteration
-    logs.erase(logs.end());
+    logs.pop_back();
     logs.insert(logs.begin(), lastLog);
 }
 

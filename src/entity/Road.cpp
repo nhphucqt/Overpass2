@@ -80,7 +80,8 @@ void Road::updateCurrent(sf::Time dt) {
     if ((isReverse && lastAnimal->getPosition().x < -padding) || (!isReverse && lastAnimal->getPosition().x > laneLength + padding))
         animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - padding * reverseScale - distanceAnimal * reverseScale, lastAnimal->getPosition().y);
     // make the last animal becomes the first animal in the next iteration
-    animals.erase(animals.end());
+    // animals.erase(animals.end());
+    animals.pop_back();
     animals.insert(animals.begin(), lastAnimal);
 }
 
