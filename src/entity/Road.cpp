@@ -1,7 +1,16 @@
 #include <Road.hpp>
 
-Road::Road(TextureManager *textures, bool isReverse):
-Lane(textures->get(TextureID::Road), textures, isReverse) {
+Road::Road(TextureManager *textures, bool isReverse)
+: Lane(textures->get(TextureID::Road), textures, isReverse)
+, laneLength(DEFAULT::LANELENGTH)
+, padding(DEFAULT::PADDING)
+, numOfVehicle(DEFAULT::NUMOFVEHICLE)
+, numOfAnimal(DEFAULT::NUMOFANIMAL)
+, vehicleVelocity(DEFAULT::VEHICLEVELOCITY)
+, vehicleSlowVelocity(DEFAULT::VEHICLESLOWVELOCITY)
+, animalVelocity(DEFAULT::ANIMALVELOCITY)
+, trafficLightPosition(DEFAULT::TRAFFICLIGHTPOSITION)
+{
     type = Lane::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
@@ -12,6 +21,30 @@ Lane(textures->get(TextureID::Road), textures, isReverse) {
 
 unsigned int Road::getCategory() const {
     return Category::Lane;
+}
+
+void Road::setNumOfVehicle(int n) {
+    numOfVehicle = n;
+}
+
+void Road::setNumOfAnimal(int n) {
+    numOfAnimal = n;
+}
+
+void Road::setVehicleVelocity(float v) {
+    vehicleVelocity = v;
+}
+
+void Road::setVehicleSlowVelocity(float v) {
+    vehicleSlowVelocity = v;
+}
+
+void Road::setAnimalVelocity(float v) {
+    animalVelocity = v;
+}
+
+void Road::setTrafficLightPosition(float position) {
+    trafficLightPosition = position;
 }
 
 void Road::updateCurrent(sf::Time dt) {
@@ -38,7 +71,7 @@ void Road::updateCurrent(sf::Time dt) {
     if ((isReverse && lastVehicle->getPosition().x < -padding) || (!isReverse && lastVehicle->getPosition().x > laneLength + padding))
         vehicles[vehicles.size() - 1]->setPosition(firstVehicle->getPosition().x - padding * reverseScale - distanceVehicle * reverseScale, lastVehicle->getPosition().y);
     // make the last car becomes the first car in the next iteration
-    vehicles.erase(vehicles.end());
+    vehicles.pop_back();
     vehicles.insert(vehicles.begin(), lastVehicle);
 
     Animal* lastAnimal = animals.back();

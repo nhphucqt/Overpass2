@@ -8,16 +8,25 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+namespace DEFAULT {
+    const float LANELENGTH = 1400.f;
+    const float PADDING = 100.f;
+    const int NUMOFLOG = 3;
+    const float LOGVELOCITY = 200.f;
+};
+
 class River: public Lane {
 public:
     River(TextureManager* textures, bool isReverse = false);
     unsigned int getCategory() const;
+    void setNumOfLog(int n);
+    void setlogVelocity(float v);
 
 private:
-    static constexpr float laneLength = 1400.f;
-    static constexpr float padding = 100.f;
-    static const int numOfLog = 3;
-    static constexpr float logVelocity = 200.f;
+    float laneLength;
+    float padding;
+    int numOfLog;
+    float logVelocity;
 	std::vector<Log *> logs;
     void updateCurrent(sf::Time dt);
     void buildLane();

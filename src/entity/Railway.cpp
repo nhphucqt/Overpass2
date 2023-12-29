@@ -1,7 +1,11 @@
 #include <Railway.hpp>
 
-Railway::Railway(TextureManager *textures, ViewGroup* foreview, bool isReverse):
-Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview) {
+Railway::Railway(TextureManager *textures, ViewGroup* foreview, bool isReverse)
+: Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview)
+, laneLength(DEFAULT::LANELENGTH)
+, padding(DEFAULT::PADDING)
+, trainVelocity(DEFAULT::TRAINVELOCITY)
+{
     type = Lane::Type::Railway;
     textures->get(TextureID::Rail).setRepeated(true);
     sprite.scale(8.f, 8.f);
@@ -12,6 +16,10 @@ Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview) 
 
 unsigned int Railway::getCategory() const {
     return Category::Lane;
+}
+
+void Railway::setTrainVelocity(float v) {
+    trainVelocity = v;
 }
 
 void Railway::updateCurrent(sf::Time dt) {

@@ -1,7 +1,12 @@
 #include <River.hpp>
 
-River::River(TextureManager *textures, bool isReverse):
-Lane(textures->get(TextureID::River), textures, isReverse) {
+River::River(TextureManager *textures, bool isReverse)
+: Lane(textures->get(TextureID::River), textures, isReverse)
+, laneLength(DEFAULT::LANELENGTH)
+, padding(DEFAULT::PADDING)
+, numOfLog(DEFAULT::NUMOFLOG)
+, logVelocity(DEFAULT::LOGVELOCITY)
+{
     type = Lane::Type::River;
     textures->get(TextureID::River).setRepeated(true);
     buildLane();
@@ -9,6 +14,14 @@ Lane(textures->get(TextureID::River), textures, isReverse) {
 
 unsigned int River::getCategory() const {
     return Category::River;
+}
+
+void River::setNumOfLog(int n) {
+    numOfLog = n;
+}
+
+void River::setlogVelocity(float v) {
+    logVelocity = v;
 }
 
 void River::updateCurrent(sf::Time dt) {

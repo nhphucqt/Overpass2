@@ -19,6 +19,12 @@ TrafficLight::Color TrafficLight::getCurrentColor() {
     return current;
 }
 
+void TrafficLight::setDuration(int red, int yellow, int green) {
+    this->red = sf::seconds(red);
+    this->yellow = sf::seconds(yellow);
+    this->green = sf::seconds(green);
+}
+
 void TrafficLight::updateCurrent(sf::Time dt) {
     updateCurrentColor(dt);
     sprite.setTextureRect(sf::IntRect(rect.width / 3 * current, 0, rect.width / 3, rect.height));
