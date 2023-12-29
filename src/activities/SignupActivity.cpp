@@ -165,7 +165,7 @@ void SignupActivity::checkSignup(const std::string& username, const std::string&
         return;
     }
 
-    UserData newUser(username, password, 0);
+    UserData newUser(username, password);
     userRepo.addUser(newUser);
     std::cout << " >> Signup success: " << username << std::endl;
     Intent::Ptr resIntent = Intent::Builder()
