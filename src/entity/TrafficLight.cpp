@@ -1,4 +1,5 @@
 #include <TrafficLight.hpp>
+#include <AppConfig.hpp>
 
 TrafficLight::TrafficLight(const TextureManager& textures)
 : Entity(textures.get(TextureID::TrafficLight)),
@@ -8,11 +9,14 @@ green(Duration::Green),
 current(Color::Green),
 rect(sprite.getLocalBounds())
 {
+    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
+    setSize(cellSize);
     sf::FloatRect rect = sprite.getLocalBounds();
     sprite.setTextureRect(sf::IntRect(0, 0, rect.width / 3, rect.height));
-    sprite.setScale(0.5, 0.5);
+    sprite.scale(0.3, 0.3);
 	sf::FloatRect bounds = sprite.getLocalBounds();
 	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+    setHitBox(sprite.getGlobalBounds());
 }
 
 TrafficLight::Color TrafficLight::getCurrentColor() {

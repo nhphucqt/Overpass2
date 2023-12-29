@@ -88,6 +88,7 @@ void ActivityManager::run() {
                 return;
             }
         }
+        getCurrentActivity()->onEventProcessing();
         while (timeSinceLastUpdate > timePerFrame)
         {
             getCurrentActivity()->update(timePerFrame);

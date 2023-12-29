@@ -145,7 +145,7 @@ void EditTextView::drawCurrent(sf::RenderTarget& target, sf::RenderStates states
 }
 
 sf::FloatRect EditTextView::getGlobalBounds() const {
-    return getAbsoluteTransform().transformRect(mRect.getGlobalBounds());
+    return getWorldTransform().transformRect(mRect.getGlobalBounds());
 }
 
 bool EditTextView::isOnMouseButtonPressed(const sf::Event& event) const {
