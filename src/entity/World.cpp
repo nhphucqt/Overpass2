@@ -273,7 +273,7 @@ void World::gameOver() {
 	banner->setPosition(viewBounds.getPosition().x, viewBounds.getPosition().y + 300);
 	mSceneLayers[Aboveground]->attachView(std::move(banner));
 	stop = true;
-	// DeleteDirContent("data/" + UserSession::getInstance().getUsername());
+	DeleteDirContent("data/" + UserSession::getInstance().getUsername());
 }
 
 void World::saveGameState(const std::string &filepath) {
@@ -302,22 +302,6 @@ void World::loadGameState(const std::string &filepath) {
 		mSceneGraph.attachView(std::move(layer));
 	}
 	mSceneLayers[Background]->setReverse(true);
-
-	// std::ifstream laneIndex(filepath + "/lane.txt");
-	// if (!laneIndex) {
-	// 	throw std::runtime_error("LOAD ERR: lane.txt not found.\n");
-	// }
-	// int playerCurrentLane;
-	// laneIndex >> playerCurrentLane;
-	// std::vector<std::pair<int, int>> laneIndexVector;
-	// while (laneIndex) {
-	// 	std::pair<int, int> indexPair;
-	// 	laneIndex >> indexPair.first >> indexPair.second;
-	// 	laneIndexVector.push_back(indexPair);
-	// }
-	// laneIndex.close();
-
-	// std::vector<std::string> loadFiles = getSortedFileNames(filepath);
 	
 	std::ifstream inf(filepath + "/save.data", std::ios::binary);
 	int laneSize;
