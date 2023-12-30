@@ -1,7 +1,6 @@
 #include <Road.hpp>
 
-Road::Road(TextureManager *textures, bool isReverse, bool isLoad) : Lane(textures->get(TextureID::Road), textures, isReverse)
-{
+Road::Road(TextureManager *textures, bool isReverse, bool isLoad) : Lane(textures->get(TextureID::Road), textures, isReverse) {
     type = Lane::Type::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
@@ -12,13 +11,11 @@ Road::Road(TextureManager *textures, bool isReverse, bool isLoad) : Lane(texture
     }
 }
 
-unsigned int Road::getCategory() const
-{
+unsigned int Road::getCategory() const {
     return Category::Lane;
 }
 
-void Road::updateCurrent(sf::Time dt)
-{
+void Road::updateCurrent(sf::Time dt) {
     // set up variables for reverse
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
@@ -34,7 +31,6 @@ void Road::updateCurrent(sf::Time dt)
     else
         for (auto &x : vehicles)
             x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
-	std::cout << "road is fine1\n";
 
     // vehicle circling when out of view
     Vehicle *lastVehicle = vehicles.back();
@@ -42,11 +38,9 @@ void Road::updateCurrent(sf::Time dt)
     int distanceVehicle = laneLength / vehicles.size();
     if ((isReverse && lastVehicle->getPosition().x < -padding) || (!isReverse && lastVehicle->getPosition().x > laneLength + padding))
         vehicles[vehicles.size() - 1]->setPosition(firstVehicle->getPosition().x - padding * reverseScale - distanceVehicle * reverseScale, lastVehicle->getPosition().y);
-	std::cout << "road is fine2\n";
     // make the last car becomes the first car in the next iteration
     // vehicles.erase(vehicles.end());
     std::rotate(vehicles.rbegin(), vehicles.rbegin() + 1, vehicles.rend());
-	std::cout << "road is fine3\n";
 
 
     Animal *lastAnimal = animals.back();
@@ -54,22 +48,18 @@ void Road::updateCurrent(sf::Time dt)
     int distanceAnimal = laneLength / animals.size();
     if ((isReverse && lastAnimal->getPosition().x < -padding) || (!isReverse && lastAnimal->getPosition().x > laneLength + padding))
         animals[animals.size() - 1]->setPosition(firstAnimal->getPosition().x - padding * reverseScale - distanceAnimal * reverseScale, lastAnimal->getPosition().y);
-	std::cout << "road is fine4\n";
     // make the last animal becomes the first animal in the next iteration
     // animals.erase(animals.end());
     std::rotate(animals.rbegin(), animals.rbegin() + 1, animals.rend());
-	std::cout << "road is fine5\n";
 }
 
-void Road::buildLane()
-{
+void Road::buildLane() {
     // set up variables for reverse
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
 
     // creating vehicles, vehicles should have the same type for consisteny
-    for (int i = 0; i < numOfVehicle; ++i)
-    {
+    for (int i = 0; i < numOfVehicle; ++i) {
         std::unique_ptr<Vehicle> vehicle(new Vehicle(Vehicle::Car, *laneTextures));
         vehicles.push_back(vehicle.get());
         vehicle->setPosition((laneLength + padding) / numOfVehicle * i, 64.f);
@@ -79,8 +69,7 @@ void Road::buildLane()
     }
 
     // create animals, animals should have the same type for consistency
-    for (int i = 0; i < numOfAnimal; ++i)
-    {
+    for (int i = 0; i < numOfAnimal; ++i) {
         std::unique_ptr<Animal> bear(new Animal(Animal::Fox, *laneTextures));
         animals.push_back(bear.get());
         bear->setPosition((laneLength + padding) / numOfAnimal * i, 16.f);
@@ -90,8 +79,7 @@ void Road::buildLane()
     }
 
     // reverse vehicle and animal vectors for updateCurrent
-    if (isReverse)
-    {
+    if (isReverse) {
         std::reverse(vehicles.begin(), vehicles.end());
         std::reverse(animals.begin(), animals.end());
     }
@@ -104,11 +92,8 @@ void Road::buildLane()
     this->attachView(std::move(light));
 }
 
-void Road::saveLaneData(const std::string &filename)
-{
-    std::ofstream outf(filename, std::ios::binary);
-    if (outf.is_open())
-    {
+void Road::saveLaneData(std::ofstream& outf) {
+    if (outf.is_open()) {
         int castedType = static_cast<int>(type);
         outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
@@ -118,34 +103,25 @@ void Road::saveLaneData(const std::string &filename)
         outf.write(reinterpret_cast<const char *>(&vehicleDataSize), sizeof(vehicleDataSize));
         outf.write(reinterpret_cast<const char *>(&animalDataSize), sizeof(animalDataSize));
 
-        for (auto &vehicle : vehicles)
-        {
+        for (auto &vehicle : vehicles) {
             Vehicle::VehicleData data = vehicle->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
         }
-        for (auto &animal : animals)
-        {
+        for (auto &animal : animals) {
             Animal::AnimalData data = animal->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
         }
-
-        outf.close();
-    }
-    else
-    {
-        std::runtime_error("ROADDATA ERR: " + filename + " cannot be openned.\n");
+    } else {
+        std::runtime_error("ROADDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void Road::loadLaneData(const std::string &filename)
-{
-    std::ifstream inf(filename, std::ios::binary);
-    if (inf.is_open())
-    {
-        int nType;
-        bool nIsReverse;
-        inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
-        inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
+void Road::loadLaneData(std::ifstream& inf) {
+    if (inf.is_open()) {
+        // int nType;
+        // bool nIsReverse;
+        // inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
+        // inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
 
         int vehicleDataSize;
         int animalDataSize;
@@ -155,10 +131,7 @@ void Road::loadLaneData(const std::string &filename)
         std::cout << "vehicle size: " << vehicleDataSize << std::endl;
         std::cout << "animal size: " << animalDataSize << std::endl;
 
-        int reverseScale = (nIsReverse) ? -1 : 1;
-
-        for (int i = 0; i < vehicleDataSize; ++i)
-        {
+        for (int i = 0; i < vehicleDataSize; ++i) {
             Vehicle::VehicleData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
             std::unique_ptr<Vehicle> vehiclePtr(new Vehicle(static_cast<Vehicle::Type>(data.type), *laneTextures));
@@ -166,8 +139,7 @@ void Road::loadLaneData(const std::string &filename)
             vehicles.push_back(vehiclePtr.get());
             this->attachView(std::move(vehiclePtr));
         }
-        for (int i = 0; i < animalDataSize; ++i)
-        {
+        for (int i = 0; i < animalDataSize; ++i) {
             Animal::AnimalData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
             std::unique_ptr<Animal> animalPtr(new Animal(static_cast<Animal::Type>(data.type), *laneTextures));
@@ -175,14 +147,14 @@ void Road::loadLaneData(const std::string &filename)
             animals.push_back(animalPtr.get());
             this->attachView(std::move(animalPtr));
         }
-
+        
+        int reverseScale = (isReverse) ? -1 : 1;
         std::unique_ptr<TrafficLight> light(new TrafficLight(*laneTextures));
         light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 64.f);
         light->scale(reverseScale, 1);
         trafficlight = light.get();
         this->attachView(std::move(light));
-    }
-    else {
-        std::runtime_error("ROADDATA ERR: " + filename + " not found.\n");
+    } else {
+        std::runtime_error("ROADDATA ERR: \"save.data\" not found.\n");
     }
 }

@@ -31,8 +31,7 @@ void Field::buildLane() {
     this->attachView(std::move(circleBush));
 }
 
-void Field::saveLaneData(const std::string& filename) {
-    std::ofstream outf(filename, std::ios::binary);
+void Field::saveLaneData(std::ofstream& outf) {
     if (outf.is_open()) {
         int castedType = static_cast<int>(type);
         outf.write(reinterpret_cast<const char*>(&castedType), sizeof(castedType));
@@ -42,24 +41,20 @@ void Field::saveLaneData(const std::string& filename) {
         outf.write(reinterpret_cast<const char*>(&dataSize), sizeof(dataSize));
 
         for (const auto& green : greens) {
-            // data.greenData.push_back(green->serialize());
             Green::GreenData greendata = green->serialize();
             outf.write(reinterpret_cast<const char*>(&greendata), sizeof(greendata));   
         }
-    
-        outf.close();
     } else {
-        std::runtime_error("FIELDDATA ERR: " + filename + " cannot be openned.\n");
+        std::runtime_error("FIELDDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void Field::loadLaneData(const std::string& filename) {
-    std::ifstream inf(filename, std::ios::binary);
+void Field::loadLaneData(std::ifstream& inf) {
     if (inf.is_open()) {
-        int nType;
-        bool nIsReverse;
-        inf.read(reinterpret_cast<char*>(&nType), sizeof(nType));
-        inf.read(reinterpret_cast<char*>(&nIsReverse), sizeof(nIsReverse));
+        // int nType;
+        // bool nIsReverse;
+        // inf.read(reinterpret_cast<char*>(&nType), sizeof(nType));
+        // inf.read(reinterpret_cast<char*>(&nIsReverse), sizeof(nIsReverse));
 
         int dataSize;
         inf.read(reinterpret_cast<char*>(&dataSize), sizeof(dataSize));
@@ -73,9 +68,7 @@ void Field::loadLaneData(const std::string& filename) {
             greens.push_back(greenPtr.get());
             this->attachView(std::move(greenPtr));
         }
-        
-        inf.close();
     } else {
-        std::runtime_error("FIELDDATA ERR: " + filename + " not found.\n");
+        std::runtime_error("FIELDDATA ERR: \"save.data\" not found.\n");
     }
 }

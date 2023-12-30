@@ -17,13 +17,10 @@ unsigned int Railway::getCategory() const {
 }
 
 void Railway::updateCurrent(sf::Time dt) {
-	std::cout << "train is fine1\n";
-
     if (isReverse && train->getPosition().x < -padding)
         train->setPosition(train->getPosition().x + laneLength + padding + train->getBoundingRect().width, train->getPosition().y); 
     else if (!isReverse && train->getPosition().x > laneLength + padding)
             train->setPosition(train->getPosition().x - laneLength - 2 * padding, train->getPosition().y); 
-	std::cout << "train is fine2\n";
 }
 
 void Railway::buildLane() {
@@ -39,8 +36,7 @@ void Railway::buildLane() {
     this->attachView(std::move(mTrain)); 
 }
 
-void Railway::saveLaneData(const std::string& filename) {
-    std::ofstream outf(filename, std::ios::binary);
+void Railway::saveLaneData(std::ofstream& outf) {
     if (outf.is_open()) {
         int castedType = static_cast<int>(type);
         outf.write(reinterpret_cast<const char*>(&castedType), sizeof(castedType));
@@ -48,24 +44,20 @@ void Railway::saveLaneData(const std::string& filename) {
 
         Train::TrainData data = train->serialize();
         outf.write(reinterpret_cast<const char*>(&data), sizeof(data));
-
-        outf.close();
     } else {
-        std::runtime_error("RAILWAYDATA ERR: " + filename + " cannot be openned.\n");
+        std::runtime_error("RAILWAYDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void Railway::loadLaneData(const std::string& filename) {
-    std::ifstream inf(filename, std::ios::binary);
+void Railway::loadLaneData(std::ifstream& inf) {
     if (inf.is_open()) {
-        int nType;
-        bool nIsReverse;
-        inf.read(reinterpret_cast<char*>(&nType), sizeof(nType));
-        inf.read(reinterpret_cast<char*>(&nIsReverse), sizeof(nIsReverse));
+        // int nType;
+        // bool nIsReverse;
+        // inf.read(reinterpret_cast<char*>(&nType), sizeof(nType));
+        // inf.read(reinterpret_cast<char*>(&nIsReverse), sizeof(nIsReverse));
         
         Train::TrainData data;
         inf.read(reinterpret_cast<char*>(&data), sizeof(data));
-        inf.close();
         std::cout << "train is at: " << data.posX << ' ' << data.posY << std::endl;
 
         std::unique_ptr<Train> mTrain(new Train(*laneTextures));
@@ -73,6 +65,6 @@ void Railway::loadLaneData(const std::string& filename) {
         mTrain->deserialize(data);
         this->attachView(std::move(mTrain)); 
     } else {
-        std::runtime_error("RAILWAYDATA ERR: " + filename + " not found.\n");
+        std::runtime_error("RAILWAYDATA ERR: \"save.data\" not found.\n");
     }
 }

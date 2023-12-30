@@ -52,8 +52,8 @@ private:
     };
 
 public: 
-    void savePlayerData(const std::string& filename);
-    void loadPlayerData(const std::string& filename);
+    void savePlayerData(std::ofstream& outf);
+    void loadPlayerData(std::ifstream& inf);
 };
 
 #endif

@@ -31,7 +31,9 @@
 #include <iostream>
 
 int main() {
-	UserSession::getInstance().loginUser("pikachu", "123");
+	UserSession::getInstance().logoutUser();
+	// UserSession::getInstance().loginUser("pikachu", "123");
+	UserSession::getInstance().loginUser("Naruto", "456");
 	try {
 		Game game;
 		game.run();
