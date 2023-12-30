@@ -88,7 +88,6 @@ void Road::updateCurrent(sf::Time dt)
     else
         for (auto &x : vehicles)
             x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
-    std::cout << "road is fine1\n";
 
     // vehicle circling when out of view
     Vehicle *lastVehicle = vehicles.back();
@@ -164,9 +163,8 @@ void Road::buildLane()
     this->attachView(std::move(light));
 }
 
-void Road::saveLaneData(const std::string &filename)
+void Road::saveLaneData(std::ofstream &outf)
 {
-    std::ofstream outf(filename, std::ios::binary);
     if (outf.is_open())
     {
         int castedType = static_cast<int>(type);
@@ -188,24 +186,21 @@ void Road::saveLaneData(const std::string &filename)
             Animal::AnimalData data = animal->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
         }
-
-        outf.close();
     }
     else
     {
-        std::runtime_error("ROADDATA ERR: " + filename + " cannot be openned.\n");
+        std::runtime_error("ROADDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void Road::loadLaneData(const std::string &filename)
+void Road::loadLaneData(std::ifstream &inf)
 {
-    std::ifstream inf(filename, std::ios::binary);
     if (inf.is_open())
     {
-        int nType;
-        bool nIsReverse;
-        inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
-        inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
+        // int nType;
+        // bool nIsReverse;
+        // inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
+        // inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
 
         int vehicleDataSize;
         int animalDataSize;
@@ -214,8 +209,6 @@ void Road::loadLaneData(const std::string &filename)
 
         std::cout << "vehicle size: " << vehicleDataSize << std::endl;
         std::cout << "animal size: " << animalDataSize << std::endl;
-
-        int reverseScale = (nIsReverse) ? -1 : 1;
 
         for (int i = 0; i < vehicleDataSize; ++i)
         {
@@ -236,6 +229,7 @@ void Road::loadLaneData(const std::string &filename)
             this->attachView(std::move(animalPtr));
         }
 
+        int reverseScale = (isReverse) ? -1 : 1;
         std::unique_ptr<TrafficLight> light(new TrafficLight(*laneTextures));
         light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 64.f);
         light->scale(reverseScale, 1);
@@ -244,6 +238,6 @@ void Road::loadLaneData(const std::string &filename)
     }
     else
     {
-        std::runtime_error("ROADDATA ERR: " + filename + " not found.\n");
+        std::runtime_error("ROADDATA ERR: \"save.data\" not found.\n");
     }
 }

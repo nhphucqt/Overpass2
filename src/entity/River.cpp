@@ -74,7 +74,6 @@ void River::updateCurrent(sf::Time dt)
     // make the last car becomes the first car in the next iteration
     // logs.erase(logs.end());
     std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
-    std::cout << "river is fine2\n";
 }
 
 void River::buildLane()
@@ -194,24 +193,21 @@ void River::saveLaneData(const std::string &filename)
             Log::LogData data = log->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
         }
-
-        outf.close();
     }
     else
     {
-        std::runtime_error("RIVERDATA ERR: " + filename + " cannot be openned.\n");
+        std::runtime_error("RIVERDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void River::loadLaneData(const std::string &filename)
+void River::loadLaneData(std::ifstream &inf)
 {
-    std::ifstream inf(filename, std::ios::binary);
     if (inf.is_open())
     {
-        int nType;
-        bool nIsReverse;
-        inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
-        inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
+        // int nType;
+        // bool nIsReverse;
+        // inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
+        // inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
 
         int dataSize;
         inf.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
@@ -226,11 +222,9 @@ void River::loadLaneData(const std::string &filename)
             logs.push_back(logPtr.get());
             this->attachView(std::move(logPtr));
         }
-
-        inf.close();
     }
     else
     {
-        std::runtime_error("RIVERDATA ERR: " + filename + " not found.\n");
+        std::runtime_error("RIVERDATA ERR: \"save.data\" not found.\n");
     }
 }

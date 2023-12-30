@@ -26,9 +26,8 @@ bool sortDir(const std::string &filenameA, const std::string &filenameB)
 void DeleteDirContent(const std::string &dirPath)
 {
     for (const auto &entry : std::filesystem::directory_iterator(dirPath))
-    {
         std::filesystem::remove_all(entry.path());
-    }
+    std::filesystem::remove(dirPath);
 }
 
 std::vector<std::string> getSortedFileNames(const std::string& filepath)
@@ -38,9 +37,7 @@ std::vector<std::string> getSortedFileNames(const std::string& filepath)
 	{
 		std::string dir = dirEntry.path().filename();
 		if (dir != "player.dat" && dir != "lane.txt")
-		{
 			loadFiles.push_back(dir);
-		}
 	}
 	std::sort(loadFiles.begin(), loadFiles.end(), sortDir);
     return loadFiles;

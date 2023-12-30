@@ -44,8 +44,8 @@ private:
 public:
     Type getType() const { return type; }
     bool getIsReverse() const { return isReverse; }
-    virtual void saveLaneData(const std::string& filename) = 0;
-    virtual void loadLaneData(const std::string& filename) = 0;
+    virtual void saveLaneData(std::ofstream& outf) = 0;
+    virtual void loadLaneData(std::ifstream& inf) = 0;
 };
 
 #endif

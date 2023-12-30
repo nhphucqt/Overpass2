@@ -47,8 +47,8 @@ private:
     void buildLane();
 
 public:
-    void saveLaneData(const std::string &filename) override;
-    void loadLaneData(const std::string &filename) override;
+    void saveLaneData(std::ofstream &outf) override;
+    void loadLaneData(std::ifstream &inf) override;
 };
 
 #endif

@@ -196,7 +196,6 @@ void PlayerNode::updateCurrent(sf::Time delta)
         moveRight.update(delta);
         moveRight.setRepeating(true);
     }
-    std::cout << "player is fine1\n";
 
     if (state != Idle && state != Free)
     {
@@ -204,8 +203,37 @@ void PlayerNode::updateCurrent(sf::Time delta)
     }
     std::cout << "player is fine2\n";
 
+    sf::Vector2f curPos = getPosition();
+    sf::Vector2f posDiff = curPos - lastPos;
+
+    if (posDiff.y <= -128)
+    {
+        move(0, 0);
+        lastPos = curPos;
+        ++curLane;
+    }
+    else if (posDiff.y >= 128)
+    {
+        move(0, 0);
+        lastPos = curPos;
+        --curLane;
+    }
+    else if (posDiff.x <= -64 || posDiff.x >= 64)
+    {
+        move(0, 0);
+        lastPos = curPos;
+    }
+    else if (posDiff.x <= -64 || posDiff.x >= 64)
+    {
+        lastPos = curPos;
+    }
+    std::cout << "player is fine3\n";
+
+    if (state == Idle)
+        adaptPosition();
+    std::cout << "player is fine4\n";
+
     Entity::updateCurrent(delta);
-    std::cout << "player is fine5\n";
 }
 
 unsigned int PlayerNode::getCategory() const
@@ -374,22 +402,19 @@ void PlayerNode::savePlayerData(const std::string &filename)
         data.x = getPosition().x;
 
         outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
-        outf.close();
     }
     else
     {
-        std::runtime_error("PLAYERDATA ERR: " + filename + " cannot be openned.\n");
+        std::runtime_error("PLAYERDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void PlayerNode::loadPlayerData(const std::string &filename)
+void PlayerNode::loadPlayerData(std::ifstream &inf)
 {
-    std::ifstream inf(filename, std::ios::in | std::ios::binary);
     if (inf.is_open())
     {
         PlayerData data;
         inf.read(reinterpret_cast<char *>(&data), sizeof(data));
-        inf.close();
 
         state = static_cast<State>(data.state);
         onRiver = data.onRiver;

@@ -12,7 +12,17 @@ UserSession &UserSession::getInstance()
 UserSession::UserSession()
     : isLogin(false), repo(UserRepo::getInstance())
 {
-    loadLoginState(loginStateFilename);
+    loadLoginState("data/login.txt");
+}
+
+UserSession::~UserSession()
+{
+    saveLoginState("data/login.txt");
+    if (currentUser)
+    {
+        repo.updateUser(*currentUser);
+        delete currentUser;
+    }
 }
 
 bool UserSession::isLoggedin() const
