@@ -6,8 +6,7 @@ SeqZone::SeqZone(Zone::Type type, const sf::Vector2f& size, int numZone) {
     for (int i = 0; i < numZone; i++) {
         Zone::Ptr zone = std::make_unique<Zone>(type, size);
         zone->setPosition(sf::Vector2f(i * size.x, 0));
-        zones.push_back(zone.get());
-        attachView(std::move(zone));
+        attachZone(std::move(zone));
     }
 }
 
@@ -17,6 +16,11 @@ Zone* SeqZone::getZone(int index) const {
 
 void SeqZone::setZoneType(int index, Zone::Type type) const{
     zones[index]->setType(type);
+}
+
+void SeqZone::attachZone(Zone::Ptr zone) {
+    zones.push_back(zone.get());
+    attachView(std::move(zone));
 }
 
 void SeqZone::pushZone(Zone* zone) {
@@ -59,6 +63,24 @@ int SeqZone::getNearestZoneIndex(ViewGroup* player) const {
 
 Zone* SeqZone::getNearestZone(ViewGroup* player) const {
     return zones[getNearestZoneIndex(player)];
+}
+
+int SeqZone::getTargetZoneIndex(ViewGroup* player, const sf::Vector2f& dest, float dt) const {
+    PlayerNode* playerNode = (PlayerNode*)player;
+    int idx = -1;
+    float minDistance = std::numeric_limits<float>::max();
+    for (int i = 0; i < zones.size(); i++) {
+        float distance = Vector2dUtils::distance(zones[i]->getCenter() + zones[i]->getAbsoluteVelocity() * dt, dest);
+        if (idx == -1 || distance < minDistance) {
+            minDistance = distance;
+            idx = i;
+        }
+    }
+    return idx;
+}
+
+Zone* SeqZone::getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const {
+    return zones[getTargetZoneIndex(player, dest, dt)];
 }
 
 int SeqZone::getNumZone() const {

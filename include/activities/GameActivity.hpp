@@ -77,7 +77,6 @@ protected:
 	virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 private:
-	void adaptPlayerPosition();
 	bool matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2);
 	void handleCollisions();
 	void scroll(sf::Time dt);

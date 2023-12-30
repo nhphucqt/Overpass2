@@ -55,7 +55,7 @@ void GameActivity::onCreate() {
 
 void GameActivity::onAttach() {
     sf::RenderWindow& window = getActivityManager()->getWindow();
-	// window.setKeyRepeatEnabled(false);
+	window.setKeyRepeatEnabled(false);
     mWorldView = window.getDefaultView(); 
     mWorldBounds = sf::FloatRect(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10);
     mSpawnPosition = sf::Vector2f(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f);
@@ -148,18 +148,12 @@ void GameActivity::updateCurrent(sf::Time dt) {
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty()) {
-		if (mPlayerNode->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.1) {
-			Command command = mCommandQueue.pop();
-			onCommand(command, dt);
-			clock.restart();
-		}
-		else
-			mCommandQueue.pop();
+		Command command = mCommandQueue.pop();
+		onCommand(command, dt);
 	}
 
 	handleCollisions();
 	// Apply movements
-	// adaptPlayerPosition();
 }
 
 void GameActivity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -168,44 +162,6 @@ void GameActivity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states
 
 void GameActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
     // ...
-}
-
-void GameActivity::adaptPlayerPosition() {
-	// Keep player's position inside the screen bounds, at least borderDistance units from the border
-	sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
-
-	sf::Vector2f position = mPlayerNode->getPosition();
-	sf::Vector2f velocity = mPlayerNode->getVelocity();
-
-	bool isChanged = false;
-
-	if (position.x <= viewBounds.left) {
-		position.x = position.x + 1;
-		velocity.x = 0;
-		isChanged = true;
-	}
-	else if (position.x >= viewBounds.left + viewBounds.width - 72.f) {
-		position.x = position.x - 1;
-		velocity.x = 0;
-		isChanged = true;
-	}
-
-	if (position.y <= viewBounds.top) {
-		position.y = position.y + 1;
-		velocity.y = 0;
-		isChanged = true;
-	}
-	else if (position.y >= viewBounds.top + viewBounds.height - 90.f) {
-		// position.y = position.y - 1;
-		// velocity.y = 0;
-		// isChanged = true;
-		gameOver();
-	}
-
-	if (isChanged) {
-		mPlayerNode->move(velocity);
-		mPlayerNode->setPosition(position);
-	}
 }
 
 bool GameActivity::matchesCategories(ViewGroup::Pair& colliders, Category::Type type1, Category::Type type2)

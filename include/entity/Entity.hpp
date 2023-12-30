@@ -10,6 +10,8 @@ public:
 	virtual void setVelocity(float vx, float vy);
 	sf::Vector2f getVelocity() const;
 
+	sf::Vector2f getWorldCenter() const;
+
 	sf::FloatRect getLocalBounds() const;
 	virtual sf::FloatRect getBoundingRect() const;
 

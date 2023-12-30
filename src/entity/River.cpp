@@ -9,6 +9,17 @@ Lane(textures->get(TextureID::River), textures, isReverse) {
     detachView(*seqZone);
     SeqZoneRiver::Ptr seqZoneRiver = std::make_unique<SeqZoneRiver>(Zone::Type::Dead, cellSize, numLaneCells);
     seqZone = seqZoneRiver.get();
+    int numStep = 3;
+    int oldSize = seqZone->getNumZone();
+    float div = cellSize.x / numStep;
+    for (int i = 0; i < oldSize; ++i) {
+        for (int j = 1; j < oldSize; ++j) {
+            Zone::Ptr zone = std::make_unique<Zone>(Zone::Type::Dead, cellSize);
+            zone->setPosition(sf::Vector2f(i * cellSize.x, 0)); 
+            zone->move(div * j, 0.f);
+            seqZone->attachZone(std::move(zone));
+        }
+    }
     attachView(std::move(seqZoneRiver));
 
     type = Lane::Type::River;

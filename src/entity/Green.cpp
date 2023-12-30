@@ -35,9 +35,11 @@ Entity(textures.get(toTextureID(mType)))
 
     sprite.setPosition(getBoundingRect().getSize() / 2.f);
     sf::FloatRect rect = Entity::getBoundingRect();
-    if (type == Tree) {;
-        rect.height = 128;
-    }
+    rect.width *= 0.6;
+    rect.height *= 0.6;
+    sf::Vector2f newPos = (getLocalBounds().getSize() - rect.getSize()) / 2.f;
+    rect.left = newPos.x;
+    rect.top = newPos.y;
     setHitBox(rect);
 }
 
