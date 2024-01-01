@@ -11,11 +11,12 @@
 class Railway: public Lane {
 public:
     Railway(TextureManager* textures, ViewGroup* foreground, bool isReverse = false);
+    void setTrainVelocity(float v);
 
 private:
-    static constexpr float laneLength = 1400.f;
-    static constexpr float padding = 1000.f;
-    static constexpr float trainVelocity = 700.f;
+    float laneLength;
+    float padding;
+    float trainVelocity;
 	Train* train;
     ViewGroup* foreground;
     void updateCurrent(sf::Time dt);

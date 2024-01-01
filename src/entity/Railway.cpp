@@ -1,13 +1,27 @@
 #include <Railway.hpp>
 
-Railway::Railway(TextureManager *textures, ViewGroup* foreview, bool isReverse):
-Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview) {
+namespace DEFAULT {
+    const float LANELENGTH = 1400.f;
+    const float PADDING = 1000.f;
+    const float TRAINVELOCITY = 700.f;
+};
+
+Railway::Railway(TextureManager *textures, ViewGroup* foreview, bool isReverse)
+: Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview)
+, laneLength(DEFAULT::LANELENGTH)
+, padding(DEFAULT::PADDING)
+, trainVelocity(DEFAULT::TRAINVELOCITY)
+{
     type = Lane::Type::Railway;
     textures->get(TextureID::Rail).setRepeated(true);
     sprite.scale(8.f, 8.f);
 	sf::IntRect textureRect(0, 0, 1400, 16);
     sprite.setTextureRect(textureRect);
     buildLane();
+}
+
+void Railway::setTrainVelocity(float v) {
+    trainVelocity = v;
 }
 
 void Railway::updateCurrent(sf::Time dt) {

@@ -12,6 +12,7 @@
 class Field: public Lane {
 public:
     Field(TextureManager* textures, bool isReverse = false);
+    void add(std::unique_ptr<Green>& green);
 
 private:
     std::vector<Green *> greens;

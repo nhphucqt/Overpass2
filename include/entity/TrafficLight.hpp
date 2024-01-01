@@ -18,6 +18,7 @@ public:
     enum Color{Red, Yellow, Green};
     TrafficLight(const TextureManager& textures);
     Color getCurrentColor();
+    void setDuration(int red = 1, int yellow = 1, int green = 1);
 
 private:
     sf::IntRect rect;
