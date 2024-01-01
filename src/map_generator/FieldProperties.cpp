@@ -1,5 +1,6 @@
 #include "FieldProperties.hpp"
 
+#include "Field.hpp"
 #include "LaneProperties.hpp"
 
 FieldProperties::FieldProperties(unsigned int map_width,
@@ -20,13 +21,19 @@ FieldProperties::Greens const &FieldProperties::getGreens() const
     return m_greens;
 }
 
+std::unique_ptr<Lane> FieldProperties::convertToLane() const
+{
+    std::unique_ptr<Field> field;
+    return field;
+}
+
 void FieldProperties::generate()
 {
     unsigned int green_cnt = LaneUtils::random_range(0, m_width - 1);
     unsigned int field_slot = -1;
     if (m_prev_lane && m_prev_lane->getType() == Lane::Type::Field)
     {
-        std::vector<unsigned int> prev_lane_fields = find_prev_lane_fields();
+        std::vector<unsigned int> prev_lane_fields = findPrevLaneFields();
         field_slot = prev_lane_fields[LaneUtils::random_range(
             0, prev_lane_fields.size() - 1)];
     }
@@ -46,7 +53,7 @@ void FieldProperties::generate()
 
 void FieldProperties::setExternalStatic() const {}
 
-std::vector<unsigned int> FieldProperties::find_prev_lane_fields()
+std::vector<unsigned int> FieldProperties::findPrevLaneFields() const
 {
     std::vector<unsigned int> prev_lane_fields;
     Greens const &prev_lane_greens =

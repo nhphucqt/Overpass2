@@ -14,9 +14,10 @@ public:
     using Greens = std::vector<std::pair<unsigned int, Green::Type>>;
 
     FieldProperties(unsigned int map_width, GameActivity::GameLevel level,
-                    LaneProperties const *prev_lane = nullptr);
+                    LaneProperties const *prev_lane);
 
     virtual Lane::Type getType() const override;
+    virtual std::unique_ptr<Lane> convertToLane() const override;
     Greens const &getGreens() const;
 
 protected:
@@ -24,10 +25,7 @@ protected:
     virtual void setExternalStatic() const override;
 
 private:
-    std::vector<unsigned int> find_prev_lane_fields();
-
-    using LaneProperties::m_level;
-    using LaneProperties::m_width;
+    std::vector<unsigned int> findPrevLaneFields() const;
 
     LaneProperties const *m_prev_lane;
     Greens m_greens;

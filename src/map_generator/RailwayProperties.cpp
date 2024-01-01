@@ -2,6 +2,8 @@
 
 #include "Railway.hpp"
 
+#include <memory>
+
 RailwayProperties::RailwayProperties(unsigned int map_width,
                                      GameActivity::GameLevel level)
     : LaneProperties(map_width, level)

@@ -14,7 +14,7 @@ LaneProperties::LaneProperties(unsigned int map_width,
 {
 }
 
-void LaneProperties::createLane()
+void LaneProperties::create()
 {
     generate();
     setExternalStatic();

@@ -11,6 +11,7 @@ public:
     RiverProperties(unsigned int map_width, GameActivity::GameLevel level);
 
     virtual Lane::Type getType() const override;
+    virtual std::unique_ptr<Lane> convertToLane() const override;
     float getVelocity() const;
     Log::Type getLogType() const;
 

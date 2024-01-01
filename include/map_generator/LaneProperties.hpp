@@ -14,8 +14,9 @@ class LaneProperties
 public:
     LaneProperties(unsigned int map_width, GameActivity::GameLevel level);
 
-    void createLane();
+    void create();
     virtual Lane::Type getType() const = 0;
+    virtual std::unique_ptr<Lane> convertToLane() const = 0;
 
 protected:
     virtual void generate() = 0;
