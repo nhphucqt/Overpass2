@@ -12,6 +12,7 @@ public:
 
     virtual Lane::Type getType() const override;
     virtual std::unique_ptr<Lane> convertToLane() const override;
+    bool isReverse() const;
     float getVelocity() const;
     Log::Type getLogType() const;
 
@@ -25,6 +26,7 @@ private:
     using LaneProperties::m_level;
     using LaneProperties::m_width;
 
+    bool m_reverse_p;
     float const m_velocity;
     Log::Type m_log_type;
 };

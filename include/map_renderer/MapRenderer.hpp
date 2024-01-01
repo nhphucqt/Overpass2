@@ -27,14 +27,18 @@ class MapRenderer : public ViewGroup, public sf::NonCopyable
 public:
     using LaneList = std::list<Lane *>;
 
-    MapRenderer(TextureManager const &m_textures, ViewGroup const &foreground,
+    MapRenderer(TextureManager &m_textures, ViewGroup &foreground,
                 unsigned int map_width, unsigned int map_max_height,
                 GameActivity::GameLevel level);
 
     void moveView();
-    LaneList getLanes() const;
+    LaneList const &getLanes() const;
 
 private:
+    void initialize();
+    void pushLane();
+    void popLane();
+
     std::unique_ptr<Lane>
     convertPropertiesToLane(LaneProperties const &properties) const;
 
@@ -53,6 +57,7 @@ private:
     TextureManager &m_textures;
     ViewGroup &m_foreground;
     std::unique_ptr<MapGenerator> m_map_generator;
+    LaneList m_lanes;
 };
 
 #endif
