@@ -2,29 +2,36 @@
 #define ROAD_HPP
 
 #include <Animal.hpp>
+#include <TrafficLight.hpp>
+#include <Vehicle.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <TrafficLight.hpp>
-#include <Vehicle.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 class Road : public Lane
 {
 public:
     Road(TextureManager* textures, bool isReverse = false);
+    void setNumOfVehicle(int n);
+    void setNumOfAnimal(int n);
+    void setVehicleVelocity(float v);
+    void setVehicleSlowVelocity(float v);
+    void setAnimalVelocity(float v);
+    void setTrafficLightPosition(float position);
 
 private:
-    static constexpr float laneLength = 1400.f;
-    static constexpr float padding = 100.f;
-    static constexpr int numOfVehicle = 3;
-    static constexpr int numOfAnimal = 2;
-    static constexpr float vehicleVelocity = 300.f;
-    static constexpr float vehicleSlowVelocity = 100.f;
-    static constexpr float animalVelocity = 200.f;
-    static constexpr float trafficLightPosition = 400.f;
+    float laneLength;
+    float padding;
+    int numOfVehicle;
+    int numOfAnimal;
+    float vehicleVelocity;
+    float vehicleSlowVelocity;
+    float animalVelocity;
+    float trafficLightPosition;
 
     std::vector<Vehicle *> vehicles;
     std::vector<Animal *> animals;

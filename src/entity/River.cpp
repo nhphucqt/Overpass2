@@ -1,8 +1,20 @@
 #include <River.hpp>
 #include <AppConfig.hpp>
 
-River::River(TextureManager *textures, bool isReverse):
-Lane(textures->get(TextureID::River), textures, isReverse) {
+namespace DEFAULT {
+    const float LANELENGTH = 1400.f;
+    const float PADDING = 100.f;
+    const int NUMOFLOG = 3;
+    const float LOGVELOCITY = 200.f;
+};
+
+River::River(TextureManager *textures, bool isReverse)
+: Lane(textures->get(TextureID::River), textures, isReverse)
+, laneLength(DEFAULT::LANELENGTH)
+, padding(DEFAULT::PADDING)
+, numOfLog(DEFAULT::NUMOFLOG)
+, logVelocity(DEFAULT::LOGVELOCITY)
+{
     AppConfig& config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     int numLaneCells = config.get<int>(ConfigKey::NumLaneCells);
@@ -27,8 +39,12 @@ Lane(textures->get(TextureID::River), textures, isReverse) {
     buildLane();
 }
 
-unsigned int River::getCategory() const {
-    return Category::River;
+void River::setNumOfLog(int n) {
+    numOfLog = n;
+}
+
+void River::setlogVelocity(float v) {
+    logVelocity = v;
 }
 
 void River::updateCurrent(sf::Time dt) {
@@ -43,7 +59,6 @@ void River::updateCurrent(sf::Time dt) {
     if ((isReverse && lastLog->getPosition().x < -padding) || (!isReverse && lastLog->getPosition().x > laneLength + padding))
         logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale, lastLog->getPosition().y);
     // make the last car becomes the first car in the next iteration
-    // logs.erase(logs.end());
     logs.pop_back();
     logs.insert(logs.begin(), lastLog);
 }

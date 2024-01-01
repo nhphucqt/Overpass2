@@ -13,22 +13,28 @@ Lane(textures->get(TextureID::Field), textures, isReverse) {
 
 }
 
+// buildLane is for initialization (it is called in constructor)
+// add is for later processes
+void Field::add(std::unique_ptr<Green> &green) {
+    greens.push_back(green.get());
+    this->attachView(std::move(green));
+}
+
 void Field::updateCurrent(sf::Time dt) {
     // currently update nothing because bushes don't move
 }
 
 void Field::buildLane() {
-    sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
-    std::unique_ptr<Green> tree(new Green(Green::Tree, *laneTextures));
-    std::unique_ptr<Green> bush(new Green(Green::Bush, *laneTextures));
-    std::unique_ptr<Green> circleBush(new Green(Green::CircleBush, *laneTextures));
-    greens.push_back(tree.get());
-    greens.push_back(bush.get());
-    greens.push_back(circleBush.get());
-    tree->setPosition(cellSize.x * 3, 0);
-    bush->setPosition(cellSize.x * 6, 0);
-    circleBush->setPosition(cellSize.x * 9, 0);
-    this->attachView(std::move(tree));
-    this->attachView(std::move(bush));
-    this->attachView(std::move(circleBush));
+    // std::unique_ptr<Green> tree(new Green(Green::Tree, *laneTextures));
+    // std::unique_ptr<Green> bush(new Green(Green::Bush, *laneTextures));
+    // std::unique_ptr<Green> circleBush(new Green(Green::CircleBush, *laneTextures));
+    // greens.push_back(tree.get());
+    // greens.push_back(bush.get());
+    // greens.push_back(circleBush.get());
+    // tree->setPosition(200, 96);
+    // bush->setPosition(700, 64);
+    // circleBush->setPosition(1200, 64);
+    // this->attachView(std::move(tree));
+    // this->attachView(std::move(bush));
+    // this->attachView(std::move(circleBush));
 }
