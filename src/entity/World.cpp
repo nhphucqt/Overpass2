@@ -21,8 +21,7 @@ World::World(sf::RenderWindow &window, bool isLoad)
 	if (!isLoad) {
 		buildScene();
 		mWorldView.setCenter(mSpawnPosition);
-	} 
-	else {
+	} else {
 		loadGameState("data/" + UserSession::getInstance().getUsername());
 		mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayer->getPosition().y);
 	}
@@ -277,6 +276,7 @@ void World::gameOver() {
 }
 
 void World::saveGameState(const std::string &filepath) {
+	DeleteDirContent("data/" + UserSession::getInstance().getUsername());
 	std::error_code err;
 	if (!CreateDirectoryRecursive(filepath, err)) {
 		std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
