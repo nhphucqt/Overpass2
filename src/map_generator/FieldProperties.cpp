@@ -3,8 +3,7 @@
 #include "Field.hpp"
 #include "LaneProperties.hpp"
 
-FieldProperties::FieldProperties(unsigned int map_width,
-                                 GameActivity::GameLevel level,
+FieldProperties::FieldProperties(unsigned int map_width, unsigned int level,
                                  LaneProperties const *prev_lane)
     : LaneProperties(map_width, level),
       m_prev_lane(prev_lane)
@@ -19,12 +18,6 @@ Lane::Type FieldProperties::getType() const
 FieldProperties::Greens const &FieldProperties::getGreens() const
 {
     return m_greens;
-}
-
-std::unique_ptr<Lane> FieldProperties::convertToLane() const
-{
-    std::unique_ptr<Field> field;
-    return field;
 }
 
 void FieldProperties::generate()
@@ -50,8 +43,6 @@ void FieldProperties::generate()
         m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
     }
 }
-
-void FieldProperties::setExternalStatic() const {}
 
 std::vector<unsigned int> FieldProperties::findPrevLaneFields() const
 {

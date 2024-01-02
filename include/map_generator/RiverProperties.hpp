@@ -8,17 +8,15 @@
 class RiverProperties : public LaneProperties
 {
 public:
-    RiverProperties(unsigned int map_width, GameActivity::GameLevel level);
+    RiverProperties(unsigned int map_width, unsigned int level);
 
     virtual Lane::Type getType() const override;
-    virtual std::unique_ptr<Lane> convertToLane() const override;
     bool isReverse() const;
     float getVelocity() const;
     Log::Type getLogType() const;
 
 protected:
     virtual void generate() override;
-    virtual void setExternalStatic() const override;
 
 private:
     static constexpr float LEVEL_VELOCITIES[] = {200.f, 250.f, 300.f};

@@ -1,7 +1,6 @@
 #include "RoadProperties.hpp"
 
-RoadProperties::RoadProperties(unsigned int map_width,
-                               GameActivity::GameLevel level)
+RoadProperties::RoadProperties(unsigned int map_width, unsigned int level)
     : LaneProperties(map_width, level),
       m_vehicles_cnt(LEVEL_VEHICLES_CNTS[static_cast<unsigned int>(level)]),
       m_animals_cnt(LEVEL_ANIMALS_CNTS[static_cast<unsigned int>(level)]),
@@ -53,5 +52,3 @@ void RoadProperties::generate()
     m_vehicle_type = static_cast<Vehicle::Type>(LaneUtils::random_range(
         0, static_cast<unsigned int>(Vehicle::Type::Count) - 1));
 }
-
-void RoadProperties::setExternalStatic() const {}

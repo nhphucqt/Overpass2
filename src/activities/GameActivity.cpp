@@ -4,7 +4,6 @@
 #include <DemoActivity.hpp>
 #include <Field.hpp>
 #include <GameActivity.hpp>
-#include <MapRenderer.hpp>
 #include <Railway.hpp>
 #include <River.hpp>
 #include <Road.hpp>
@@ -248,8 +247,9 @@ void GameActivity::attachLanes()
 {
     mMapRenderer = std::make_unique<MapRenderer>(
         mTextures, *mSceneLayers[Layer::Aboveground],
-        static_cast<unsigned int>(ConfigKey::NumLaneCells),
-        DEFAULT_MAP_MAX_HEIGHT, GameActivity::GameLevel::Endless);
+        AppConfig::getInstance().get<unsigned int>(ConfigKey::NumLaneCells),
+        DEFAULT_MAP_MAX_HEIGHT,
+        static_cast<unsigned int>(GameActivity::GameLevel::Endless));
     lanes = &mMapRenderer->getLanes();
     unsigned int lane_index = 0;
     for (auto lane : *lanes)

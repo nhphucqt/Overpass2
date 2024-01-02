@@ -10,7 +10,7 @@
 #include <memory>
 
 MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
-                           GameActivity::GameLevel level)
+                           unsigned int level)
     : m_sizes(map_width, map_max_height),
       m_width(m_sizes.x),
       m_max_height(m_sizes.y),
@@ -24,7 +24,7 @@ MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
 
 void MapGenerator::moveView()
 {
-    m_lanes_properties.push_back(generateLaneProperties());
+    m_lanes_properties.push_back(generateLaneProperties(0));
     m_lanes_properties.pop_back();
     updateContext();
 }
@@ -45,7 +45,7 @@ void MapGenerator::initialize()
 std::unique_ptr<LaneProperties>
 MapGenerator::generateLaneProperties(bool initializing_p) const
 {
-    Lane::Type type = generateLaneType();
+    Lane::Type type = generateLaneType(initializing_p);
     std::unique_ptr<LaneProperties> lane_properties =
         MapGenerator::createLanePropertiesWithType(type);
     lane_properties->create();
@@ -83,7 +83,7 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
 std::unique_ptr<LaneProperties>
 MapGenerator::createLanePropertiesWithType(Lane::Type type) const
 {
-    GameActivity::GameLevel real_level = getRealLevel();
+    unsigned int real_level = getRealLevel();
     switch (type)
     {
     case Lane::Type::Field:
@@ -119,10 +119,12 @@ void MapGenerator::updateContext()
              : 0);
 }
 
-GameActivity::GameLevel MapGenerator::getRealLevel() const
+unsigned int MapGenerator::getRealLevel() const
 {
-    GameActivity::GameLevel real_level = m_level;
-    if (m_level == GameActivity::GameLevel::Endless)
+    GameActivity::GameLevel real_level =
+        static_cast<GameActivity::GameLevel>(m_level);
+    if (static_cast<GameActivity::GameLevel>(m_level)
+        == GameActivity::GameLevel::Endless)
     {
         real_level = (m_level_lanes_cnts[0] < ENDLESS_LEVEL_LANES_CNT[0]
                           ? GameActivity::GameLevel::Easy
@@ -130,5 +132,5 @@ GameActivity::GameLevel MapGenerator::getRealLevel() const
                                  ? GameActivity::GameLevel::Medium
                                  : GameActivity::GameLevel::Hard));
     }
-    return real_level;
+    return static_cast<unsigned int>(real_level);
 }

@@ -1,26 +1,22 @@
 #ifndef MAP_RENDERER_HPP
 #define MAP_RENDERER_HPP
 
-#include "GameActivity.hpp"
+#include "Field.hpp"
+#include "FieldProperties.hpp"
+#include "Lane.hpp"
+#include "LaneProperties.hpp"
+#include "MapGenerator.hpp"
+#include "Railway.hpp"
+#include "RailwayProperties.hpp"
 #include "ResourceID.hpp"
+#include "River.hpp"
+#include "RiverProperties.hpp"
+#include "Road.hpp"
+#include "RoadProperties.hpp"
 #include "ViewGroup.hpp"
 
 #include <list>
 #include <memory>
-
-class MapGenerator;
-
-class Lane;
-class Field;
-class Railway;
-class Road;
-class River;
-
-class LaneProperties;
-class FieldProperties;
-class RailwayProperties;
-class RoadProperties;
-class RiverProperties;
 
 class MapRenderer : public sf::NonCopyable
 {
@@ -29,7 +25,7 @@ public:
 
     MapRenderer(TextureManager &textures, ViewGroup &foreground,
                 unsigned int map_width, unsigned int map_max_height,
-                GameActivity::GameLevel level);
+                unsigned int level);
 
     void moveView();
     LaneList const &getLanes() const;

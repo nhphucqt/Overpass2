@@ -15,7 +15,7 @@
 
 MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
                          unsigned int map_width, unsigned int map_max_height,
-                         GameActivity::GameLevel level)
+                         unsigned int level)
     : m_map_generator(
         std::make_unique<MapGenerator>(map_width, map_max_height, level)),
       m_foreground(foreground),
@@ -38,7 +38,7 @@ MapRenderer::LaneList const &MapRenderer::getLanes() const
 
 void MapRenderer::initialize()
 {
-    auto lanes_properties = m_map_generator->getLanes();
+    auto const &lanes_properties = m_map_generator->getLanes();
     for (auto it = lanes_properties.begin(); it != lanes_properties.end(); ++it)
     {
         m_lanes.push_back(convertPropertiesToLane(**it).get());
@@ -49,12 +49,10 @@ void MapRenderer::pushLane()
 {
     m_lanes.push_back(
         convertPropertiesToLane(*m_map_generator->getLanes().back()).get());
-    attachView(std::unique_ptr<Lane>(m_lanes.back()));
 }
 
 void MapRenderer::popLane()
 {
-    detachView(*m_lanes.front());
     m_lanes.pop_front();
 }
 

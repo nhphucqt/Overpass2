@@ -2,8 +2,7 @@
 
 #include "LaneProperties.hpp"
 
-RiverProperties::RiverProperties(unsigned int map_width,
-                                 GameActivity::GameLevel level)
+RiverProperties::RiverProperties(unsigned int map_width, unsigned int level)
     : LaneProperties(map_width, level),
       m_velocity(LEVEL_VELOCITIES[static_cast<unsigned int>(level)])
 {
@@ -30,5 +29,3 @@ void RiverProperties::generate()
     m_log_type = static_cast<Log::Type>(LaneUtils::random_range(
         0, static_cast<unsigned int>(Log::Type::Count) - 1));
 }
-
-void RiverProperties::setExternalStatic() const {}

@@ -4,8 +4,7 @@
 
 #include <memory>
 
-RailwayProperties::RailwayProperties(unsigned int map_width,
-                                     GameActivity::GameLevel level)
+RailwayProperties::RailwayProperties(unsigned int map_width, unsigned int level)
     : LaneProperties(map_width, level)
 {
 }
@@ -24,5 +23,3 @@ void RailwayProperties::generate()
 {
     m_reverse_p = LaneUtils::random_range(0, 1);
 }
-
-void RailwayProperties::setExternalStatic() const {}

@@ -6,6 +6,7 @@
 #include <CommandQueue.hpp>
 #include <Green.hpp>
 #include <Log.hpp>
+#include <MapRenderer.hpp>
 #include <Player.hpp>
 #include <PlayerNode.hpp>
 #include <ResourceID.hpp>
@@ -14,8 +15,6 @@
 #include <ViewGroup.hpp>
 #include <array>
 #include <list>
-
-class MapRenderer;
 
 class Lane;
 

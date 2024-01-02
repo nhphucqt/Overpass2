@@ -2,7 +2,6 @@
 #define ROAD_PROPERTIES_HPP
 
 #include "Animal.hpp"
-#include "GameActivity.hpp"
 #include "LaneProperties.hpp"
 #include "Vehicle.hpp"
 
@@ -11,10 +10,9 @@
 class RoadProperties : public LaneProperties
 {
 public:
-    RoadProperties(unsigned int map_width, GameActivity::GameLevel level);
+    RoadProperties(unsigned int map_width, unsigned int level);
 
     virtual Lane::Type getType() const override;
-    virtual std::unique_ptr<Lane> convertToLane() const override;
     bool isReverse() const;
     float getVelocity() const;
     unsigned int getVehiclesCnt() const;
@@ -24,7 +22,6 @@ public:
 
 protected:
     virtual void generate() override;
-    virtual void setExternalStatic() const override;
 
 private:
     static constexpr float LEVEL_VELOCITIES[] = {300.f, 350.f, 400.f};
