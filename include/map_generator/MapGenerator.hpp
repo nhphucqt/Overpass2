@@ -25,11 +25,15 @@ private:
     static constexpr unsigned int LEVEL_MAX_CONS_NONFIELDS_CNTS[] = {5, 9, 13};
     static constexpr unsigned int ENDLESS_LEVEL_LANES_CNT[] = {40, 80,
                                                                UINT_MAX};
+    static constexpr unsigned int INITIAL_FIELDS_CNT = 3;
 
     void initialize();
     void updateContext();
-    std::unique_ptr<LaneProperties> generateLaneProperties() const;
-    Lane::Type generateLaneType() const;
+
+    std::unique_ptr<LaneProperties>
+    generateLaneProperties(bool initializing_p) const;
+
+    Lane::Type generateLaneType(bool initializing_p) const;
 
     std::unique_ptr<LaneProperties>
     createLanePropertiesWithType(Lane::Type type) const;

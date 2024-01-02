@@ -15,6 +15,8 @@
 #include <array>
 #include <list>
 
+class MapRenderer;
+
 class Lane;
 
 class GameActivity : public Activity
@@ -45,7 +47,8 @@ private:
     FontManager mFontManager;
     TextureManager mTextures;
     bool stop;
-    std::list<Lane *> lanes;
+    std::list<Lane *> const *lanes;
+    std::unique_ptr<MapRenderer> mMapRenderer;
 
     std::array<ViewGroup *, LayerCount> mSceneLayers;
     CommandQueue mCommandQueue;
@@ -79,11 +82,17 @@ protected:
                              sf::RenderStates states) const override;
 
 private:
+    static constexpr unsigned int DEFAULT_MAP_MAX_HEIGHT = 50;
+    static constexpr unsigned int LANE_HEIGHT = 128;
+
     bool matchesCategories(ViewGroup::Pair &colliders, Category::Type type1,
                            Category::Type type2);
     void handleCollisions();
     void scroll(sf::Time dt);
     void gameOver();
+
+    void attachLanes();
+    void attachPlayer();
 };
 
 #endif

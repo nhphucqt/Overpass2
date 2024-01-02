@@ -38,11 +38,12 @@ void MapGenerator::initialize()
 {
     for (int i = 0; i < m_max_height; ++i)
     {
-        m_lanes_properties.push_back(generateLaneProperties());
+        m_lanes_properties.push_back(generateLaneProperties(1));
     }
 }
 
-std::unique_ptr<LaneProperties> MapGenerator::generateLaneProperties() const
+std::unique_ptr<LaneProperties>
+MapGenerator::generateLaneProperties(bool initializing_p) const
 {
     Lane::Type type = generateLaneType();
     std::unique_ptr<LaneProperties> lane_properties =
@@ -51,8 +52,13 @@ std::unique_ptr<LaneProperties> MapGenerator::generateLaneProperties() const
     return lane_properties;
 }
 
-Lane::Type MapGenerator::generateLaneType() const
+Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
 {
+    if (initializing_p && m_lanes_properties.size() < INITIAL_FIELDS_CNT)
+    {
+        return Lane::Type::Field;
+    }
+
     if (m_cons_nonfields_cnt
         == LEVEL_MAX_CONS_NONFIELDS_CNTS[static_cast<int>(m_level)])
     {

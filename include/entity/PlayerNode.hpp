@@ -1,40 +1,49 @@
 #ifndef PLAYERNODE_HPP
 #define PLAYERNODE_HPP
 
-#include <Entity.hpp>
 #include <Animation.hpp>
+#include <Entity.hpp>
+#include <Lane.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
-#include <Lane.hpp>
-#include <TransitionHandler.hpp>
-
-#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
-
+#include <TransitionHandler.hpp>
 #include <list>
 
 class Lane;
 
-class PlayerNode : public Entity {
+class PlayerNode : public Entity
+{
 public:
     typedef std::unique_ptr<PlayerNode> Ptr;
 
-    enum State {MoveDown, MoveUp, MoveLeft, MoveRight, Idle, Mounted, Free};
-    PlayerNode(const TextureManager &textures, std::list<Lane *>& lanes, std::list<Lane*>::iterator currentLane);
+    enum State
+    {
+        MoveDown,
+        MoveUp,
+        MoveLeft,
+        MoveRight,
+        Idle,
+        Mounted,
+        Free
+    };
+    PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes,
+               std::list<Lane *>::const_iterator currentLane);
     void moveDestination(sf::Vector2f distance);
     void moveDestination(float vx, float vy);
     State getState();
     unsigned int getCategory() const;
-    std::list<Lane*>::iterator getCurrentLane();
+    std::list<Lane *>::const_iterator getCurrentLane() const;
     void moveBack();
 
-    void runAction(const sf::Vector2i& direction);
+    void runAction(const sf::Vector2i &direction);
 
-    void setTransitionLayer(ViewGroup* layer);
+    void setTransitionLayer(ViewGroup *layer);
 
-    void setLastParent(ViewGroup* parent);
-    ViewGroup* getLastParent();
+    void setLastParent(ViewGroup *parent);
+    ViewGroup *getLastParent();
 
     void pushAction(sf::Vector2i action);
     void popAction();
@@ -49,22 +58,23 @@ public:
     bool isDead() const;
 
 private:
-    virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
+    virtual void drawCurrent(sf::RenderTarget &target,
+                             sf::RenderStates states) const;
     void updateCurrent(sf::Time delta);
     void updateMove(sf::Time delta);
 
 private:
     State state;
-    std::list<Lane*>::iterator curLane;
-    std::list<Lane *>& lanes;
+    std::list<Lane *>::const_iterator curLane;
+    std::list<Lane *> const &lanes;
     sf::Sprite sprite;
     Animation moveUp;
     Animation moveDown;
     Animation moveLeft;
     Animation moveRight;
     TransitionHandler transitionHandler;
-    ViewGroup* transitionLayer;
-    ViewGroup* lastParent;
+    ViewGroup *transitionLayer;
+    ViewGroup *lastParent;
     std::queue<sf::Vector2i> actionQueue;
     sf::Time moveDuration;
     bool __isDead;

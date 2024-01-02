@@ -22,12 +22,12 @@ class RailwayProperties;
 class RoadProperties;
 class RiverProperties;
 
-class MapRenderer : public ViewGroup, public sf::NonCopyable
+class MapRenderer : public sf::NonCopyable
 {
 public:
     using LaneList = std::list<Lane *>;
 
-    MapRenderer(TextureManager &m_textures, ViewGroup &foreground,
+    MapRenderer(TextureManager &textures, ViewGroup &foreground,
                 unsigned int map_width, unsigned int map_max_height,
                 GameActivity::GameLevel level);
 

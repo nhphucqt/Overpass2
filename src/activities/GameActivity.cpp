@@ -2,7 +2,12 @@
 #include <AppConfig.hpp>
 #include <ButtonView.hpp>
 #include <DemoActivity.hpp>
+#include <Field.hpp>
 #include <GameActivity.hpp>
+#include <MapRenderer.hpp>
+#include <Railway.hpp>
+#include <River.hpp>
+#include <Road.hpp>
 #include <TextView.hpp>
 #include <iterator>
 
@@ -80,59 +85,8 @@ void GameActivity::onAttach()
     }
     mSceneLayers[Background]->setReverse(true);
 
-    srand(time(NULL));
-    int laneTypeCount = Lane::Type::Count;
-    for (int i = 0; i < 5; ++i)
-    {
-        bool reverse = rand() % 2;
-        std::unique_ptr<Lane> lane;
-        lane.reset(new Field(&mTextures, reverse));
-        lanes.push_back(lane.get());
-        lane->setPosition(mWorldBounds.left,
-                          mWorldBounds.top + mWorldBounds.height - 128 * i);
-        mSceneLayers[Background]->attachView(std::move(lane));
-    }
-    for (int i = 5; i < 50; ++i)
-    {
-        int randLane = rand() % laneTypeCount;
-        bool reverse = rand() % 2;
-        std::unique_ptr<Lane> lane;
-        switch (randLane)
-        {
-        case 0:
-            lane.reset(new Road(&mTextures, reverse));
-            break;
-        case 1:
-            lane.reset(new River(&mTextures, reverse));
-            break;
-        case 2:
-            lane.reset(new Field(&mTextures, reverse));
-            break;
-        case 3:
-            lane.reset(
-                new Railway(&mTextures, mSceneLayers[Aboveground], reverse));
-            break;
-        default:
-            lane.reset(new Road(&mTextures, reverse));
-        }
-        lanes.push_back(lane.get());
-        lane->setPosition(mWorldBounds.left,
-                          mWorldBounds.top + mWorldBounds.height - 128 * i);
-        mSceneLayers[Background]->attachView(std::move(lane));
-    }
-
-    std::unique_ptr<PlayerNode> player(new PlayerNode(
-        mTextures, lanes,
-        std::next(lanes.begin(),
-                  3))); // last argument must be consistent with playerLaneIndex
-    mPlayerNode = player.get();
-    mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
-    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-    (*std::next(lanes.begin(), 3))->spawnPlayer(std::move(player));
-    // mSceneLayers[Aboveground]->attachView(std::move(player));
-    // createTitle();
-
-    mWorldView.setCenter(mSpawnPosition);
+    attachLanes();
+    attachPlayer();
 }
 
 void GameActivity::onResume()
@@ -217,7 +171,7 @@ void GameActivity::handleCollisions()
     std::set<ViewGroup::Pair> collisionPairs;
     mPlayerNode->checkSceneCollision(**mPlayerNode->getCurrentLane(),
                                      collisionPairs);
-    if (lanes.end() != std::next(mPlayerNode->getCurrentLane()))
+    if (lanes->end() != std::next(mPlayerNode->getCurrentLane()))
     {
         mPlayerNode->checkSceneCollision(
             **std::next(mPlayerNode->getCurrentLane()), collisionPairs);
@@ -251,7 +205,7 @@ void GameActivity::scroll(sf::Time dt)
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     int currentLaneIndex =
-        std::distance(lanes.begin(), mPlayerNode->getCurrentLane());
+        std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
     if (currentLaneIndex > playerLaneIndex)
     {
         scrollDistance += 128.f;
@@ -288,4 +242,37 @@ void GameActivity::gameOver()
 CommandQueue &GameActivity::getCommandQueue()
 {
     return mCommandQueue;
+}
+
+void GameActivity::attachLanes()
+{
+    mMapRenderer = std::make_unique<MapRenderer>(
+        mTextures, *mSceneLayers[Layer::Aboveground],
+        static_cast<unsigned int>(ConfigKey::NumLaneCells),
+        DEFAULT_MAP_MAX_HEIGHT, GameActivity::GameLevel::Endless);
+    lanes = &mMapRenderer->getLanes();
+    unsigned int lane_index = 0;
+    for (auto lane : *lanes)
+    {
+        lane->setPosition(mWorldBounds.left, mWorldBounds.top
+                                                 + mWorldBounds.height
+                                                 - LANE_HEIGHT * lane_index);
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(lane));
+    }
+}
+
+void GameActivity::attachPlayer()
+{
+    std::unique_ptr<PlayerNode> player(new PlayerNode(
+        mTextures, *lanes,
+        std::next(lanes->begin(),
+                  3))); // last argument must be consistent with playerLaneIndex
+    mPlayerNode = player.get();
+    mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+    (*std::next(lanes->begin(), 3))->spawnPlayer(std::move(player));
+    // mSceneLayers[Aboveground]->attachView(std::move(player));
+    // createTitle();
+
+    mWorldView.setCenter(mSpawnPosition);
 }
