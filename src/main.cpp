@@ -31,9 +31,11 @@
 #include <iostream>
 
 int main() {
+	// UserRepo::getInstance().addUser(UserData("pikachu", "123"));
+	// UserRepo::getInstance().addUser(UserData("Naruto", "456"));
 	UserSession::getInstance().logoutUser();
-	// UserSession::getInstance().loginUser("pikachu", "123");
-	UserSession::getInstance().loginUser("Naruto", "456");
+	UserSession::getInstance().loginUser("pikachu", "123");
+	// UserSession::getInstance().loginUser("Naruto", "456");
 	try {
 		Game game;
 		game.run();
