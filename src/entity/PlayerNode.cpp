@@ -17,6 +17,8 @@ PlayerNode::PlayerNode(const TextureManager &textures,
       lastParent(nullptr),
       __isDead(false)
 {
+    std::cerr << "PlayerNode::PlayerNode\n";
+
     sf::Vector2f cellSize =
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);

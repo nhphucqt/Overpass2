@@ -86,6 +86,11 @@ std::unique_ptr<Field>
 MapRenderer::convertPropertiesToLane(FieldProperties const &properties) const
 {
     auto field = std::make_unique<Field>(&m_textures);
+    for (auto const &[index, green_type] : properties.getGreens())
+    {
+        auto green = std::make_unique<Green>(green_type, m_textures);
+        field->add(std::move(green), index);
+    }
     return field;
 }
 

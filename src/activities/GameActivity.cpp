@@ -247,30 +247,35 @@ void GameActivity::attachLanes()
 {
     mMapRenderer = std::make_unique<MapRenderer>(
         mTextures, *mSceneLayers[Layer::Aboveground],
-        AppConfig::getInstance().get<unsigned int>(ConfigKey::NumLaneCells),
+        AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells),
         DEFAULT_MAP_MAX_HEIGHT,
         static_cast<unsigned int>(GameActivity::GameLevel::Endless));
     lanes = &mMapRenderer->getLanes();
     unsigned int lane_index = 0;
     for (auto lane : *lanes)
     {
+        float const CELL_HEIGHT =
+            AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
         lane->setPosition(mWorldBounds.left, mWorldBounds.top
                                                  + mWorldBounds.height
-                                                 - LANE_HEIGHT * lane_index);
+                                                 - CELL_HEIGHT * lane_index);
         mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(lane));
+        ++lane_index;
     }
 }
 
 void GameActivity::attachPlayer()
 {
-    std::unique_ptr<PlayerNode> player(new PlayerNode(
+    std::cerr << "GameActivity::attachPlayer\n";
+
+    auto player = std::make_unique<PlayerNode>(
         mTextures, *lanes,
         std::next(lanes->begin(),
-                  3))); // last argument must be consistent with playerLaneIndex
+                  1)); // last argument must be consistent with playerLaneIndex
     mPlayerNode = player.get();
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-    (*std::next(lanes->begin(), 3))->spawnPlayer(std::move(player));
+    (*std::next(lanes->begin(), 1))->spawnPlayer(std::move(player));
     // mSceneLayers[Aboveground]->attachView(std::move(player));
     // createTitle();
 

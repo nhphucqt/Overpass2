@@ -3,6 +3,8 @@
 #include "Field.hpp"
 #include "LaneProperties.hpp"
 
+#include <climits>
+
 FieldProperties::FieldProperties(unsigned int map_width, unsigned int level,
                                  LaneProperties const *prev_lane)
     : LaneProperties(map_width, level),
@@ -23,24 +25,30 @@ FieldProperties::Greens const &FieldProperties::getGreens() const
 void FieldProperties::generate()
 {
     unsigned int green_cnt = LaneUtils::random_range(0, m_width - 1);
-    unsigned int field_slot = -1;
+
+    unsigned int field_slot = UINT_MAX;
     if (m_prev_lane && m_prev_lane->getType() == Lane::Type::Field)
     {
         std::vector<unsigned int> prev_lane_fields = findPrevLaneFields();
         field_slot = prev_lane_fields[LaneUtils::random_range(
             0, prev_lane_fields.size() - 1)];
     }
-    for (int i = 0; i < green_cnt; ++i)
+
+    unsigned int lbound = 0;
+    unsigned int rbound = m_width - green_cnt - (field_slot < m_width);
+    for (int i = 1; i <= green_cnt; ++i)
     {
         unsigned int green_type = LaneUtils::random_range(
             0, static_cast<unsigned int>(Green::Type::Count) - 1);
-        unsigned int lbound = (i == 0 ? 0 : m_greens.back().first + 1);
-        unsigned int green_slot;
-        do
-        {
-            green_slot = LaneUtils::random_range(lbound, m_width - i);
-        } while (green_slot == field_slot);
+        unsigned int green_slot = LaneUtils::random_range(lbound, rbound);
         m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
+
+        lbound = green_slot + 1;
+        ++rbound;
+    }
+    for (auto &[index, green] : m_greens)
+    {
+        index += (index >= field_slot);
     }
 }
 
@@ -48,20 +56,21 @@ std::vector<unsigned int> FieldProperties::findPrevLaneFields() const
 {
     std::vector<unsigned int> prev_lane_fields;
     Greens const &prev_lane_greens =
-        static_cast<FieldProperties const *>(m_prev_lane)->m_greens;
+        dynamic_cast<FieldProperties const *>(m_prev_lane)->m_greens;
 
-    for (int i = 0; i < prev_lane_greens.size(); ++i)
+    int i = 0, j = 0;
+    while (i < prev_lane_greens.size())
     {
-        unsigned int lbound = (i == 0 ? 0 : prev_lane_greens[i - 1].first + 1);
-        for (int j = lbound; j < prev_lane_greens[i].first; ++j)
+        while (j < prev_lane_greens[i].first)
         {
-            prev_lane_fields.push_back(j);
+            prev_lane_fields.push_back(j++);
         }
+        ++i;
+        ++j;
     }
-    for (int i = prev_lane_greens.back().first; i < m_width; ++i)
+    while (j < m_width)
     {
-        prev_lane_fields.push_back(i);
+        prev_lane_fields.push_back(j++);
     }
-
     return prev_lane_fields;
 }

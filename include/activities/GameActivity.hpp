@@ -82,7 +82,6 @@ protected:
 
 private:
     static constexpr unsigned int DEFAULT_MAP_MAX_HEIGHT = 50;
-    static constexpr unsigned int LANE_HEIGHT = 128;
 
     bool matchesCategories(ViewGroup::Pair &colliders, Category::Type type1,
                            Category::Type type2);
