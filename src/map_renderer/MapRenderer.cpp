@@ -113,7 +113,8 @@ MapRenderer::convertPropertiesToLane(RoadProperties const &properties) const
 River *
 MapRenderer::convertPropertiesToLane(RiverProperties const &properties) const
 {
-    auto river = new River(&m_textures, properties.isReverse());
+    auto river = new River(&m_textures, properties.isReverse(),
+                           properties.getVelocity());
     river->setLogVelocity(properties.getVelocity());
     return river;
 }

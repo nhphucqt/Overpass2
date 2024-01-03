@@ -23,6 +23,11 @@ float RiverProperties::getVelocity() const
     return m_velocity;
 }
 
+Log::Type RiverProperties::getLogType() const
+{
+    return m_log_type;
+}
+
 void RiverProperties::generate()
 {
     m_reverse_p = LaneUtils::random_range(0, 1);

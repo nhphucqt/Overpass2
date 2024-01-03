@@ -9,12 +9,12 @@ const int NUMOFLOG = 3;
 const float LOGVELOCITY = 200.f;
 }; // namespace DEFAULT
 
-River::River(TextureManager *textures, bool isReverse)
+River::River(TextureManager *textures, bool isReverse, float velocity)
     : Lane(textures->get(TextureID::River), textures, isReverse),
       laneLength(DEFAULT::LANELENGTH),
       padding(DEFAULT::PADDING),
       numOfLog(DEFAULT::NUMOFLOG),
-      logVelocity(DEFAULT::LOGVELOCITY)
+      logVelocity(velocity)
 {
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
