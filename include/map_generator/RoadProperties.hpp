@@ -17,16 +17,16 @@ public:
     float getVelocity() const;
     unsigned int getVehiclesCnt() const;
     unsigned int getAnimalsCnt() const;
-    Animal::Type getAminalType() const;
+    Animal::Type getAnimalType() const;
     Vehicle::Type getVehicleType() const;
 
 protected:
     virtual void generate() override;
 
 private:
-    static constexpr float LEVEL_VELOCITIES[] = {300.f, 350.f, 400.f};
+    static constexpr float LEVEL_VELOCITIES[] = {300.f, 400.f, 500.f};
     static constexpr unsigned int LEVEL_VEHICLES_CNTS[] = {3, 4, 5};
-    static constexpr unsigned int LEVEL_ANIMALS_CNTS[] = {2, 3, 4};
+    static constexpr unsigned int LEVEL_ANIMALS_CNTS[] = {1, 2, 3};
 
     unsigned int const m_vehicles_cnt;
     unsigned int const m_animals_cnt;

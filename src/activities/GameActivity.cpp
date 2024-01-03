@@ -245,29 +245,30 @@ CommandQueue &GameActivity::getCommandQueue()
 
 void GameActivity::attachLanes()
 {
+    Intent *intent = getIntent();
+    unsigned int level = intent->getExtra<int>("level", -1);
+
     mMapRenderer = std::make_unique<MapRenderer>(
         mTextures, *mSceneLayers[Layer::Aboveground],
         AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells),
-        DEFAULT_MAP_MAX_HEIGHT,
-        static_cast<unsigned int>(GameActivity::GameLevel::Endless));
+        DEFAULT_MAP_MAX_HEIGHT, level);
     lanes = &mMapRenderer->getLanes();
     unsigned int lane_index = 0;
-    for (auto lane : *lanes)
+    for (auto it = lanes->begin(); it != lanes->end(); ++it)
     {
+        Lane &lane = **it;
         float const CELL_HEIGHT =
             AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-        lane->setPosition(mWorldBounds.left, mWorldBounds.top
-                                                 + mWorldBounds.height
-                                                 - CELL_HEIGHT * lane_index);
-        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(lane));
+        lane.setPosition(mWorldBounds.left, mWorldBounds.top
+                                                + mWorldBounds.height
+                                                - CELL_HEIGHT * lane_index);
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
         ++lane_index;
     }
 }
 
 void GameActivity::attachPlayer()
 {
-    std::cerr << "GameActivity::attachPlayer\n";
-
     auto player = std::make_unique<PlayerNode>(
         mTextures, *lanes,
         std::next(lanes->begin(),

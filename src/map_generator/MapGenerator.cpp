@@ -48,7 +48,7 @@ MapGenerator::generateLaneProperties(bool initializing_p) const
 {
     Lane::Type type = generateLaneType(initializing_p);
     std::unique_ptr<LaneProperties> lane_properties =
-        MapGenerator::createLanePropertiesWithType(type);
+        MapGenerator::createLanePropertiesWithType(type, initializing_p);
     lane_properties->create();
     return lane_properties;
 }
@@ -82,7 +82,8 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
 }
 
 std::unique_ptr<LaneProperties>
-MapGenerator::createLanePropertiesWithType(Lane::Type type) const
+MapGenerator::createLanePropertiesWithType(Lane::Type type,
+                                           bool initializing_p) const
 {
     unsigned int real_level = getRealLevel();
     switch (type)
@@ -92,8 +93,8 @@ MapGenerator::createLanePropertiesWithType(Lane::Type type) const
         LaneProperties const *prev_lane =
             (m_lanes_properties.empty() ? nullptr
                                         : m_lanes_properties.back().get());
-        return std::make_unique<FieldProperties>(m_width, real_level,
-                                                 prev_lane);
+        return std::make_unique<FieldProperties>(m_width, real_level, prev_lane,
+                                                 initializing_p);
     }
 
     case Lane::Type::Railway:

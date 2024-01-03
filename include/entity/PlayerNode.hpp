@@ -1,6 +1,8 @@
 #ifndef PLAYERNODE_HPP
 #define PLAYERNODE_HPP
 
+#include "MapRenderer.hpp"
+
 #include <Animation.hpp>
 #include <Entity.hpp>
 #include <Lane.hpp>
@@ -30,12 +32,12 @@ public:
         Free
     };
     PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes,
-               std::list<Lane *>::const_iterator currentLane);
+               MapRenderer::LaneList::const_iterator currentLane);
     void moveDestination(sf::Vector2f distance);
     void moveDestination(float vx, float vy);
     State getState();
     unsigned int getCategory() const;
-    std::list<Lane *>::const_iterator getCurrentLane() const;
+    MapRenderer::LaneList::const_iterator getCurrentLane() const;
     void moveBack();
 
     void runAction(const sf::Vector2i &direction);
@@ -65,7 +67,7 @@ private:
 
 private:
     State state;
-    std::list<Lane *>::const_iterator curLane;
+    MapRenderer::LaneList::const_iterator curLane;
     std::list<Lane *> const &lanes;
     sf::Sprite sprite;
     Animation moveUp;

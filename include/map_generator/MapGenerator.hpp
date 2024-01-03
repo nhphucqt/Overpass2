@@ -35,7 +35,7 @@ private:
     Lane::Type generateLaneType(bool initializing_p) const;
 
     std::unique_ptr<LaneProperties>
-    createLanePropertiesWithType(Lane::Type type) const;
+    createLanePropertiesWithType(Lane::Type type, bool initializing_p) const;
 
     unsigned int getRealLevel() const;
 

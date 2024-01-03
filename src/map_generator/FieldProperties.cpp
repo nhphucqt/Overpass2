@@ -6,9 +6,11 @@
 #include <climits>
 
 FieldProperties::FieldProperties(unsigned int map_width, unsigned int level,
-                                 LaneProperties const *prev_lane)
+                                 LaneProperties const *prev_lane,
+                                 bool initializing_p)
     : LaneProperties(map_width, level),
-      m_prev_lane(prev_lane)
+      m_prev_lane(prev_lane),
+      m_initialing_p(initializing_p)
 {
 }
 
@@ -26,13 +28,7 @@ void FieldProperties::generate()
 {
     unsigned int green_cnt = LaneUtils::random_range(0, m_width - 1);
 
-    unsigned int field_slot = UINT_MAX;
-    if (m_prev_lane && m_prev_lane->getType() == Lane::Type::Field)
-    {
-        std::vector<unsigned int> prev_lane_fields = findPrevLaneFields();
-        field_slot = prev_lane_fields[LaneUtils::random_range(
-            0, prev_lane_fields.size() - 1)];
-    }
+    unsigned int field_slot = generateFieldSlot();
 
     unsigned int lbound = 0;
     unsigned int rbound = m_width - green_cnt - (field_slot < m_width);
@@ -50,6 +46,22 @@ void FieldProperties::generate()
     {
         index += (index >= field_slot);
     }
+}
+
+unsigned int FieldProperties::generateFieldSlot() const
+{
+    unsigned int field_slot = UINT_MAX;
+    if (m_initialing_p)
+    {
+        field_slot = 0;
+    }
+    else if (m_prev_lane && m_prev_lane->getType() == Lane::Type::Field)
+    {
+        std::vector<unsigned int> prev_lane_fields = findPrevLaneFields();
+        field_slot = prev_lane_fields[LaneUtils::random_range(
+            0, prev_lane_fields.size() - 1)];
+    }
+    return field_slot;
 }
 
 std::vector<unsigned int> FieldProperties::findPrevLaneFields() const

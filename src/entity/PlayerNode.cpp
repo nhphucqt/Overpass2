@@ -1,10 +1,12 @@
+#include "MapRenderer.hpp"
+
 #include <AppConfig.hpp>
 #include <PlayerNode.hpp>
 #include <Vector2dUtils.hpp>
 
 PlayerNode::PlayerNode(const TextureManager &textures,
                        std::list<Lane *> const &lanesVct,
-                       std::list<Lane *>::const_iterator currentLane)
+                       MapRenderer::LaneList::const_iterator currentLane)
     : sprite(textures.get(TextureID::CharacterIdle)),
       state(State::Idle),
       moveUp(textures.get(TextureID::CharacterUp)),
@@ -17,8 +19,6 @@ PlayerNode::PlayerNode(const TextureManager &textures,
       lastParent(nullptr),
       __isDead(false)
 {
-    std::cerr << "PlayerNode::PlayerNode\n";
-
     sf::Vector2f cellSize =
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);
@@ -211,7 +211,7 @@ unsigned int PlayerNode::getCategory() const
     return Category::Player;
 }
 
-std::list<Lane *>::const_iterator PlayerNode::getCurrentLane() const
+MapRenderer::LaneList::const_iterator PlayerNode::getCurrentLane() const
 {
     return curLane;
 }

@@ -35,20 +35,15 @@ private:
     void pushLane();
     void popLane();
 
-    std::unique_ptr<Lane>
-    convertPropertiesToLane(LaneProperties const &properties) const;
+    Lane *convertPropertiesToLane(LaneProperties const &properties) const;
 
-    std::unique_ptr<Field>
-    convertPropertiesToLane(FieldProperties const &properties) const;
+    Field *convertPropertiesToLane(FieldProperties const &properties) const;
 
-    std::unique_ptr<Railway>
-    convertPropertiesToLane(RailwayProperties const &properties) const;
+    Railway *convertPropertiesToLane(RailwayProperties const &properties) const;
 
-    std::unique_ptr<Road>
-    convertPropertiesToLane(RoadProperties const &properties) const;
+    Road *convertPropertiesToLane(RoadProperties const &properties) const;
 
-    std::unique_ptr<River>
-    convertPropertiesToLane(RiverProperties const &properties) const;
+    River *convertPropertiesToLane(RiverProperties const &properties) const;
 
     TextureManager &m_textures;
     ViewGroup &m_foreground;

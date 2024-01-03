@@ -46,7 +46,7 @@ private:
     FontManager mFontManager;
     TextureManager mTextures;
     bool stop;
-    std::list<Lane *> const *lanes;
+    MapRenderer::LaneList const *lanes;
     std::unique_ptr<MapRenderer> mMapRenderer;
 
     std::array<ViewGroup *, LayerCount> mSceneLayers;

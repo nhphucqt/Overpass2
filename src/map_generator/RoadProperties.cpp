@@ -20,15 +20,17 @@ bool RoadProperties::isReverse() const
 
 unsigned int RoadProperties::getVehiclesCnt() const
 {
-    return m_has_animal_p ? 0 : m_vehicles_cnt;
+    return m_vehicles_cnt;
+    // return m_has_animal_p ? 0 : m_vehicles_cnt;
 }
 
 unsigned int RoadProperties::getAnimalsCnt() const
 {
-    return m_has_animal_p ? m_animals_cnt : 0;
+    return m_animals_cnt;
+    // return m_has_animal_p ? m_animals_cnt : 0;
 }
 
-Animal::Type RoadProperties::getAminalType() const
+Animal::Type RoadProperties::getAnimalType() const
 {
     return m_animal_type;
 }

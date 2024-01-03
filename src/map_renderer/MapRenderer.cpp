@@ -41,14 +41,14 @@ void MapRenderer::initialize()
     auto const &lanes_properties = m_map_generator->getLanes();
     for (auto it = lanes_properties.begin(); it != lanes_properties.end(); ++it)
     {
-        m_lanes.push_back(convertPropertiesToLane(**it).get());
+        m_lanes.push_back(convertPropertiesToLane(**it));
     }
 }
 
 void MapRenderer::pushLane()
 {
     m_lanes.push_back(
-        convertPropertiesToLane(*m_map_generator->getLanes().back()).get());
+        convertPropertiesToLane(*m_map_generator->getLanes().back()));
 }
 
 void MapRenderer::popLane()
@@ -56,7 +56,7 @@ void MapRenderer::popLane()
     m_lanes.pop_front();
 }
 
-std::unique_ptr<Lane>
+Lane *
 MapRenderer::convertPropertiesToLane(LaneProperties const &properties) const
 {
     switch (properties.getType())
@@ -82,10 +82,10 @@ MapRenderer::convertPropertiesToLane(LaneProperties const &properties) const
     }
 }
 
-std::unique_ptr<Field>
+Field *
 MapRenderer::convertPropertiesToLane(FieldProperties const &properties) const
 {
-    auto field = std::make_unique<Field>(&m_textures);
+    auto field = new Field(&m_textures);
     for (auto const &[index, green_type] : properties.getGreens())
     {
         auto green = std::make_unique<Green>(green_type, m_textures);
@@ -94,28 +94,26 @@ MapRenderer::convertPropertiesToLane(FieldProperties const &properties) const
     return field;
 }
 
-std::unique_ptr<Railway>
+Railway *
 MapRenderer::convertPropertiesToLane(RailwayProperties const &properties) const
 {
-    return std::make_unique<Railway>(&m_textures, &m_foreground,
-                                     properties.isReverse());
+    return new Railway(&m_textures, &m_foreground, properties.isReverse());
 }
 
-std::unique_ptr<Road>
+Road *
 MapRenderer::convertPropertiesToLane(RoadProperties const &properties) const
 {
-    auto road = std::make_unique<Road>(&m_textures, properties.isReverse());
-    road->setVehicleVelocity(properties.getVelocity());
-    road->setAnimalVelocity(properties.getVelocity());
-    road->setNumOfVehicle(properties.getVehiclesCnt());
-    road->setNumOfAnimal(properties.getAnimalsCnt());
+    auto road = new Road(
+        &m_textures, properties.isReverse(), properties.getVehiclesCnt(),
+        properties.getAnimalsCnt(), properties.getVehicleType(),
+        properties.getAnimalType(), properties.getVelocity());
     return road;
 }
 
-std::unique_ptr<River>
+River *
 MapRenderer::convertPropertiesToLane(RiverProperties const &properties) const
 {
-    auto river = std::make_unique<River>(&m_textures, properties.isReverse());
+    auto river = new River(&m_textures, properties.isReverse());
     river->setLogVelocity(properties.getVelocity());
     return river;
 }

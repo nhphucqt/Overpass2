@@ -2,20 +2,22 @@
 #define ROAD_HPP
 
 #include <Animal.hpp>
-#include <TrafficLight.hpp>
-#include <Vehicle.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
 #include <ResourceManager.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <TrafficLight.hpp>
+#include <Vehicle.hpp>
 
 class Road : public Lane
 {
 public:
-    Road(TextureManager* textures, bool isReverse = false);
+    Road(TextureManager *textures, bool isReverse, unsigned int vehicles_cnt,
+         unsigned int animals_cnt, Vehicle::Type vehicle_type,
+         Animal::Type animal_type, float velocity);
+
     void setNumOfVehicle(int n);
     void setNumOfAnimal(int n);
     void setVehicleVelocity(float v);
@@ -32,6 +34,8 @@ private:
     float vehicleSlowVelocity;
     float animalVelocity;
     float trafficLightPosition;
+    Animal::Type animalType;
+    Vehicle::Type vehicleType;
 
     std::vector<Vehicle *> vehicles;
     std::vector<Animal *> animals;
