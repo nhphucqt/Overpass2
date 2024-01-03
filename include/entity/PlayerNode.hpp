@@ -68,7 +68,7 @@ private:
 private:
     State state;
     MapRenderer::LaneList::const_iterator curLane;
-    std::list<Lane *> const &lanes;
+    MapRenderer::LaneList const &lanes;
     sf::Sprite sprite;
     Animation moveUp;
     Animation moveDown;
