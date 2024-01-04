@@ -32,7 +32,7 @@ void MapRenderer::moveView()
     }
 
     m_map_generator->moveView();
-    // popLane();
+    popLane();
     pushLane();
 }
 
