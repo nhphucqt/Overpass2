@@ -25,7 +25,7 @@ MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
 void MapGenerator::moveView()
 {
     m_lanes_properties.push_back(generateLaneProperties(0));
-    m_lanes_properties.pop_back();
+    m_lanes_properties.pop_front();
     updateContext();
 }
 

@@ -12,6 +12,7 @@ class LaneProperties
 {
 public:
     LaneProperties(unsigned int map_width, unsigned int level);
+    virtual ~LaneProperties() = default;
 
     void create();
     virtual Lane::Type getType() const = 0;

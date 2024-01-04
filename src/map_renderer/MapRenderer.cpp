@@ -26,9 +26,14 @@ MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
 
 void MapRenderer::moveView()
 {
+    if (m_lanes.size() < 10)
+    {
+        return;
+    }
+
     m_map_generator->moveView();
+    // popLane();
     pushLane();
-    popLane();
 }
 
 MapRenderer::LaneList const &MapRenderer::getLanes() const

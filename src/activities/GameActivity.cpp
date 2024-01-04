@@ -223,6 +223,8 @@ void GameActivity::scroll(sf::Time dt)
         scrollDistance += scrollStep;
         mWorldView.move(0.f, scrollStep);
     }
+
+    mMapRenderer->moveView();
 }
 
 void GameActivity::gameOver()
