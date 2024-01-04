@@ -25,9 +25,13 @@ bool sortDir(const std::string &filenameA, const std::string &filenameB)
 
 void DeleteDirContent(const std::string &dirPath)
 {
-    for (const auto &entry : std::filesystem::directory_iterator(dirPath))
-        std::filesystem::remove_all(entry.path());
-    std::filesystem::remove(dirPath);
+    if (std::filesystem::exists(dirPath)) {
+        for (const auto &entry : std::filesystem::directory_iterator(dirPath))
+            std::filesystem::remove_all(entry.path());
+        std::filesystem::remove(dirPath);
+    } else {
+        std::cerr << dirPath + "not found.\n";
+    }
 }
 
 std::vector<std::string> getSortedFileNames(const std::string& filepath)
