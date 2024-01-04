@@ -222,10 +222,10 @@ void GameActivity::scroll(sf::Time dt)
     {
         scrollDistance += scrollStep;
         mWorldView.move(0.f, scrollStep);
+        mMapRenderer->moveView();
+        mSceneLayers[Background]->attachView(
+            std::unique_ptr<ViewGroup>(lanes->back()));
     }
-
-    mMapRenderer->moveView();
-    mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(lanes->back()));
 }
 
 void GameActivity::gameOver()
