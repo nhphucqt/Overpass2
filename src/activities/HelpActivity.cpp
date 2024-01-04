@@ -54,7 +54,7 @@ void HelpActivity::createBackButton() {
 
 void HelpActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(this, mTextureManager.get(TextureID::mainMenuBackgroundTexture))
     );
 }
 

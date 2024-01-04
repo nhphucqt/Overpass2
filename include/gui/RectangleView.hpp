@@ -4,7 +4,7 @@
 #include <ViewGroup.hpp>
 #include <EventListener.hpp>
 
-class RectangleView: public ViewGroup, public EventListener {
+class RectangleView: public ViewGroup {
 public:
     typedef std::unique_ptr<RectangleView> Ptr;
 
@@ -12,10 +12,10 @@ private:
     sf::RectangleShape mRect;
 
 public:
-    RectangleView(float left, float top, float width, float height);
-    RectangleView(float left, float top, float width, float height, const sf::Color& color);
-    RectangleView(const sf::Vector2f& size, const sf::Vector2f& position);
-    RectangleView(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color);
+    RectangleView(EventPublisher* publisher, float left, float top, float width, float height);
+    RectangleView(EventPublisher* publisher, float left, float top, float width, float height, const sf::Color& color);
+    RectangleView(EventPublisher* publisher, const sf::Vector2f& size, const sf::Vector2f& position);
+    RectangleView(EventPublisher* publisher, const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color);
 
     sf::Vector2f getSize();
     void setSize(const sf::Vector2f& size);

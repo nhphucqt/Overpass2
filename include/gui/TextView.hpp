@@ -5,8 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <EventListener.hpp>
 
-class TextView: public ViewGroup,
-                public EventListener {
+class TextView: public ViewGroup {
 public:
     typedef std::unique_ptr<TextView> Ptr;
 
@@ -14,10 +13,10 @@ private:
     sf::Text text;
 
 public:
-    TextView(const std::string& text, const sf::Font& font);
-    TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position);
-    TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize);
-    TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize, const sf::Color& color);
+    TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font);
+    TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font, const sf::Vector2f& position);
+    TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize);
+    TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize, const sf::Color& color);
 
     sf::FloatRect getGlobalBounds() const;
 

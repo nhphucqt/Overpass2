@@ -15,9 +15,9 @@ private:
     sf::Time mElapsedTime;
 
 public:
-    SpriteSheetView(const sf::Texture& texture, int columns, int rows, sf::Time frameTime);
-    SpriteSheetView(const sf::Texture& texture, int columns, int rows, sf::Time frameTime, const sf::Vector2f& position);
-    SpriteSheetView(const sf::Texture& texture, int columns, int rows, sf::Time frameTime, const sf::Vector2f& position, const sf::Vector2f& size);
+    SpriteSheetView(EventPublisher* publisher, const sf::Texture& texture, int columns, int rows, sf::Time frameTime);
+    SpriteSheetView(EventPublisher* publisher, const sf::Texture& texture, int columns, int rows, sf::Time frameTime, const sf::Vector2f& position);
+    SpriteSheetView(EventPublisher* publisher, const sf::Texture& texture, int columns, int rows, sf::Time frameTime, const sf::Vector2f& position, const sf::Vector2f& size);
 
 protected:
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;

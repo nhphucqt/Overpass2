@@ -2,16 +2,17 @@
 #include <iostream>
 #include <RectangleView.hpp>
 
-RectangleView::RectangleView(float left, float top, float width, float height)
-: RectangleView(sf::Vector2f(width, height), sf::Vector2f(left, top), sf::Color::Black) {}
+RectangleView::RectangleView(EventPublisher* publisher, float left, float top, float width, float height)
+: RectangleView(publisher, sf::Vector2f(width, height), sf::Vector2f(left, top), sf::Color::Black) {}
 
-RectangleView::RectangleView(float left, float top, float width, float height, const sf::Color& color)
-: RectangleView(sf::Vector2f(width, height), sf::Vector2f(left, top), color) {}
+RectangleView::RectangleView(EventPublisher* publisher, float left, float top, float width, float height, const sf::Color& color)
+: RectangleView(publisher, sf::Vector2f(width, height), sf::Vector2f(left, top), color) {}
 
-RectangleView::RectangleView(const sf::Vector2f& size, const sf::Vector2f& position)
-: RectangleView(size, sf::Vector2f(0, 0), sf::Color::Black) {}
+RectangleView::RectangleView(EventPublisher* publisher, const sf::Vector2f& size, const sf::Vector2f& position)
+: RectangleView(publisher, size, sf::Vector2f(0, 0), sf::Color::Black) {}
 
-RectangleView::RectangleView(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color): mRect(size) {
+RectangleView::RectangleView(EventPublisher* publisher, const sf::Vector2f& size, const sf::Vector2f& position, const sf::Color& color)
+: ViewGroup(publisher), mRect(size) {
     setPosition(position);
     setFillColor(color);
 }

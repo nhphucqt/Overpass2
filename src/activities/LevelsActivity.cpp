@@ -81,7 +81,7 @@ void LevelsActivity::onActivityResult(int requestCode, int resultCode, Intent::P
 
 void LevelsActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(this, mTextureManager.get(TextureID::mainMenuBackgroundTexture))
     );
 }
 

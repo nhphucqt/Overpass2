@@ -1,20 +1,17 @@
 #include <UserSession.hpp>
+#include <cassert>
 
-UserSession::UserSession()
-    : currentUser(nullptr), isLogin(false), repo(UserRepo::getInstance())
+const char* UserSession::loginStateFilename = "data/login.txt";
+
+UserSession &UserSession::getInstance()
 {
-    loadLoginState("data/login.txt");
+    static UserSession instance;
+    return instance;
 }
 
-UserSession::~UserSession()
-{
-    saveLoginState("data/login.txt");
-    if (currentUser) {
-        repo.updateUser(*currentUser);
-    }
-
-    if (currentUser)
-        delete currentUser;
+UserSession::UserSession()
+: isLogin(false), repo(UserRepo::getInstance()) {
+    loadLoginState(loginStateFilename);
 }
 
 bool UserSession::isLoggedin() const
@@ -22,59 +19,42 @@ bool UserSession::isLoggedin() const
     return isLogin;
 }
 
-std::string UserSession::getUsername() const
-{
-    if (!isLogin)
-        throw std::invalid_argument("User not logged in.\n");
-
-    return currentUser->getUsername();
-}
-
-std::string UserSession::getPassword() const
-{
-    if (!isLogin)
-        throw std::invalid_argument("User not logged in.\n");
-
-    return currentUser->getPassword();
-}
-
 void UserSession::loginUser(const std::string &username, const std::string &password)
 {
-    if (currentUser)
+    if (isLogin)
     {
-        std::cerr << "An account has already logged in. Please log out first\n";
-        return;
+        throw std::runtime_error("An account has already logged in. Please log out first\n");
     }
 
-    currentUser = new UserData(repo.getUserByLogin(username, password));
+    currentUser = repo.getUserByLogin(username, password);
 
-    if (currentUser->notAUser())
+    if (currentUser.notAUser())
     {
-        std::cerr << "incorrect username or password.\n";
-        delete currentUser;
-        return;
+        throw std::runtime_error("incorrect username or password.\n");
     }
 
     isLogin = true;
     std::cout << username << " logged in.\n";
+
+    saveLoginState(loginStateFilename);
 }
 
 void UserSession::logoutUser()
 {
-    if (!isLogin)
+    if (!isLoggedin())
     {
         std::cerr << "User is not logged in!\n";
         return;
     }
 
-    if (currentUser)
-    {
-        std::cout << currentUser->getUsername() << " logged out.\n";
-        delete currentUser;
-        currentUser = nullptr;
-    }
+    assert(!currentUser.notAUser());
+
+    std::cout << currentUser.getUsername() << " logged out.\n";
 
     isLogin = false;
+    currentUser = UserData();
+
+    saveLoginState(loginStateFilename);
 }
 
 void UserSession::loadLoginState(const std::string &filename)
@@ -105,12 +85,12 @@ void UserSession::loadLoginState(const std::string &filename)
 void UserSession::saveLoginState(const std::string &filename)
 {
     std::ofstream outf(filename, std::ofstream::out | std::ofstream::trunc);
-    if (!currentUser)
-    {
-        std::cout << "User logged out, no login state to save.\n";
-        return;
-    }
-    outf << currentUser->getUsername() << ' ' << currentUser->getPassword();
+    outf << currentUser.getUsername() << ' ' << currentUser.getPassword();
     std::cerr << "Login state saved.\n";
     outf.close();
+}
+
+UserData& UserSession::getCurrentUser()
+{
+    return currentUser;
 }

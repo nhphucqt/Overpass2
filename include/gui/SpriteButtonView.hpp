@@ -31,9 +31,9 @@ public:
     SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const std::string& text, unsigned int characterSize, const sf::Vector2f& position);
     SpriteButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const char* text, unsigned int characterSize, const sf::Vector2f& position);
 
-    void setOnMouseButtonPressed(EventPublisher* publisher, EventCallback onMouseButtonPressed) override;
-    void setOnMouseButtonReleased(EventPublisher* publisher, EventCallback onMouseButtonReleased) override;
-    void setOnMouseMoved(EventPublisher* publisher, EventCallback onMouseMoved) override;
+    void setOnMouseButtonPressed(EventCallback onMouseButtonPressed) override;
+    void setOnMouseButtonReleased(EventCallback onMouseButtonReleased) override;
+    void setOnMouseMoved(EventCallback onMouseMoved) override;
 };
 
 #endif

@@ -80,6 +80,7 @@ void SignupActivity::onActivityResult(int requestCode, int resultCode, Intent::P
 
 void SignupActivity::createBackground() {
     attachView(BackgroundFactory::create(
+        this,
         mTextureManager.get(TextureID::mainMenuBackgroundTexture)
     ));
 }
@@ -108,6 +109,7 @@ void SignupActivity::createDialog() {
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
     SpriteView::Ptr menu = std::make_unique<SpriteView>(
+        this,
         mTextureManager.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(106, 122) * 5.f,
@@ -127,7 +129,7 @@ void SignupActivity::createDialog() {
     pwdField->move(0, usrField->getGlobalBounds().getSize().y + 20);
     confirmPwdField->move(0, pwdField->getGlobalBounds().getSize().y + 20);
 
-    TextView::Ptr errorView = std::make_unique<TextView>("", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, pwdField->getGlobalBounds().getSize().y + 20), 36, sf::Color::Red);
+    TextView::Ptr errorView = std::make_unique<TextView>(this, "", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, pwdField->getGlobalBounds().getSize().y + 20), 36, sf::Color::Red);
     mError = errorView.get();
     errorView->move(-180, 0);
 

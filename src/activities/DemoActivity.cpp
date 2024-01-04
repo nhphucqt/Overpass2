@@ -29,8 +29,8 @@ void DemoActivity::onCreate()
     }
     std::cout << "DemoActivity #" << id << " constructor" << std::endl;
     sf::Vector2f size = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::WindowSize);
-    RectangleView::Ptr rect = std::make_unique<RectangleView>(rand() % int(size.x - 100), rand() % int(size.y - 100), 100, 100);
-    rect->setOnMouseButtonPressed(this, [&](EventListener *listener, const sf::Event &event)
+    RectangleView::Ptr rect = std::make_unique<RectangleView>(this, rand() % int(size.x - 100), rand() % int(size.y - 100), 100, 100);
+    rect->setOnMouseButtonPressed([&](EventListener *listener, const sf::Event &event)
                                   {
         std::cout << " >> Exit" << std::endl;
         Intent::Ptr result = Intent::Builder()
@@ -41,24 +41,25 @@ void DemoActivity::onCreate()
     mRect = rect.get();
     attachView(std::move(rect));
 
-    RectangleView::Ptr rect2 = std::make_unique<RectangleView>(rand() % int(size.x - 200), rand() % int(size.y - 200), 200, 200);
+    RectangleView::Ptr rect2 = std::make_unique<RectangleView>(this, rand() % int(size.x - 200), rand() % int(size.y - 200), 200, 200);
     rect2->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
-    rect2->setOnMouseButtonReleased(this, [&](EventListener *listener, const sf::Event &event)
-                                    {
+    rect2->setOnMouseButtonReleased([&](EventListener *listener, const sf::Event &event) {
         RectangleView* rect = dynamic_cast<RectangleView*>(listener);
-        rect->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255)); });
+        rect->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255)); 
+    });
     attachView(std::move(rect2));
 
     TextView::Ptr text = std::make_unique<TextView>(
+        this,
         "This the #" + std::to_string(id) + " Activity! Click to change color!",
         mFonts.get(FontID::defaultFont),
         sf::Vector2f(500, 500),
         20,
         sf::Color::Red);
-    text->setOnMouseButtonPressed(this, [&](EventListener *listener, const sf::Event &event)
-                                  {
+    text->setOnMouseButtonPressed([&](EventListener *listener, const sf::Event &event) {
         TextView* text = dynamic_cast<TextView*>(listener);
-        text->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255)); });
+        text->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255)); 
+    });
     attachView(std::move(text));
 
     sf::Texture &texture = mTextures.get(TextureID::demoButtonTexture);
@@ -78,7 +79,7 @@ void DemoActivity::onCreate()
         texts,
         20,
         sf::Vector2f(500, 600));
-    button->setOnMouseButtonReleased(this, [&](EventListener *listener, const sf::Event &event)
+    button->setOnMouseButtonReleased([&](EventListener *listener, const sf::Event &event)
                                      {
         if (event.mouseButton.button != sf::Mouse::Left) return;
         SoundPlayer::getInstance().play(SoundBufferID::buttonfx);

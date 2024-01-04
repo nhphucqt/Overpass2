@@ -9,7 +9,7 @@ EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, cons
 : EditTextView(publisher, font, text, 20, position, size) {}
 
 EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size) 
-: limit(0), mRect(size), mText(text, font, characterSize), mCursor("|", font, characterSize), __isFocused(false) {
+: ViewGroup(publisher), limit(0), mRect(size), mText(text, font, characterSize), mCursor("|", font, characterSize), __isFocused(false) {
     mString = text;
 
     setPosition(position);
@@ -26,7 +26,7 @@ EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, cons
 
     setInputType(InputType::TEXT);
 
-    setOnMouseButtonPressed(publisher, [&](EventListener* listener, const sf::Event& event) {
+    setOnMouseButtonPressed([&](EventListener* listener, const sf::Event& event) {
         if (isMouseHovering(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
             setFocused(true);
             setBackGroundColor(mFocusBackGroundColor);
@@ -37,7 +37,7 @@ EditTextView::EditTextView(EventPublisher* publisher, const sf::Font& font, cons
         }
     });
 
-    setOnTextEntered(publisher, [&](EventListener* listener, const sf::Event& event) {
+    setOnTextEntered([&](EventListener* listener, const sf::Event& event) {
         sf::Uint32 unicode = event.text.unicode;
         if (isFocused()) {
             resetBlink();

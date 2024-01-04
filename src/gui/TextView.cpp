@@ -2,16 +2,17 @@
 #include <cassert>
 #include <iostream>
 
-TextView::TextView(const std::string& text, const sf::Font& font)
-: TextView(text, font, sf::Vector2f(0, 0)) {}
+TextView::TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font)
+: TextView(publisher, text, font, sf::Vector2f(0, 0)) {}
 
-TextView::TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position)
-: TextView(text, font, position, 30) {}
+TextView::TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font, const sf::Vector2f& position)
+: TextView(publisher, text, font, position, 30) {}
 
-TextView::TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize)
-: TextView(text, font, position, characterSize, sf::Color::Black) {}
+TextView::TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize)
+: TextView(publisher, text, font, position, characterSize, sf::Color::Black) {}
 
-TextView::TextView(const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize, const sf::Color& color): text(text, font, characterSize) {
+TextView::TextView(EventPublisher* publisher, const std::string& text, const sf::Font& font, const sf::Vector2f& position, unsigned int characterSize, const sf::Color& color)
+: ViewGroup(publisher), text(text, font, characterSize) {
     setPosition(position);
     this->text.setOrigin(this->text.getGlobalBounds().getPosition());
     this->text.setPosition(sf::Vector2f(0, 0));

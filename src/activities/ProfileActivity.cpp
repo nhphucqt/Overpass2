@@ -59,10 +59,8 @@ void ProfileActivity::onActivityResult(int requestCode, int resultCode, Intent::
         if (resultCode == Activity::RESULT_OK) {
             std::string username = data->getExtra<std::string>("username");
             std::string password = data->getExtra<std::string>("password"); 
-            {
-                UserSession userSession;
-                userSession.loginUser(username, password);
-            }
+            UserSession& userSession = UserSession::getInstance();
+            userSession.loginUser(username, password);
             Intent::Ptr intent = Intent::Builder()
                 .putExtra("titleType", TitlebarFactory::TitlebarType::PROFILE)
                 .build();
@@ -86,7 +84,10 @@ void ProfileActivity::createBackButton() {
 
 void ProfileActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(
+            this,
+            mTextureManager.get(TextureID::mainMenuBackgroundTexture)
+        )
     );
 }
 
@@ -108,6 +109,7 @@ void ProfileActivity::createProfile() {
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
     SpriteView::Ptr menu = std::make_unique<SpriteView>(
+        this,
         mTextureManager.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(106, 122) * 5.f,
@@ -115,13 +117,9 @@ void ProfileActivity::createProfile() {
     );
     menu->setPosition((windowSize - menu->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
 
-    bool isLogin = false;
-    {
-        UserSession userSession;
-        isLogin = userSession.isLoggedin();
-    }
-    
-    if (isLogin) {
+    UserSession& userSession = UserSession::getInstance();
+
+    if (userSession.isLoggedin()) {
         createUserProfile(menu.get());
     } else {
         createGuessProfile(menu.get());
@@ -150,15 +148,14 @@ void ProfileActivity::createGuessProfile(SpriteView* dialog) {
 }
 
 void ProfileActivity::createUserProfile(SpriteView* dialog) {
-    std::unique_ptr<UserData> userData;
     UserRepo& userRepo = UserRepo::getInstance();
-    {
-        UserSession userSession;
-        userData = std::make_unique<UserData>(userRepo.getUserByLogin(userSession.getUsername(), userSession.getPassword()));
-    }
+    UserSession& userSession = UserSession::getInstance();
+    UserData& userData = userSession.getCurrentUser();
+
 
     TextView::Ptr usernameView = std::make_unique<TextView>(
-        userData->getUsername(),
+        this,
+        userData.getUsername(),
         mFontManager.get(FontID::defaultFont),
         sf::Vector2f(50, 50),
         64,
@@ -166,6 +163,7 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
     );
 
     RectangleView::Ptr underlineView = std::make_unique<RectangleView>(
+        this,
         sf::Vector2f(usernameView->getGlobalBounds().getSize().x + 20, 4),
         sf::Vector2f(0, usernameView->getGlobalBounds().getSize().y + 10),
         sf::Color::White
@@ -191,10 +189,8 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
         "Sign out",
         sf::Vector2f(),
         [this](EventListener* listener, const sf::Event& event) {
-            {
-                UserSession userSession;
-                userSession.logoutUser();
-            }
+            UserSession& userSession = UserSession::getInstance();
+            userSession.logoutUser();
             this->finish();
         }
     );

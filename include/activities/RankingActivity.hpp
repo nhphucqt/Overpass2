@@ -4,12 +4,22 @@
 #include <Activity.hpp>
 #include <ResourceID.hpp>
 
+#include <RectangleView.hpp>
+#include <ButtonView.hpp>
+
 class RankingActivity : public Activity {
 private:
     static const int REQUEST_TITLEBAR_BUTTONS = 126;
 
     TextureManager mTextureManager;
     FontManager mFontManager;
+
+    RectangleView* rankingView;
+    ButtonView* rankingTitle;
+    int currentGameMode;
+    int limitRanking;
+    sf::Vector2f barSize;
+    int barFontSize;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;
@@ -27,6 +37,7 @@ private:
     void createTitle();
     void createBackButton();
     void createBoard();
+    void updateRanking();
 };
 
 #endif
