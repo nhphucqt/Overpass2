@@ -15,32 +15,27 @@ MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
       m_width(m_sizes.x),
       m_max_height(m_sizes.y),
       m_level(level),
-      m_level_lanes_cnts{0}
+      m_level_lanes_cnts{0},
+      m_initial_lanes_cnt(0)
 {
     std::srand(std::time(nullptr));
-
-    initialize();
 }
 
-void MapGenerator::moveView()
+void MapGenerator::moveView(bool initializing_p)
 {
-    m_lanes_properties.push_back(generateLaneProperties(0));
-    m_lanes_properties.pop_front();
-    updateContext();
+    m_prev_lane = std::move(m_curr_lane);
+    m_curr_lane = generateLaneProperties(initializing_p);
+    updateContext(initializing_p);
 }
 
-MapGenerator::LanePropertiesList const &MapGenerator::getLanes() const
+LaneProperties const &MapGenerator::getPrevLane() const
 {
-    return m_lanes_properties;
+    return *m_prev_lane;
 }
 
-void MapGenerator::initialize()
+LaneProperties const &MapGenerator::getCurrLane() const
 {
-    for (int i = 0; i < m_max_height; ++i)
-    {
-        m_lanes_properties.push_back(generateLaneProperties(1));
-        updateContext();
-    }
+    return *m_curr_lane;
 }
 
 std::unique_ptr<LaneProperties>
@@ -55,7 +50,7 @@ MapGenerator::generateLaneProperties(bool initializing_p) const
 
 Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
 {
-    if (initializing_p && m_lanes_properties.size() < INITIAL_FIELDS_CNT)
+    if (initializing_p && m_initial_lanes_cnt < INITIAL_FIELDS_CNT)
     {
         return Lane::Type::Field;
     }
@@ -90,11 +85,8 @@ MapGenerator::createLanePropertiesWithType(Lane::Type type,
     {
     case Lane::Type::Field:
     {
-        LaneProperties const *prev_lane =
-            (m_lanes_properties.empty() ? nullptr
-                                        : m_lanes_properties.back().get());
-        return std::make_unique<FieldProperties>(m_width, real_level, prev_lane,
-                                                 initializing_p);
+        return std::make_unique<FieldProperties>(
+            m_width, real_level, m_prev_lane.get(), initializing_p);
     }
 
     case Lane::Type::Railway:
@@ -111,10 +103,11 @@ MapGenerator::createLanePropertiesWithType(Lane::Type type,
     }
 }
 
-void MapGenerator::updateContext()
+void MapGenerator::updateContext(bool initializing_p)
 {
+    m_initial_lanes_cnt += initializing_p;
     ++m_level_lanes_cnts[static_cast<unsigned int>(getRealLevel())];
-    Lane::Type back_type = m_lanes_properties.back()->getType();
+    Lane::Type back_type = m_curr_lane->getType();
     m_river_width = (back_type == Lane::Type::River ? m_river_width + 1 : 0);
     m_cons_nonfields_cnt =
         (back_type == Lane::Type::Road || back_type == Lane::Type::Railway

@@ -220,11 +220,11 @@ void GameActivity::scroll(sf::Time dt)
 
     if (scrollDistance > 0)
     {
+        scrollDistance += scrollStep;
+        mWorldView.move(0.f, scrollStep);
         mMapRenderer->moveView();
         mSceneLayers[Background]->attachView(
             std::unique_ptr<ViewGroup>(lanes->back()));
-        scrollDistance += scrollStep;
-        mWorldView.move(0.f, scrollStep);
     }
 }
 

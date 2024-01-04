@@ -16,10 +16,12 @@
 MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
                          unsigned int map_width, unsigned int map_max_height,
                          unsigned int level)
-    : m_map_generator(
-        std::make_unique<MapGenerator>(map_width, map_max_height, level)),
+    : m_textures(textures),
       m_foreground(foreground),
-      m_textures(textures)
+      m_sizes(map_width, map_max_height),
+      m_width(m_sizes.x),
+      m_max_height(m_sizes.y),
+      m_level(level)
 {
     initialize();
 }
@@ -31,9 +33,8 @@ void MapRenderer::moveView()
         return;
     }
 
-    m_map_generator->moveView();
     // popLane();
-    pushLane();
+    pushLane(0);
 }
 
 MapRenderer::LaneList const &MapRenderer::getLanes() const
@@ -43,19 +44,19 @@ MapRenderer::LaneList const &MapRenderer::getLanes() const
 
 void MapRenderer::initialize()
 {
-    auto const &lanes_properties = m_map_generator->getLanes();
-    for (auto it = lanes_properties.begin(); it != lanes_properties.end(); ++it)
+    m_map_generator =
+        std::make_unique<MapGenerator>(m_width, m_max_height, m_level);
+    for (int i = 0; i < m_max_height; ++i)
     {
-        m_lanes.push_back(convertPropertiesToLane(**it));
+        pushLane(1);
     }
 }
 
-void MapRenderer::pushLane()
+void MapRenderer::pushLane(bool initializing_p)
 {
-    m_lanes.push_back(
-        convertPropertiesToLane(*m_map_generator->getLanes().back()));
+    m_map_generator->moveView(initializing_p);
+    m_lanes.push_back(convertPropertiesToLane(m_map_generator->getCurrLane()));
 }
-
 void MapRenderer::popLane()
 {
     m_lanes.pop_front();

@@ -32,7 +32,7 @@ public:
 
 private:
     void initialize();
-    void pushLane();
+    void pushLane(bool initializing_p);
     void popLane();
 
     Lane *convertPropertiesToLane(LaneProperties const &properties) const;
@@ -49,6 +49,11 @@ private:
     ViewGroup &m_foreground;
     std::unique_ptr<MapGenerator> m_map_generator;
     LaneList m_lanes;
+
+    sf::Vector2u const m_sizes;
+    unsigned int const &m_width;
+    unsigned int const &m_max_height;
+    unsigned int const m_level;
 };
 
 #endif

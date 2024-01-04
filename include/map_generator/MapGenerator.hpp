@@ -11,13 +11,12 @@
 class MapGenerator : public sf::NonCopyable
 {
 public:
-    using LanePropertiesList = std::list<std::unique_ptr<LaneProperties>>;
-
     MapGenerator(unsigned int map_width, unsigned int map_max_height,
                  unsigned int level);
 
-    void moveView();
-    LanePropertiesList const &getLanes() const;
+    void moveView(bool initializing_p);
+    LaneProperties const &getPrevLane() const;
+    LaneProperties const &getCurrLane() const;
 
 private:
     static constexpr unsigned int MAX_RIVER_WIDTH = 5;
@@ -26,8 +25,7 @@ private:
                                                                UINT_MAX};
     static constexpr unsigned int INITIAL_FIELDS_CNT = 2;
 
-    void initialize();
-    void updateContext();
+    void updateContext(bool initializing_p);
 
     std::unique_ptr<LaneProperties>
     generateLaneProperties(bool initializing_p) const;
@@ -44,8 +42,9 @@ private:
     unsigned int const &m_max_height;
     unsigned int const m_level;
 
-    LanePropertiesList m_lanes_properties;
+    std::unique_ptr<LaneProperties const> m_prev_lane, m_curr_lane;
 
+    unsigned int m_initial_lanes_cnt;
     unsigned int m_river_width;
     unsigned int m_cons_nonfields_cnt;
     unsigned int m_level_lanes_cnts[3];
