@@ -225,6 +225,7 @@ void GameActivity::scroll(sf::Time dt)
     }
 
     mMapRenderer->moveView();
+    mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(lanes->back()));
 }
 
 void GameActivity::gameOver()
