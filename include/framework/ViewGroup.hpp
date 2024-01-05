@@ -5,6 +5,7 @@
 
 #include <Command.hpp>
 #include <CommandQueue.hpp>
+#include <EventListener.hpp>
 
 #include <memory>
 #include <vector>
@@ -12,14 +13,18 @@
 #include <utility>
 #include <cmath>
 
-class ViewGroup : public sf::Drawable, 
-                   public sf::Transformable {
+
+class ViewGroup : 
+                public sf::Drawable, 
+                public sf::Transformable,
+                public EventListener {
 public:
     typedef std::unique_ptr<ViewGroup> Ptr;
 	typedef std::pair<ViewGroup*, ViewGroup*> Pair;
 
 public:
     ViewGroup();
+    ViewGroup(EventPublisher* publisher);
     virtual ~ViewGroup() = default;
 
     ViewGroup* getParent() const;
@@ -29,6 +34,8 @@ public:
     ViewGroup::Ptr detachView(const ViewGroup &view);
     void detachAllViews();
     const std::vector<ViewGroup::Ptr>& getViews() const;
+
+    void unsubscribeAll();
 
     void update(sf::Time delta);
 	void onCommand(Command &command, sf::Time dt);

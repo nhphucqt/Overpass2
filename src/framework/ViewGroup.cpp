@@ -6,6 +6,9 @@
 ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true), parent(nullptr) {
 }
 
+ViewGroup::ViewGroup(EventPublisher* publisher): EventListener(publisher), isReverse(false), mIsUpdate(true), parent(nullptr) {
+}
+
 ViewGroup* ViewGroup::getParent() const {
     return parent;
 }
@@ -35,12 +38,20 @@ ViewGroup::Ptr ViewGroup::detachView(const ViewGroup& view) {
 void ViewGroup::detachAllViews() {
     for (auto& view : childViews) {
         view->setParent(nullptr);
+        view->unsubscribeAll();
     }
     childViews.clear();
 }
 
 const std::vector<ViewGroup::Ptr>& ViewGroup::getViews() const {
 	return childViews;
+}
+
+void ViewGroup::unsubscribeAll() {
+    unsubscribe();
+    for (auto& child : childViews) {
+        child->unsubscribeAll();
+    }
 }
 
 void ViewGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {

@@ -1,17 +1,17 @@
 #include <ButtonView.hpp>
 #include <iostream>
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text)
-: ButtonView(texture, font, text, sf::Vector2f(0, 0)) {}
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text)
+: ButtonView(publisher, texture, font, text, sf::Vector2f(0, 0)) {}
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position)
-: ButtonView(texture, font, text, position, sf::Vector2f(texture.getSize())) {}
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position)
+: ButtonView(publisher, texture, font, text, position, sf::Vector2f(texture.getSize())) {}
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size)
-: ButtonView(texture, font, text, 30, position, size) {}
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size)
+: ButtonView(publisher, texture, font, text, 30, position, size) {}
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size)
-: mSprite(texture), mRect(size), mText(text, font, characterSize) {
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size)
+: ViewGroup(publisher), mSprite(texture), mRect(size), mText(text, font, characterSize) {
     setPosition(position);
     mRect.setFillColor(sf::Color::Transparent);
     mSprite.setScale(size.x / texture.getSize().x, size.y / texture.getSize().y);
@@ -19,16 +19,16 @@ ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const s
     mText.setPosition(size/2.f);
 }
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect)
-: mSprite(texture, textureRect), mRect(sf::Vector2f(textureRect.width, textureRect.height)), mText(text, font, characterSize) {
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect)
+: ViewGroup(publisher), mSprite(texture, textureRect), mRect(sf::Vector2f(textureRect.width, textureRect.height)), mText(text, font, characterSize) {
     setPosition(position);
     mRect.setFillColor(sf::Color::Transparent);
     mText.setOrigin(mText.getGlobalBounds().getPosition() + mText.getGlobalBounds().getSize() / 2.f);
     mText.setPosition(textureRect.width/2, textureRect.height/2);
 }
 
-ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect, const sf::Vector2f& size)
-: mSprite(texture, textureRect), mRect(size), mText(text, font, characterSize) {
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect, const sf::Vector2f& size)
+: ViewGroup(publisher), mSprite(texture, textureRect), mRect(size), mText(text, font, characterSize) {
     setPosition(position);
     mRect.setFillColor(sf::Color::Transparent);
     // mRect.setFillColor(sf::Color::Red);
@@ -37,13 +37,14 @@ ButtonView::ButtonView(const sf::Texture& texture, const sf::Font& font, const s
     mText.setPosition(size/2.f);
 }
 
-ButtonView::ButtonView(const sf::Font& font, const std::string& text, const sf::Vector2f& size, const sf::Color& fillColor)
-: ButtonView(font, text, 30, sf::Vector2f(0, 0), size, fillColor) {}
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& size, const sf::Color& fillColor)
+: ButtonView(publisher, font, text, 30, sf::Vector2f(0, 0), size, fillColor) {}
 
-ButtonView::ButtonView(const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor)
-: ButtonView(font, text, 30, position, size, fillColor) {}
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor)
+: ButtonView(publisher, font, text, 30, position, size, fillColor) {}
 
-ButtonView::ButtonView(const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor): mSprite(), mRect(size), mText(text, font, characterSize) {
+ButtonView::ButtonView(EventPublisher* publisher, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor)
+: ViewGroup(publisher), mSprite(), mRect(size), mText(text, font, characterSize) {
     setPosition(position);
     mRect.setFillColor(fillColor);
     mText.setOrigin(mText.getGlobalBounds().getPosition() + mText.getGlobalBounds().getSize() / 2.f);

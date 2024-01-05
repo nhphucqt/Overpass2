@@ -9,11 +9,11 @@ public:
 private:
     sf::Sprite mSprite;
 public:
-    SpriteView(const sf::Texture& texture);
-    SpriteView(const sf::Texture& texture, const sf::Vector2f& position);
-    SpriteView(const sf::Texture& texture, const sf::Vector2f& position, const sf::Vector2f& size);
-    SpriteView(const sf::Texture& texture, const sf::Vector2f& position, const sf::IntRect& rect);
-    SpriteView(const sf::Texture& texture, const sf::Vector2f& position, const sf::Vector2f& size, const sf::IntRect& rect);
+    SpriteView(EventPublisher* publisher, const sf::Texture& texture);
+    SpriteView(EventPublisher* publisher, const sf::Texture& texture, const sf::Vector2f& position);
+    SpriteView(EventPublisher* publisher, const sf::Texture& texture, const sf::Vector2f& position, const sf::Vector2f& size);
+    SpriteView(EventPublisher* publisher, const sf::Texture& texture, const sf::Vector2f& position, const sf::IntRect& rect);
+    SpriteView(EventPublisher* publisher, const sf::Texture& texture, const sf::Vector2f& position, const sf::Vector2f& size, const sf::IntRect& rect);
     sf::Sprite& get();
 
 protected:

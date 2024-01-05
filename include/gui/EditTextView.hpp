@@ -4,7 +4,7 @@
 #include <ViewGroup.hpp>
 #include <EventListener.hpp>
 
-class EditTextView : public ViewGroup, public EventListener {
+class EditTextView : public ViewGroup {
 public:
     typedef std::unique_ptr<EditTextView> Ptr;
     enum InputType {

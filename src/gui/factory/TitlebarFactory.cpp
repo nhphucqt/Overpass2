@@ -30,12 +30,12 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
     sf::Vector2f size(sf::Vector2f(backgroundTexture.getSize()) * scale);
     sf::Vector2f position(windowSize.x - size.x - 32 * buttonScale, 0);
 
-    SpriteView::Ptr titleBar = std::make_unique<SpriteView>(backgroundTexture, position, size);
+    SpriteView::Ptr titleBar = std::make_unique<SpriteView>(context, backgroundTexture, position, size);
 
     sf::Color color = sf::Color::White;
     int fontSize = 64;
 
-    TextView::Ptr titleView = std::make_unique<TextView>(title, font, sf::Vector2f(), fontSize, color);
+    TextView::Ptr titleView = std::make_unique<TextView>(context, title, font, sf::Vector2f(), fontSize, color);
     titleView->setPosition((title_size - titleView->getGlobalBounds().getSize()) / 2.f + title_position);
 
     sf::Vector2f character_position(sf::Vector2f(128, 15) * scale);
@@ -43,7 +43,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
     sf::Time frameTime = sf::seconds(0.15f);
     int columns = 5;
     int rows = 1;
-    SpriteSheetView::Ptr characterView = std::make_unique<SpriteSheetView>(characterTexture, columns, rows, frameTime, character_position, character_size);
+    SpriteSheetView::Ptr characterView = std::make_unique<SpriteSheetView>(context, characterTexture, columns, rows, frameTime, character_position, character_size);
 
     titleBar->attachView(std::move(titleView));
     titleBar->attachView(std::move(characterView));
@@ -79,6 +79,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
         buttonSize
     );
     SpriteView::Ptr settingIcon = std::make_unique<SpriteView>(
+        context,
         iconsTexture,
         titleType == TitlebarType::SETTINGS ? iconPosition : iconPositionNormal,
         iconSize,
@@ -96,6 +97,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
         buttonSize
     );
     SpriteView::Ptr profIcon = std::make_unique<SpriteView>(
+        context,
         iconsTexture,
         titleType == TitlebarType::PROFILE ? iconPosition : iconPositionNormal,
         iconSize,
@@ -113,6 +115,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
         buttonSize
     );
     SpriteView::Ptr helpIcon = std::make_unique<SpriteView>(
+        context,
         iconsTexture,
         titleType == TitlebarType::HELP ? iconPosition : iconPositionNormal,
         iconSize,
@@ -121,7 +124,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
     SpriteView* helpIconPtr = helpIcon.get();
 
     if (titleType != TitlebarType::SETTINGS) {
-        settingButton->setOnMouseMoved(context, [settingIconPtr, iconPosition, iconPositionNormal](EventListener* listener, const sf::Event& event) {
+        settingButton->setOnMouseMoved([settingIconPtr, iconPosition, iconPositionNormal](EventListener* listener, const sf::Event& event) {
             SpriteButtonView* button = dynamic_cast<SpriteButtonView*>(listener);
             if (button->isMouseHovering(sf::Vector2f(event.mouseMove.x, event.mouseMove.y))) {
                 settingIconPtr->setPosition(iconPosition);
@@ -129,7 +132,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
                 settingIconPtr->setPosition(iconPositionNormal);
             }
         });
-        settingButton->setOnMouseButtonReleased(context, [context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
+        settingButton->setOnMouseButtonReleased([context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
             SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
             if (titleType == TitlebarType::NONE) {
                 Intent::Ptr intent = Intent::Builder()
@@ -147,7 +150,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
     }
 
     if (titleType != TitlebarType::PROFILE) {
-        profButton->setOnMouseMoved(context, [profIconPtr, iconPosition, iconPositionNormal](EventListener* listener, const sf::Event& event) {
+        profButton->setOnMouseMoved([profIconPtr, iconPosition, iconPositionNormal](EventListener* listener, const sf::Event& event) {
             SpriteButtonView* button = dynamic_cast<SpriteButtonView*>(listener);
             if (button->isMouseHovering(sf::Vector2f(event.mouseMove.x, event.mouseMove.y))) {
                 profIconPtr->setPosition(iconPosition);
@@ -155,7 +158,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
                 profIconPtr->setPosition(iconPositionNormal);
             }
         });
-        profButton->setOnMouseButtonReleased(context, [context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
+        profButton->setOnMouseButtonReleased([context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
             SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
             if (titleType == TitlebarType::NONE) {
                 Intent::Ptr intent = Intent::Builder()
@@ -173,7 +176,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
     }
     
     if (titleType != TitlebarType::HELP) {
-        helpButton->setOnMouseMoved(context, [helpIconPtr, iconPosition, iconPositionNormal](EventListener* listener, const sf::Event& event) {
+        helpButton->setOnMouseMoved([helpIconPtr, iconPosition, iconPositionNormal](EventListener* listener, const sf::Event& event) {
             SpriteButtonView* button = dynamic_cast<SpriteButtonView*>(listener);
             if (button->isMouseHovering(sf::Vector2f(event.mouseMove.x, event.mouseMove.y))) {
                 helpIconPtr->setPosition(iconPosition);
@@ -181,7 +184,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
                 helpIconPtr->setPosition(iconPositionNormal);
             }
         });
-        helpButton->setOnMouseButtonReleased(context, [context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
+        helpButton->setOnMouseButtonReleased([context, titleType, requestCode](EventListener* listener, const sf::Event& event) {
             SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
             if (titleType == TitlebarType::NONE) {
                 Intent::Ptr intent = Intent::Builder()

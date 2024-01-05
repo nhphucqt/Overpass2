@@ -83,6 +83,7 @@ void LoginActivity::onActivityResult(int requestCode, int resultCode, Intent::Pt
 
 void LoginActivity::createBackground() {
     attachView(BackgroundFactory::create(
+        this,
         mTextureManager.get(TextureID::mainMenuBackgroundTexture)
     ));
 }
@@ -111,6 +112,7 @@ void LoginActivity::createDialog() {
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
     SpriteView::Ptr menu = std::make_unique<SpriteView>(
+        this,
         mTextureManager.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(106, 122) * 5.f,
@@ -127,7 +129,7 @@ void LoginActivity::createDialog() {
     usrField->move(92, -100);
     pwdField->move(0, usrField->getGlobalBounds().getSize().y + 20);
 
-    TextView::Ptr errorView = std::make_unique<TextView>("", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, pwdField->getGlobalBounds().getSize().y + 20), 36, sf::Color::Red);
+    TextView::Ptr errorView = std::make_unique<TextView>(this, "", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, pwdField->getGlobalBounds().getSize().y + 20), 36, sf::Color::Red);
     mError = errorView.get();
     errorView->move(-180, 0);
 
@@ -137,8 +139,8 @@ void LoginActivity::createDialog() {
     submitButton->setPosition((menu->get().getGlobalBounds().getSize() - submitButton->getGlobalBounds().getSize()) / 2.f);
     submitButton->move(0, 180);
 
-    TextView::Ptr registerView = std::make_unique<TextView>("Create new account", mFontManager.get(FontID::defaultFont), sf::Vector2f(), 24, sf::Color::White);
-    registerView->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    TextView::Ptr registerView = std::make_unique<TextView>(this, "Create new account", mFontManager.get(FontID::defaultFont), sf::Vector2f(), 24, sf::Color::White);
+    registerView->setOnMouseButtonReleased([&](EventListener* listener, const sf::Event& event) {
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode(REQUEST_SIGN_UP)
             .build();
@@ -157,9 +159,10 @@ void LoginActivity::createDialog() {
 
 void LoginActivity::checkLogin(const std::string& username, const std::string& password) {
     if (!username.empty() && !password.empty() && UserRepo::getInstance().checkUser(username, password)) {
-        Intent::Ptr data = std::make_unique<Intent>();
-        data->putExtra("username", username);
-        data->putExtra("password", password);
+        Intent::Ptr data = Intent::Builder()
+            .putExtra("username", username)
+            .putExtra("password", password)
+            .build();
         setResult((int)ResultCode::RESULT_OK, std::move(data));
         finish();
     } else {

@@ -1,27 +1,54 @@
 #include <EventListener.hpp>
 
-void EventListener::setOnMouseButtonPressed(EventPublisher* publisher, EventCallback onMouseButtonPressed) {
+EventListener::EventListener() : publisher(nullptr) {
+}
+
+EventListener::EventListener(EventPublisher* publisher) : publisher(publisher) {
+}
+
+void EventListener::setOnMouseButtonPressed(EventCallback onMouseButtonPressed) {
+    ensurePublisher();
     this->onMouseButtonPressed = onMouseButtonPressed;
     publisher->unsubscribe(sf::Event::MouseButtonPressed, this);
     publisher->subscribe(sf::Event::MouseButtonPressed, this);
 }
 
-void EventListener::setOnMouseButtonReleased(EventPublisher* publisher, EventCallback onMouseButtonReleased) {
+void EventListener::setOnMouseButtonReleased(EventCallback onMouseButtonReleased) {
+    ensurePublisher();
     this->onMouseButtonReleased = onMouseButtonReleased;
     publisher->unsubscribe(sf::Event::MouseButtonReleased, this);
     publisher->subscribe(sf::Event::MouseButtonReleased, this);
 }
 
-void EventListener::setOnMouseMoved(EventPublisher* publisher, EventCallback onMouseMoved) {
+void EventListener::setOnMouseMoved(EventCallback onMouseMoved) {
+    ensurePublisher();
     this->onMouseMoved = onMouseMoved;
     publisher->unsubscribe(sf::Event::MouseMoved, this);
     publisher->subscribe(sf::Event::MouseMoved, this);
 }
 
-void EventListener::setOnTextEntered(EventPublisher* publisher, EventCallback onTextEntered) {
+void EventListener::setOnTextEntered(EventCallback onTextEntered) {
+    ensurePublisher();
     this->onTextEntered = onTextEntered;
     publisher->unsubscribe(sf::Event::TextEntered, this);
     publisher->subscribe(sf::Event::TextEntered, this);
+}
+
+void EventListener::unsubscribe() {
+    if (publisher == nullptr)
+        return; 
+    if (onMouseButtonPressed)
+        publisher->unsubscribe(sf::Event::MouseButtonPressed, this);
+    if (onMouseButtonReleased)
+        publisher->unsubscribe(sf::Event::MouseButtonReleased, this);
+    if (onMouseMoved)
+        publisher->unsubscribe(sf::Event::MouseMoved, this);
+    if (onTextEntered)
+        publisher->unsubscribe(sf::Event::TextEntered, this);
+}
+
+EventPublisher* EventListener::getPublisher() const {
+    return publisher;
 }
 
 void EventListener::eventDispatch(const sf::Event& event) {
@@ -63,4 +90,13 @@ bool EventListener::isOnMouseMoved(const sf::Event& event) const {
 
 bool EventListener::isOnTextEntered(const sf::Event& event) const {
     return true;
+}
+
+void EventListener::setPublisher(EventPublisher* publisher) {
+    this->publisher = publisher;
+}
+
+void EventListener::ensurePublisher() {
+    if (publisher == nullptr)
+        throw std::runtime_error("Publisher is not set");
 }

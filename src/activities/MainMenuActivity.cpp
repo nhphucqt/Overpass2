@@ -92,6 +92,7 @@ void MainMenuActivity::onActivityResult(int requestCode, int resultCode, Intent:
 
 void MainMenuActivity::createBackground() {
     attachView(BackgroundFactory::create(
+        this,
         mTextureManager.get(TextureID::mainMenuBackgroundTexture)
     ));
 } 

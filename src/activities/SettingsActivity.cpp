@@ -62,7 +62,7 @@ void SettingsActivity::onActivityResult(int requestCode, int resultCode, Intent:
 
 void SettingsActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(this, mTextureManager.get(TextureID::mainMenuBackgroundTexture))
     );
 }
 
@@ -94,6 +94,7 @@ void SettingsActivity::createMenu() {
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
     SpriteView::Ptr menu = std::make_unique<SpriteView>(
+        this,
         mTextureManager.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(106, 122) * 4.f,
@@ -129,7 +130,7 @@ void SettingsActivity::createMenu() {
     musicToggle->setState(musicPlayer.getVolume() != 0);
     soundToggle->setState(soundPlayer.getVolume() != 0);
 
-    musicToggle->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    musicToggle->setOnMouseButtonReleased([&](EventListener* listener, const sf::Event& event) {
         ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
         if (button->getState()) {
             musicPlayer.setVolume(100);
@@ -139,7 +140,7 @@ void SettingsActivity::createMenu() {
         GameSetting::getInstance().saveSettingState();
     });
 
-    soundToggle->setOnMouseButtonReleased(this, [&](EventListener* listener, const sf::Event& event) {
+    soundToggle->setOnMouseButtonReleased([&](EventListener* listener, const sf::Event& event) {
         ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
         if (button->getState()) {
             soundPlayer.setVolume(100);

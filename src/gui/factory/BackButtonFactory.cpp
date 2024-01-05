@@ -20,13 +20,13 @@ SpriteButtonView::Ptr BackButtonFactory::create(Activity* context, const sf::Tex
 
     SpriteButtonView::Ptr backButton = std::make_unique<SpriteButtonView>(context, texture, font, buttonRects, "", 32, position, size);
 
-    TextView::Ptr textView = std::make_unique<TextView>("<", font, sf::Vector2f(), fontSize, sf::Color::White);
+    TextView::Ptr textView = std::make_unique<TextView>(context, "<", font, sf::Vector2f(), fontSize, sf::Color::White);
     sf::Vector2f textPosition((size - textView->getGlobalBounds().getSize()) / 2.f);
     sf::Vector2f textPositionNormal(textPosition - sf::Vector2f(0, 4));
     textView->setPosition(textPositionNormal);
     TextView* textViewPtr = textView.get();
 
-    backButton->setOnMouseMoved(context, [textViewPtr, textPosition, textPositionNormal](EventListener* listener, const sf::Event& event) {
+    backButton->setOnMouseMoved([textViewPtr, textPosition, textPositionNormal](EventListener* listener, const sf::Event& event) {
         SpriteButtonView* button = static_cast<SpriteButtonView*>(listener);
         if (button->getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
             textViewPtr->setPosition(textPosition);
@@ -35,7 +35,7 @@ SpriteButtonView::Ptr BackButtonFactory::create(Activity* context, const sf::Tex
         }
     });
 
-    backButton->setOnMouseButtonReleased(context, [context](EventListener* listener, const sf::Event& event) {
+    backButton->setOnMouseButtonReleased([context](EventListener* listener, const sf::Event& event) {
         SoundPlayer::getInstance().play(SoundBufferID::buttonClick);
         context->finish();
     });

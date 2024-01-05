@@ -14,6 +14,7 @@ enum class TextureID
     toggleButtonsTexture,
     settingMenuTexture,
     iconsTexture,
+    rankingTitleTexture,
 
     // lanes
     Road,

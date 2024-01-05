@@ -13,7 +13,7 @@ EditTextView::Ptr InputFieldFactory::create(Activity* context, const sf::Font& f
     inputField->setTextColor(sf::Color::White);
     inputField->setLimit(10);
 
-    TextView::Ptr labelView = std::make_unique<TextView>(label, font, sf::Vector2f(0, 0), 42, sf::Color::Black);
+    TextView::Ptr labelView = std::make_unique<TextView>(context, label, font, sf::Vector2f(0, 0), 42, sf::Color::Black);
     labelView->setFillColor(sf::Color::White);
     labelView->setPosition((size - labelView->getGlobalBounds().getSize()) / 2.f - sf::Vector2f(size.x + labelView->getGlobalBounds().getSize().x, 0) / 2.f);
     labelView->move(-20, 0);

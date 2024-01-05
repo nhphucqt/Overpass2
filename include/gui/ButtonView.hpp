@@ -4,8 +4,7 @@
 #include <ViewGroup.hpp>
 #include <EventListener.hpp>
 
-class ButtonView: public ViewGroup, 
-                    public EventListener {
+class ButtonView: public ViewGroup {
 public:
     typedef std::unique_ptr<ButtonView> Ptr;
 
@@ -15,16 +14,16 @@ private:
     sf::Text mText;
 
 public:
-    ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text);
-    ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position);
-    ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size);
-    ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size);
-    ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect);
-    ButtonView(const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect, const sf::Vector2f& size);
+    ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text);
+    ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position);
+    ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size);
+    ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size);
+    ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect);
+    ButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::IntRect& textureRect, const sf::Vector2f& size);
 
-    ButtonView(const sf::Font& font, const std::string& text, const sf::Vector2f& size, const sf::Color& fillColor);
-    ButtonView(const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor);
-    ButtonView(const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor);
+    ButtonView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& size, const sf::Color& fillColor);
+    ButtonView(EventPublisher* publisher, const sf::Font& font, const std::string& text, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor);
+    ButtonView(EventPublisher* publisher, const sf::Font& font, const std::string& text, unsigned int characterSize, const sf::Vector2f& position, const sf::Vector2f& size, const sf::Color& fillColor);
 
     void setTexture(const sf::Texture& texture, bool resetRect = false);
     void setTextureRect(const sf::IntRect& rect);

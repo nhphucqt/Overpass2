@@ -15,27 +15,37 @@ public:
     typedef std::function<void(EventListener* listener, const sf::Event& event)> EventCallback;
 
 private:
+    EventPublisher* publisher;
     EventCallback onMouseButtonPressed;
     EventCallback onMouseButtonReleased;
     EventCallback onMouseMoved;
     EventCallback onTextEntered;
     
 public:
+    EventListener();
+    EventListener(EventPublisher* publisher);
     virtual ~EventListener() = default;
 
-    virtual void setOnMouseButtonPressed(EventPublisher* publisher, EventCallback onMouseButtonPressed);
-    virtual void setOnMouseButtonReleased(EventPublisher* publisher, EventCallback onMouseButtonReleased);
-    virtual void setOnMouseMoved(EventPublisher* publisher, EventCallback onMouseMoved);
-    virtual void setOnTextEntered(EventPublisher* publisher, EventCallback onKeyPressed);
+    virtual void setOnMouseButtonPressed(EventCallback onMouseButtonPressed);
+    virtual void setOnMouseButtonReleased(EventCallback onMouseButtonReleased);
+    virtual void setOnMouseMoved(EventCallback onMouseMoved);
+    virtual void setOnTextEntered(EventCallback onKeyPressed);
+
+    void unsubscribe();
+
+    EventPublisher* getPublisher() const;
 
 private:
     void eventDispatch(const sf::Event& event);
+    void ensurePublisher();
 
 protected:
     virtual bool isOnMouseButtonPressed(const sf::Event& event) const;
     virtual bool isOnMouseButtonReleased(const sf::Event& event) const;
     virtual bool isOnMouseMoved(const sf::Event& event) const;
     virtual bool isOnTextEntered(const sf::Event& event) const;
+
+    void setPublisher(EventPublisher* publisher);
 };
 
 #endif

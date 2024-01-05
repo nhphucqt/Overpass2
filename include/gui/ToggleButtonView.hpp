@@ -30,7 +30,7 @@ public:
     ToggleButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const std::string& text, unsigned int characterSize, const sf::Vector2f& position);
     ToggleButtonView(EventPublisher* publisher, const sf::Texture& texture, const sf::Font& font, const sf::IntRect* textureRects, const char* text, unsigned int characterSize, const sf::Vector2f& position);
 
-    void setOnMouseButtonReleased(EventPublisher* publisher, EventCallback onMouseButtonReleased) override;
+    void setOnMouseButtonReleased(EventCallback onMouseButtonReleased) override;
 
     void setState(bool isOn);
     void toggleState();
