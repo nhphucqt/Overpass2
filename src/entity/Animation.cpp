@@ -92,6 +92,11 @@ void Animation::update(sf::Time dt) {
 	mSprite.setTextureRect(textureRect);
 }
 
+void Animation::reverseSprite() {
+	mSprite.setScale(-1.f, 1.f);
+	mSprite.setOrigin(mFrameSize.x, 0.f);
+}
+
 void Animation::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 	states.transform *= getTransform();
 	target.draw(mSprite, states);

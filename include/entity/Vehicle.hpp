@@ -11,6 +11,8 @@
 class Vehicle : public Entity
 {
 public:
+    typedef std::unique_ptr<Vehicle> Ptr;
+
     enum Type
     {
         Car,

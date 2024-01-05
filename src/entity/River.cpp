@@ -25,16 +25,13 @@ void River::setLogVelocity(float v)
 
 void River::updateCurrent(sf::Time dt)
 {
-    while (!logs.empty() && isLogOutOfView(logs.front())) {
+    while (!logs.empty() && isOutofView(logs.front(), laneLength)) {
         popLog();
     }
-
     timer.update(dt);
-
-    if (!timer.isTiming() && !logs.empty() && isLogIntoView(logs.back())) {
+    if (!timer.isTiming() && !logs.empty() && isIntoView(logs.back(), laneLength)) {
         timer.restart();
     }
-
     if (timer.isTimeout()) {
         timer.stop();
         createLog();
@@ -86,18 +83,6 @@ void River::popLog()
     removeLogZones(lastLog);
     detachView(*lastLog);
     // std::cerr << "remove log" << std::endl;
-}
-
-bool River::isLogOutOfView(Log *log)
-{
-    return (isReverse && log->getPosition().x + log->getSize().x < 0)
-        || (!isReverse && log->getPosition().x > laneLength);
-}
-
-bool River::isLogIntoView(Log *log)
-{
-    return (!isReverse && log->getPosition().x > 0)
-        || (isReverse && log->getPosition().x + log->getSize().x < laneLength);
 }
 
 void River::pushLogZones(Log *log)

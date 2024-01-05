@@ -36,8 +36,6 @@ private:
 
     void createLog();
     void popLog();
-    bool isLogOutOfView(Log *log);
-    bool isLogIntoView(Log *log);
 
     void pushLogZones(Log *log);
     void removeLogZones(Log *log);

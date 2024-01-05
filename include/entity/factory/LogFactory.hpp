@@ -14,11 +14,11 @@ private:
     static const int LOG_LEN[NUM_LEN];
     bool isReverse;
     float velocity;
-    int riverLength;
+    float riverLength;
     int __nextLen;
 
 public:
-    LogFactory(TextureManager* textures, bool isReverse, float velocity, int riverLength);
+    LogFactory(TextureManager* textures, bool isReverse, float velocity, float riverLength);
     Log::Ptr createLog();
     int getNextLen();
 

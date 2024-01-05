@@ -24,6 +24,8 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Police, "res/textures/Vehicle/Police.png");
     // traffic light
     mTextures.load(TextureID::TrafficLight, "res/textures/TrafficLight.png");
+    mTextures.load(TextureID::RailwayLightOff, "res/textures/RailwayLightOff.png");
+    mTextures.load(TextureID::RailwayLightOn, "res/textures/RailwayLightOn.png");
     // animals
     mTextures.load(TextureID::Bear, "res/textures/Animal/Bear.png");
     mTextures.load(TextureID::Boar, "res/textures/Animal/Boar.png");

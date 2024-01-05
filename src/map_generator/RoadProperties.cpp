@@ -3,9 +3,14 @@
 
 RoadProperties::RoadProperties(unsigned int map_width, unsigned int level)
     : LaneProperties(map_width, level),
-      m_vehicles_cnt(LEVEL_VEHICLES_CNTS[static_cast<unsigned int>(level)]),
-      m_animals_cnt(LEVEL_ANIMALS_CNTS[static_cast<unsigned int>(level)]),
-      m_velocity(LEVEL_VELOCITIES[static_cast<unsigned int>(level)])
+      mVehicleVelocity(MyRandom::random_float(
+        LEVEL_VELOCITIES[static_cast<unsigned int>(level)][0],
+        LEVEL_VELOCITIES[static_cast<unsigned int>(level)][1])
+      ),
+      mAnimalVelocity(MyRandom::random_float(
+        LEVEL_VELOCITIES[static_cast<unsigned int>(level)][0],
+        LEVEL_VELOCITIES[static_cast<unsigned int>(level)][1])
+      )
 {
 }
 
@@ -19,39 +24,31 @@ bool RoadProperties::isReverse() const
     return m_reverse_p;
 }
 
-unsigned int RoadProperties::getVehiclesCnt() const
+bool RoadProperties::getHasVehicle() const
 {
-    return m_vehicles_cnt;
-    // return m_has_animal_p ? 0 : m_vehicles_cnt;
+    return hasVehicle;
 }
 
-unsigned int RoadProperties::getAnimalsCnt() const
+bool RoadProperties::getHasAnimal() const
 {
-    return m_animals_cnt;
-    // return m_has_animal_p ? m_animals_cnt : 0;
+    return hasAnimal;
 }
 
-Animal::Type RoadProperties::getAnimalType() const
+float RoadProperties::getVehicleVelocity() const
 {
-    return m_animal_type;
+    return mVehicleVelocity;
 }
 
-Vehicle::Type RoadProperties::getVehicleType() const
+float RoadProperties::getAnimalVelocity() const
 {
-    return m_vehicle_type;
-}
-
-float RoadProperties::getVelocity() const
-{
-    return m_velocity;
+    return mAnimalVelocity;
 }
 
 void RoadProperties::generate()
 {
     m_reverse_p = MyRandom::random_range(0, 1);
-    m_has_animal_p = MyRandom::random_range(0, 1);
-    m_animal_type = static_cast<Animal::Type>(MyRandom::random_range(
-        0, static_cast<unsigned int>(Animal::Type::Count) - 1));
-    m_vehicle_type = static_cast<Vehicle::Type>(MyRandom::random_range(
-        0, static_cast<unsigned int>(Vehicle::Type::Count) - 1));
+    // hasVehicle = MyRandom::random_range(0, 1);
+    // hasAnimal = MyRandom::random_range(0, 1);
+    hasVehicle = true;
+    hasAnimal = true;
 }

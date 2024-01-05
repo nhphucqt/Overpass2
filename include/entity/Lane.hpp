@@ -41,6 +41,10 @@ private:
     virtual void updateCurrent(sf::Time dt) = 0;
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual void buildLane() = 0;
+
+protected:
+    virtual bool isOutofView(Entity* entity, float laneLength) const;
+    virtual bool isIntoView(Entity* entity, float laneLength) const;
 };
 
 #endif

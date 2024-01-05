@@ -54,6 +54,7 @@ animation(textures.get(toTextureID(mType)))
     }
     animation.setDuration(sf::seconds(1));
     animation.scale(5, 5);
+    animation.setRepeating(true);
 
     sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);
@@ -74,9 +75,12 @@ void Animal::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) cons
 void Animal::updateCurrent(sf::Time dt) {
     Entity::updateCurrent(dt);
     animation.update(dt);
-    animation.setRepeating(true);
 }
 
 unsigned int Animal::getCategory() const {
     return Category::Animal;
+}
+
+void Animal::reverseSprite() {
+    animation.reverseSprite();
 }

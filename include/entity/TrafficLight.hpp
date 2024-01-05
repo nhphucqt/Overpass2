@@ -8,9 +8,9 @@
 #include <SFML/Graphics/RenderStates.hpp>
 
 namespace Duration {
-    const sf::Time Red = sf::seconds(1);
+    const sf::Time Red = sf::seconds(3);
     const sf::Time Yellow = sf::seconds(1);
-    const sf::Time Green = sf::seconds(1);
+    const sf::Time Green = sf::seconds(3);
 };
 
 class TrafficLight: public Entity {
@@ -19,6 +19,10 @@ public:
     TrafficLight(const TextureManager& textures);
     Color getCurrentColor();
     void setDuration(int red = 1, int yellow = 1, int green = 1);
+
+    bool isRed();
+    bool isYellow();
+    bool isGreen();
 
 private:
     sf::IntRect rect;

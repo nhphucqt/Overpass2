@@ -11,8 +11,12 @@
 class Train : public Entity
 {
 public:
+    typedef std::unique_ptr<Train> Ptr;
+
     Train(const TextureManager &textures);
     unsigned int getCategory() const;
+
+    void reverseSprite() override;
 
 private:
 };

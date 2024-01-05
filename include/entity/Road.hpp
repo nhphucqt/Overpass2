@@ -11,15 +11,22 @@
 #include <TrafficLight.hpp>
 #include <Vehicle.hpp>
 
+#include <MyTimer.hpp>
+#include <AnimalFactory.hpp>
+#include <VehicleFactory.hpp>
+
 class Road : public Lane
 {
 public:
-    Road(TextureManager *textures, bool isReverse, unsigned int vehicles_cnt,
-         unsigned int animals_cnt, Vehicle::Type vehicle_type,
-         Animal::Type animal_type, float velocity);
+    static const float VEHICLE_SLOW_VELOCITY;
+    static const float TRAFFIC_LIGHT_POSITION;
+    static const float ANIMAL_TIMER_LOW;
+    static const float ANIMAL_TIMER_HIG;
+    static const float VEHICLE_TIMER_LOW;
+    static const float VEHICLE_TIMER_HIG;
 
-    void setNumOfVehicle(int n);
-    void setNumOfAnimal(int n);
+    Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle);
+
     void setVehicleVelocity(float v);
     void setVehicleSlowVelocity(float v);
     void setAnimalVelocity(float v);
@@ -27,22 +34,39 @@ public:
 
 private:
     float laneLength;
-    float padding;
-    int numOfVehicle;
-    int numOfAnimal;
     float vehicleVelocity;
     float vehicleSlowVelocity;
     float animalVelocity;
     float trafficLightPosition;
-    Animal::Type animalType;
-    Vehicle::Type vehicleType;
 
-    std::vector<Vehicle *> vehicles;
-    std::vector<Animal *> animals;
-    TrafficLight *trafficlight;
+    bool hasVehicle;
+    bool hasAnimal;
+
+    std::list<Vehicle*> vehicles;
+    std::queue<Animal*> animals;
+
+    VehicleFactory::Ptr vehicleFactory;
+    AnimalFactory::Ptr animalFactory;
+
+    MyTimer vehicleTimer;
+    MyTimer animalTimer;
+
+    TrafficLight* trafficlight;
 
     void updateCurrent(sf::Time dt);
+    void updateTraffic(sf::Time dt);
     void buildLane();
+
+    void updateVehicle(sf::Time dt);
+    void updateAnimal(sf::Time dt);
+
+    void createVehicle();
+    void popVehicle();
+    void createAnimal();
+    void popAnimal();
+
+    bool checkHasVehicle();
+    bool checkHasAnimal();
 };
 
 #endif

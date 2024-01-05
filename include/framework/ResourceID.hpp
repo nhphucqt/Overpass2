@@ -46,6 +46,8 @@ enum class TextureID
 
     // traffic light
     TrafficLight,
+    RailwayLightOff,
+    RailwayLightOn,
 
     // greens aka plants
     Tree,

@@ -8,19 +8,41 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include <TrainFactory.hpp>
+#include <MyTimer.hpp>
+
+#include <RailwayLight.hpp>
+
 class Railway: public Lane {
 public:
-    Railway(TextureManager* textures, ViewGroup* foreground, bool isReverse = false);
+    static const float TRAIN_VELOCITY;
+
+    Railway(TextureManager* textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet);
     void setTrainVelocity(float v);
 
 private:
     float laneLength;
-    float padding;
     float trainVelocity;
+
+    sf::Time trainInterval;
+    sf::Time trainDelay;
+    bool delayFlag;
+    float trainOffSet;
+
 	Train* train;
-    ViewGroup* foreground;
+    TrainFactory::Ptr trainFactory;
+    MyTimer timer;
+
+    RailwayLight* railwayLight;
+
     void updateCurrent(sf::Time dt);
     void buildLane();
+
+    void createTrain();
+    void popTrain();
+
+protected:
+    virtual bool isIntoView(Entity* entity, float laneLength) const override;
 };
 
 #endif

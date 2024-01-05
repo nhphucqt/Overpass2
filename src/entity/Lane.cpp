@@ -40,3 +40,13 @@ Zone* Lane::getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt)
 unsigned int Lane::getCategory() const {
     return Category::Lane;
 }
+
+bool Lane::isOutofView(Entity *entity, float laneLength) const {
+    return (isReverse && entity->getPosition().x + entity->getSize().x < 0)
+        || (!isReverse && entity->getPosition().x > laneLength);
+}   
+
+bool Lane::isIntoView(Entity *entity, float laneLength) const {
+    return (!isReverse && entity->getPosition().x > 0)
+        || (isReverse && entity->getPosition().x + entity->getSize().x < laneLength);
+}

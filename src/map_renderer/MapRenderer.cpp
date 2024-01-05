@@ -103,16 +103,18 @@ MapRenderer::convertPropertiesToLane(FieldProperties const &properties) const
 Railway *
 MapRenderer::convertPropertiesToLane(RailwayProperties const &properties) const
 {
-    return new Railway(&m_textures, &m_foreground, properties.isReverse());
+    return new Railway(&m_textures, properties.isReverse(), 
+                       properties.getTrainInterval(), properties.getTrainDelay(), properties.getTrainOffSet());
 }
 
 Road *
 MapRenderer::convertPropertiesToLane(RoadProperties const &properties) const
 {
     auto road = new Road(
-        &m_textures, properties.isReverse(), properties.getVehiclesCnt(),
-        properties.getAnimalsCnt(), properties.getVehicleType(),
-        properties.getAnimalType(), properties.getVelocity());
+        &m_textures, properties.isReverse(), 
+        properties.getVehicleVelocity(), properties.getAnimalVelocity(),
+        properties.getHasVehicle(), properties.getHasAnimal()
+    );
     return road;
 }
 
