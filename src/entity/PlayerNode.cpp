@@ -201,37 +201,6 @@ void PlayerNode::updateCurrent(sf::Time delta)
     {
         sprite.setTextureRect(sf::IntRect(0, 16 * state, 14, 16));
     }
-    std::cout << "player is fine2\n";
-
-    sf::Vector2f curPos = getPosition();
-    sf::Vector2f posDiff = curPos - lastPos;
-
-    if (posDiff.y <= -128)
-    {
-        move(0, 0);
-        lastPos = curPos;
-        ++curLane;
-    }
-    else if (posDiff.y >= 128)
-    {
-        move(0, 0);
-        lastPos = curPos;
-        --curLane;
-    }
-    else if (posDiff.x <= -64 || posDiff.x >= 64)
-    {
-        move(0, 0);
-        lastPos = curPos;
-    }
-    else if (posDiff.x <= -64 || posDiff.x >= 64)
-    {
-        lastPos = curPos;
-    }
-    std::cout << "player is fine3\n";
-
-    if (state == Idle)
-        adaptPosition();
-    std::cout << "player is fine4\n";
 
     Entity::updateCurrent(delta);
 }
@@ -354,11 +323,13 @@ void PlayerNode::savePlayerData(std::ofstream &outf)
 {
     if (outf.is_open())
     {
-        outf.write(reinterpret_cast<const char *>(&curLane), sizeof(curLane));
+        int currentLane = std::distance(lanes.begin(), curLane);
+        std::cout << "saved current lane: " << currentLane << std::endl;
+        outf.write(reinterpret_cast<const char *>(&currentLane), sizeof(currentLane));
         PlayerData data;
         data.state = static_cast<int>(state);
-        data.onRiver = onRiver;
         data.x = getPosition().x;
+        data.y = getPosition().y;
 
         outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
     }
@@ -372,14 +343,17 @@ void PlayerNode::loadPlayerData(std::ifstream &inf)
 {
     if (inf.is_open())
     {
+        int currentLane = std::distance(lanes.begin(), curLane);
+        std::cout << "load current lane: " << currentLane << std::endl;
+        // Lane* currentLane = *curLane;
+        // std::cout << "type of lane: " << currentLane->getType() << std::endl;
         PlayerData data;
         inf.read(reinterpret_cast<char *>(&data), sizeof(data));
 
         state = static_cast<State>(data.state);
-        onRiver = data.onRiver;
-        setPosition(data.x, lanes[curLane]->getPosition().y + 24);
-
-        std::cout << "Player spawns at: " << data.x << ' ' << curLane << std::endl;
+        setPosition(data.x, data.y);
+        std::cout << "player is fine\n";
+        // std::cout << "Player spawns at: " << data.x << ' ' << curLane << std::endl;
     }
     else
     {

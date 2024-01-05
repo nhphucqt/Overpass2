@@ -17,7 +17,7 @@ namespace DEFAULT
 
 Road::Road(TextureManager *textures, bool isReverse, unsigned int vehicles_cnt,
            unsigned int animals_cnt, Vehicle::Type vehicle_type,
-           Animal::Type animal_type, float velocity)
+           Animal::Type animal_type, float velocity, bool isLoad)
     : Lane(textures->get(TextureID::Road), textures, isReverse),
       laneLength(DEFAULT::LANELENGTH),
       padding(DEFAULT::PADDING),
@@ -168,13 +168,16 @@ void Road::saveLaneData(std::ofstream &outf)
     if (outf.is_open())
     {
         int castedType = static_cast<int>(type);
+        int castedVehicleType = static_cast<int>(vehicleType);
+        int castedAnimalType = static_cast<int>(animalType);
+
         outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
-
-        int vehicleDataSize = vehicles.size();
-        int animalDataSize = animals.size();
-        outf.write(reinterpret_cast<const char *>(&vehicleDataSize), sizeof(vehicleDataSize));
-        outf.write(reinterpret_cast<const char *>(&animalDataSize), sizeof(animalDataSize));
+        outf.write(reinterpret_cast<const char*>(&numOfVehicle), sizeof(numOfVehicle));
+        outf.write(reinterpret_cast<const char*>(&numOfAnimal), sizeof(numOfAnimal));
+        outf.write(reinterpret_cast<const char*>(&castedVehicleType), sizeof(castedVehicleType));
+        outf.write(reinterpret_cast<const char*>(&castedAnimalType), sizeof(castedAnimalType));
+        outf.write(reinterpret_cast<const char*>(&vehicleVelocity), sizeof(vehicleVelocity));
 
         for (auto &vehicle : vehicles)
         {
@@ -202,15 +205,15 @@ void Road::loadLaneData(std::ifstream &inf)
         // inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
         // inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
 
-        int vehicleDataSize;
-        int animalDataSize;
-        inf.read(reinterpret_cast<char *>(&vehicleDataSize), sizeof(vehicleDataSize));
-        inf.read(reinterpret_cast<char *>(&animalDataSize), sizeof(animalDataSize));
+        // int vehicleDataSize;
+        // int animalDataSize;
+        // inf.read(reinterpret_cast<char *>(&vehicleDataSize), sizeof(vehicleDataSize));
+        // inf.read(reinterpret_cast<char *>(&animalDataSize), sizeof(animalDataSize));
 
-        std::cout << "vehicle size: " << vehicleDataSize << std::endl;
-        std::cout << "animal size: " << animalDataSize << std::endl;
+        // std::cout << "vehicle size: " << vehicleDataSize << std::endl;
+        // std::cout << "animal size: " << animalDataSize << std::endl;
 
-        for (int i = 0; i < vehicleDataSize; ++i)
+        for (int i = 0; i < numOfVehicle; ++i)
         {
             Vehicle::VehicleData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
@@ -219,7 +222,7 @@ void Road::loadLaneData(std::ifstream &inf)
             vehicles.push_back(vehiclePtr.get());
             this->attachView(std::move(vehiclePtr));
         }
-        for (int i = 0; i < animalDataSize; ++i)
+        for (int i = 0; i < numOfAnimal; ++i)
         {
             Animal::AnimalData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
@@ -235,6 +238,8 @@ void Road::loadLaneData(std::ifstream &inf)
         light->scale(reverseScale, 1);
         trafficlight = light.get();
         this->attachView(std::move(light));
+
+        std::cout << "road is fine\n";
     }
     else
     {

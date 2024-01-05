@@ -29,11 +29,9 @@ private:
 
 private:
     UserSession();
-    UserData *currentUser;
+    UserData currentUser;
     UserRepo &repo;
     bool isLogin;
-
-    UserSession();
 
     static const char *loginStateFilename;
 };

@@ -14,7 +14,7 @@
 class Railway : public Lane
 {
 public:
-    Railway(TextureManager *textures, ViewGroup *foreground, bool isReverse = false, bool isLoad = false, bool isLoad = false);
+    Railway(TextureManager *textures, ViewGroup *foreground, bool isReverse = false, bool isLoad = false);
     void setTrainVelocity(float v);
 
 private:

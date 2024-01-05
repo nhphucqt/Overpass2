@@ -15,9 +15,9 @@ TextureID toTextureID(Green::Type type) {
 	return TextureID::Tree;
 }
 
-Green::Green(Type mType, const TextureManager &textures):
-type(mType),
-Entity(textures.get(toTextureID(mType)))
+Green::Green(Type mType, const TextureManager &textures)
+    : type(mType)
+    , Entity(textures.get(toTextureID(mType)))
 {
     sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);
@@ -69,5 +69,6 @@ Green::GreenData Green::serialize() const {
 
 void Green::deserialize(Green::GreenData& data) {
     type = static_cast<Green::Type>(data.type);
+    setOrigin(getLocalBounds().getSize() / 2.f);
     setPosition(data.x, data.y);
 }

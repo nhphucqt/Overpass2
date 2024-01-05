@@ -16,7 +16,7 @@
 class River : public Lane
 {
 public:
-    River(TextureManager *textures, bool isReverse, float velocity, bool isLoad);
+    River(TextureManager *textures, bool isReverse, float velocity, bool isLoad = false);
     void setNumOfLog(int n);
     void setLogVelocity(float v);
 

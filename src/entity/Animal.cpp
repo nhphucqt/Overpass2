@@ -24,9 +24,9 @@ TextureID toTextureID(Animal::Type type) {
 	return TextureID::Fox;
 }
 
-Animal::Animal(Type mType, const TextureManager& textures): 
-type(mType),
-animation(textures.get(toTextureID(mType)))
+Animal::Animal(Type mType, const TextureManager& textures)
+    :  type(mType)
+    , animation(textures.get(toTextureID(mType)))
 {
     if (type == Bear) {
         animation.setFrameSize(sf::Vector2i(26, 12));

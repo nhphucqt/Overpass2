@@ -8,7 +8,11 @@ namespace DEFAULT
 };
 
 Railway::Railway(TextureManager *textures, ViewGroup *foreview, bool isReverse, bool isLoad)
-    : Lane(textures->get(TextureID::Rail), textures, isReverse), foreground(foreview), laneLength(DEFAULT::LANELENGTH), padding(DEFAULT::PADDING), trainVelocity(DEFAULT::TRAINVELOCITY)
+    : Lane(textures->get(TextureID::Rail), textures, isReverse)
+    , foreground(foreview)
+    , laneLength(DEFAULT::LANELENGTH)
+    , padding(DEFAULT::PADDING)
+    , trainVelocity(DEFAULT::TRAINVELOCITY)
 {
     type = Lane::Type::Railway;
     textures->get(TextureID::Rail).setRepeated(true);
@@ -82,6 +86,8 @@ void Railway::loadLaneData(std::ifstream &inf)
         train = mTrain.get();
         mTrain->deserialize(data);
         this->attachView(std::move(mTrain));
+        std::cout << "railway is fine\n";
+
     }
     else
     {

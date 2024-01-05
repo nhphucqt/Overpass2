@@ -9,7 +9,7 @@ namespace DEFAULT
     const float LOGVELOCITY = 200.f;
 }; // namespace DEFAULT
 
-River::River(TextureManager *textures, bool isReverse, float velocity)
+River::River(TextureManager *textures, bool isReverse, float velocity, bool isLoad)
     : Lane(textures->get(TextureID::River), textures, isReverse),
       laneLength(DEFAULT::LANELENGTH),
       padding(DEFAULT::PADDING),
@@ -66,9 +66,6 @@ void River::updateCurrent(sf::Time dt)
     Log *lastLog = logs.back();
     Log *firstLog = logs.front();
     int distance = laneLength / logs.size();
-    Log *lastLog = logs.back();
-    Log *firstLog = logs.front();
-    int distance = laneLength / logs.size();
     if ((isReverse && lastLog->getPosition().x < -padding) || (!isReverse && lastLog->getPosition().x > laneLength + padding))
     {
         logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale,
@@ -76,7 +73,6 @@ void River::updateCurrent(sf::Time dt)
     }
     // make the last car becomes the first car in the next iteration
     // logs.erase(logs.end());
-    std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
     std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
 }
 
@@ -122,14 +118,14 @@ void River::removeLogZones(Log *log)
     }
 }
 
-void River::saveLaneData(const std::string &filename)
+void River::saveLaneData(std::ofstream& outf)
 {
-    std::ofstream outf(filename, std::ios::binary);
     if (outf.is_open())
     {
         int castedType = static_cast<int>(type);
         outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
+        outf.write(reinterpret_cast<const char *>(&logVelocity), sizeof(logVelocity));
 
         int dataSize = logs.size();
         outf.write(reinterpret_cast<const char *>(&dataSize), sizeof(dataSize));
@@ -168,6 +164,8 @@ void River::loadLaneData(std::ifstream &inf)
             logs.push_back(logPtr.get());
             this->attachView(std::move(logPtr));
         }
+
+        std::cout << "River is fine\n";
     }
     else
     {

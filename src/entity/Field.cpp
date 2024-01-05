@@ -4,7 +4,8 @@
 #include <Field.hpp>
 #include <RectangleView.hpp>
 
-Field::Field(TextureManager *textures, bool isReverse, bool isLoad, bool isLoad) : Lane(textures->get(TextureID::Field), textures, isReverse)
+Field::Field(TextureManager *textures, bool isReverse, bool isLoad) 
+    : Lane(textures->get(TextureID::Field), textures, isReverse)
 {
     type = Lane::Type::Field;
     textures->get(TextureID::Field).setRepeated(true);
@@ -105,6 +106,7 @@ void Field::loadLaneData(std::ifstream &inf)
             greens.push_back(greenPtr.get());
             this->attachView(std::move(greenPtr));
         }
+        std::cout << "field is fine.\n";
     }
     else
     {

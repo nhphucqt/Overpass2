@@ -14,8 +14,9 @@ TextureID toTextureID(Log::Type type)
 	return TextureID::Wood;
 }
 
-Log::Log(Type mType, const TextureManager &textures) : type(mType),
-													   Entity(textures.get(toTextureID(mType)))
+Log::Log(Type mType, const TextureManager &textures) 
+	: type(mType) 
+	, Entity(textures.get(toTextureID(mType)))
 {
 	sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
 	sf::Vector2f size(cellSize.x * 2, cellSize.y);
@@ -48,40 +49,6 @@ unsigned int Log::getCategory() const
 SeqZone *Log::getSeqZone()
 {
 	return seqZone;
-}
-
-Log::LogData Log::serialize() const
-{
-	LogData data;
-	data.type = static_cast<int>(type);
-	data.x = getPosition().x;
-	data.y = getPosition().y;
-	return data;
-}
-
-void Log::deserialize(Log::LogData &data)
-{
-	type = static_cast<Type>(data.type);
-	setPosition(data.x, data.y);
-}
-
-Log::LogData Log::serialize() const {
-	LogData data;
-	data.type = static_cast<int>(type);
-	data.posX = getPosition().x;
-	data.posY = getPosition().y;
-	data.vx = getVelocity().x;
-	data.vy = getVelocity().y;
-	data.scaleX = getScale().x;
-	data.scaleY = getScale().y;
-	return data;
-}
-
-void Log::deserialize(Log::LogData& data) {
-	type = static_cast<Type>(data.type);
-	setPosition(data.posX, data.posY);
-	setVelocity(data.vx, data.vy);
-	setScale(data.scaleX, data.scaleY);
 }
 
 Log::LogData Log::serialize() const {

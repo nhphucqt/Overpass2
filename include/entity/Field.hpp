@@ -18,7 +18,7 @@
 class Field : public Lane
 {
 public:
-    Field(TextureManager *textures, bool isReverse = false, bool isLoad = false, bool isLoad = false);
+    Field(TextureManager *textures, bool isReverse = false, bool isLoad = false);
     void add(std::unique_ptr<Green> green, unsigned int index);
 
 private:

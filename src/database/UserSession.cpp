@@ -18,11 +18,7 @@ UserSession::UserSession()
 UserSession::~UserSession()
 {
     saveLoginState("data/login.txt");
-    if (currentUser)
-    {
-        repo.updateUser(*currentUser);
-        delete currentUser;
-    }
+    repo.updateUser(currentUser);
 }
 
 bool UserSession::isLoggedin() const

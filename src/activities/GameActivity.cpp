@@ -9,6 +9,8 @@
 #include <Road.hpp>
 #include <TextView.hpp>
 #include <iterator>
+#include <UserSession.hpp>
+#include <UtilitySave.hpp>
 
 void GameActivity::onLoadResources()
 {
@@ -84,11 +86,15 @@ void GameActivity::onAttach()
     }
     mSceneLayers[Background]->setReverse(true);
 
-    if (getIntent()->getAction() == ACTION_NEW_GAME) {
+    if (getIntent()->getAction() == ACTION_NEW_GAME)
+    {
         attachLanes();
         attachPlayer();
-    } else {
+    }
+    else
+    {
         // load game
+        loadGameState("data/" + UserSession::getInstance().getCurrentUser().getUsername());
     }
 }
 
@@ -121,8 +127,9 @@ void GameActivity::onEventProcessing()
 void GameActivity::updateCurrent(sf::Time dt)
 {
     // Scroll the world
+    // std::cout << "scroll is fine1\n";
     scroll(dt);
-
+    // std::cout << "scroll is fine2\n";
     // Forward commands to scene graph, adapt velocity (scrolling, diagonal
     // correction)
     while (!mCommandQueue.isEmpty())
@@ -130,9 +137,17 @@ void GameActivity::updateCurrent(sf::Time dt)
         Command command = mCommandQueue.pop();
         onCommand(command, dt);
     }
+    // std::cout << "command is fine\n";
 
     handleCollisions();
+    // std::cout << "collision is fine\n";
     // Apply movements
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
+        std::cout << "Save data.\n";
+        saveGameState("data/" + UserSession::getInstance().getCurrentUser().getUsername());
+    }
 }
 
 void GameActivity::drawCurrent(sf::RenderTarget &target,
@@ -185,9 +200,7 @@ void GameActivity::handleCollisions()
     bool onRiver = false;
     for (ViewGroup::Pair pair : collisionPairs)
     {
-        if (matchesCategories(pair, Category::Player, Category::Vehicle)
-            || matchesCategories(pair, Category::Player, Category::Animal)
-            || matchesCategories(pair, Category::Player, Category::Train))
+        if (matchesCategories(pair, Category::Player, Category::Vehicle) || matchesCategories(pair, Category::Player, Category::Animal) || matchesCategories(pair, Category::Player, Category::Train))
         {
             mPlayerNode->setDead();
         }
@@ -207,8 +220,7 @@ void GameActivity::scroll(sf::Time dt)
 {
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
-    int currentLaneIndex =
-        std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
+    int currentLaneIndex = std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
     if (currentLaneIndex > playerLaneIndex)
     {
         scrollDistance += 128.f;
@@ -236,13 +248,13 @@ void GameActivity::gameOver()
 {
     std::unique_ptr<Entity> banner(
         new Entity(mTextures.get(TextureID::GameOver)));
-    sf::FloatRect viewBounds(mWorldView.getCenter()
-                                 - mWorldView.getSize() / 2.f,
+    sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f,
                              mWorldView.getSize());
     banner->setPosition(viewBounds.getPosition().x,
                         viewBounds.getPosition().y + 300);
     mSceneLayers[Aboveground]->attachView(std::move(banner));
     setUpdate(false);
+    DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
 }
 
 CommandQueue &GameActivity::getCommandQueue()
@@ -266,9 +278,7 @@ void GameActivity::attachLanes()
         Lane &lane = **it;
         float const CELL_HEIGHT =
             AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-        lane.setPosition(mWorldBounds.left, mWorldBounds.top
-                                                + mWorldBounds.height
-                                                - CELL_HEIGHT * lane_index);
+        lane.setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * lane_index);
         mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
         ++lane_index;
     }
@@ -284,8 +294,106 @@ void GameActivity::attachPlayer()
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
     (*std::next(lanes->begin(), 1))->spawnPlayer(std::move(player));
+    Lane *spawnLane = *std::next(lanes->begin(), 1);
+    std::cout << "spawn lane type: " << spawnLane->getType() << std::endl;
     // mSceneLayers[Aboveground]->attachView(std::move(player));
     // createTitle();
 
     mWorldView.setCenter(mSpawnPosition);
+}
+
+void GameActivity::saveGameState(const std::string &filepath)
+{
+    DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
+    std::error_code err;
+    if (!CreateDirectoryRecursive(filepath, err))
+    {
+        std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
+    }
+    std::ofstream outf(filepath + "/save.data", std::ios::binary);
+    int laneSize = lanes->size();
+    outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
+    if (lanes->size() > 0)
+    {
+        for (auto it = lanes->begin(); it != lanes->end(); ++it)
+        {
+            Lane *lane = *it;
+            lane->saveLaneData(outf);
+        }
+    }
+    if (mPlayerNode)
+    {
+        mPlayerNode->savePlayerData(outf);
+    }
+}
+
+void GameActivity::loadGameState(const std::string &filepath)
+{
+    std::ifstream inf(filepath + "/save.data", std::ios::binary);
+    if (!inf)
+    {
+        std::cerr << filepath + "/save.data not found.\n";
+        // tell player to create new game instead
+    }
+
+    int laneSize;
+    inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
+    // MapRenderer::LaneList moddedLane;
+    for (int i = 0; i < laneSize; ++i)
+    {
+        int laneType;
+        bool laneIsReverse;
+        inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
+        inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
+
+        std::unique_ptr<Lane> lane;
+        switch (static_cast<Lane::Type>(laneType))
+        {
+        case Lane::Type::Road:
+            unsigned int vehiclesCnt, animalsCnt, vehicleType, animalType;
+            float velocity;
+            inf.read(reinterpret_cast<char *>(&vehiclesCnt), sizeof(vehiclesCnt));
+            inf.read(reinterpret_cast<char *>(&animalsCnt), sizeof(animalsCnt));
+            inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
+            inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
+            inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
+
+            lane.reset(new Road(&mTextures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true));
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::River:
+            float logVelocity;
+            inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
+            lane.reset(new River(&mTextures, laneIsReverse, logVelocity, true));
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::Field:
+            lane.reset(new Field(&mTextures, laneIsReverse, true));
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::Railway:
+            lane.reset(new Railway(&mTextures, mSceneLayers[Aboveground], laneIsReverse, true));
+            lane->loadLaneData(inf);
+            break;
+        default:
+            throw std::runtime_error("LOAD ERR: Lane type not found");
+        }
+        moddedLane.push_back(lane.get());
+        float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+        // lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * i);
+        lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128 * i);
+        mSceneLayers[Background]->attachView(std::move(lane));
+    }
+    lanes = &moddedLane;
+    int playerCurrentLane;
+    inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
+    auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
+    mPlayerNode = player.get();
+    mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+
+    mPlayerNode->loadPlayerData(inf);
+    playerLaneIndex = playerCurrentLane;
+    (*std::next(lanes->begin(), playerCurrentLane))->spawnPlayer(std::move(player));
+    mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayerNode->getPosition().y);
 }

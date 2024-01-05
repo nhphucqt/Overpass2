@@ -47,6 +47,8 @@ private:
     TextureManager mTextures;
     bool stop;
     MapRenderer::LaneList const *lanes;
+    MapRenderer::LaneList moddedLane;
+
     std::unique_ptr<MapRenderer> mMapRenderer;
 
     std::array<ViewGroup *, LayerCount> mSceneLayers;
@@ -91,6 +93,9 @@ private:
 
     void attachLanes();
     void attachPlayer();
+
+    void saveGameState(const std::string &filepath);
+    void loadGameState(const std::string &filepath);
 };
 
 #endif
