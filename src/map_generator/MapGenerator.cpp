@@ -10,52 +10,53 @@
 #include <memory>
 
 MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
-                           GameActivity::GameLevel level)
-    : m_sizes(map_width, map_max_height + OUT_OF_VIEW_LANES_CNT),
+                           unsigned int level)
+    : m_sizes(map_width, map_max_height),
       m_width(m_sizes.x),
       m_max_height(m_sizes.y),
       m_level(level),
-      m_level_lanes_cnts{0}
+      m_level_lanes_cnts{0},
+      m_initial_lanes_cnt(0)
 {
     std::srand(std::time(nullptr));
-
-    initialize();
 }
 
-void MapGenerator::moveView()
+void MapGenerator::moveView(bool initializing_p)
 {
-    m_lanes.pop_back();
-    m_lanes.push_front(generateLane());
-    updateContext();
+    m_prev_lane = std::move(m_curr_lane);
+    m_curr_lane = generateLaneProperties(initializing_p);
+    updateContext(initializing_p);
 }
 
-MapGenerator::LaneList const &MapGenerator::getLanes() const
+LaneProperties const &MapGenerator::getPrevLane() const
 {
-    return m_lanes;
+    return *m_prev_lane;
 }
 
-void MapGenerator::initialize()
+LaneProperties const &MapGenerator::getCurrLane() const
 {
-    for (int i = 0; i < m_max_height; ++i)
+    return *m_curr_lane;
+}
+
+std::unique_ptr<LaneProperties>
+MapGenerator::generateLaneProperties(bool initializing_p) const
+{
+    Lane::Type type = generateLaneType(initializing_p);
+    std::unique_ptr<LaneProperties> lane_properties =
+        MapGenerator::createLanePropertiesWithType(type, initializing_p);
+    lane_properties->create();
+    return lane_properties;
+}
+
+Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
+{
+    if (initializing_p && m_initial_lanes_cnt < INITIAL_FIELDS_CNT)
     {
-        m_lanes.push_front(generateLane());
+        return Lane::Type::Field;
     }
-}
 
-std::unique_ptr<LaneProperties> MapGenerator::generateLane() const
-{
-    Lane::Type type = generateLaneType();
-    std::unique_ptr<LaneProperties> lane =
-        MapGenerator::createLaneWithType(type);
-
-    lane->createLane();
-    return lane;
-}
-
-Lane::Type MapGenerator::generateLaneType() const
-{
     if (m_cons_nonfields_cnt
-        == LEVEL_MAX_CONS_NONFIELDS_CNTS[static_cast<int>(m_level)])
+        == LEVEL_MAX_CONS_NONFIELDS_CNTS[static_cast<unsigned int>(m_level)])
     {
         return static_cast<Lane::Type>(LaneUtils::random_range(0, 1) + 1);
     }
@@ -64,7 +65,7 @@ Lane::Type MapGenerator::generateLaneType() const
     {
         int lane_type = LaneUtils::random_range(
             0, static_cast<unsigned int>(Lane::Type::Count) - 1);
-        if (lane_type == static_cast<int>(Lane::Type::River))
+        if (lane_type == static_cast<unsigned int>(Lane::Type::River))
         {
             ++lane_type;
         }
@@ -76,17 +77,16 @@ Lane::Type MapGenerator::generateLaneType() const
 }
 
 std::unique_ptr<LaneProperties>
-MapGenerator::createLaneWithType(Lane::Type type) const
+MapGenerator::createLanePropertiesWithType(Lane::Type type,
+                                           bool initializing_p) const
 {
-    GameActivity::GameLevel real_level = get_real_level();
+    unsigned int real_level = getRealLevel();
     switch (type)
     {
     case Lane::Type::Field:
     {
-        LaneProperties const *prev_lane =
-            (m_lanes.empty() ? 0 : m_lanes.back().get());
-        return std::make_unique<FieldProperties>(m_width, real_level,
-                                                 prev_lane);
+        return std::make_unique<FieldProperties>(
+            m_width, real_level, m_prev_lane.get(), initializing_p);
     }
 
     case Lane::Type::Railway:
@@ -103,10 +103,11 @@ MapGenerator::createLaneWithType(Lane::Type type) const
     }
 }
 
-void MapGenerator::updateContext()
+void MapGenerator::updateContext(bool initializing_p)
 {
-    ++m_level_lanes_cnts[static_cast<unsigned int>(get_real_level())];
-    Lane::Type back_type = m_lanes.back()->getType();
+    m_initial_lanes_cnt += initializing_p;
+    ++m_level_lanes_cnts[static_cast<unsigned int>(getRealLevel())];
+    Lane::Type back_type = m_curr_lane->getType();
     m_river_width = (back_type == Lane::Type::River ? m_river_width + 1 : 0);
     m_cons_nonfields_cnt =
         (back_type == Lane::Type::Road || back_type == Lane::Type::Railway
@@ -114,10 +115,12 @@ void MapGenerator::updateContext()
              : 0);
 }
 
-GameActivity::GameLevel MapGenerator::get_real_level() const
+unsigned int MapGenerator::getRealLevel() const
 {
-    GameActivity::GameLevel real_level = m_level;
-    if (m_level == GameActivity::GameLevel::Endless)
+    GameActivity::GameLevel real_level =
+        static_cast<GameActivity::GameLevel>(m_level);
+    if (static_cast<GameActivity::GameLevel>(m_level)
+        == GameActivity::GameLevel::Endless)
     {
         real_level = (m_level_lanes_cnts[0] < ENDLESS_LEVEL_LANES_CNT[0]
                           ? GameActivity::GameLevel::Easy
@@ -125,5 +128,5 @@ GameActivity::GameLevel MapGenerator::get_real_level() const
                                  ? GameActivity::GameLevel::Medium
                                  : GameActivity::GameLevel::Hard));
     }
-    return real_level;
+    return static_cast<unsigned int>(real_level);
 }

@@ -13,23 +13,21 @@ public:
     // {pos, type}
     using Greens = std::vector<std::pair<unsigned int, Green::Type>>;
 
-    FieldProperties(unsigned int map_width, GameActivity::GameLevel level,
-                    LaneProperties const *prev_lane = nullptr);
+    FieldProperties(unsigned int map_width, unsigned int level,
+                    LaneProperties const *prev_lane, bool initializing_p);
 
     virtual Lane::Type getType() const override;
     Greens const &getGreens() const;
 
 protected:
     virtual void generate() override;
-    virtual void setExternalStatic() const override;
 
 private:
-    std::vector<unsigned int> find_prev_lane_fields();
-
-    using LaneProperties::m_level;
-    using LaneProperties::m_width;
+    unsigned int generateFieldSlot() const;
+    std::vector<unsigned int> findPrevLaneFields() const;
 
     LaneProperties const *m_prev_lane;
+    bool const m_initialing_p;
     Greens m_greens;
 };
 

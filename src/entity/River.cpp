@@ -1,33 +1,37 @@
-#include <River.hpp>
 #include <AppConfig.hpp>
+#include <River.hpp>
 
-namespace DEFAULT {
-    const float LANELENGTH = 1400.f;
-    const float PADDING = 100.f;
-    const int NUMOFLOG = 3;
-    const float LOGVELOCITY = 200.f;
-};
-
-River::River(TextureManager *textures, bool isReverse)
-: Lane(textures->get(TextureID::River), textures, isReverse)
-, laneLength(DEFAULT::LANELENGTH)
-, padding(DEFAULT::PADDING)
-, numOfLog(DEFAULT::NUMOFLOG)
-, logVelocity(DEFAULT::LOGVELOCITY)
+namespace DEFAULT
 {
-    AppConfig& config = AppConfig::getInstance();
+const float LANELENGTH = 1400.f;
+const float PADDING = 100.f;
+const int NUMOFLOG = 3;
+const float LOGVELOCITY = 200.f;
+}; // namespace DEFAULT
+
+River::River(TextureManager *textures, bool isReverse, float velocity)
+    : Lane(textures->get(TextureID::River), textures, isReverse),
+      laneLength(DEFAULT::LANELENGTH),
+      padding(DEFAULT::PADDING),
+      numOfLog(DEFAULT::NUMOFLOG),
+      logVelocity(velocity)
+{
+    AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     int numLaneCells = config.get<int>(ConfigKey::NumLaneCells);
     detachView(*seqZone);
-    SeqZoneRiver::Ptr seqZoneRiver = std::make_unique<SeqZoneRiver>(Zone::Type::Dead, cellSize, numLaneCells);
+    SeqZoneRiver::Ptr seqZoneRiver = std::make_unique<SeqZoneRiver>(
+        Zone::Type::Dead, cellSize, numLaneCells);
     seqZone = seqZoneRiver.get();
     int numStep = 3;
     int oldSize = seqZone->getNumZone();
     float div = cellSize.x / numStep;
-    for (int i = 0; i < oldSize; ++i) {
-        for (int j = 1; j < oldSize; ++j) {
+    for (int i = 0; i < oldSize; ++i)
+    {
+        for (int j = 1; j < oldSize; ++j)
+        {
             Zone::Ptr zone = std::make_unique<Zone>(Zone::Type::Dead, cellSize);
-            zone->setPosition(sf::Vector2f(i * cellSize.x, 0)); 
+            zone->setPosition(sf::Vector2f(i * cellSize.x, 0));
             zone->move(div * j, 0.f);
             seqZone->attachZone(std::move(zone));
         }
@@ -39,37 +43,48 @@ River::River(TextureManager *textures, bool isReverse)
     buildLane();
 }
 
-void River::setNumOfLog(int n) {
+void River::setNumOfLog(int n)
+{
     numOfLog = n;
 }
 
-void River::setlogVelocity(float v) {
+void River::setLogVelocity(float v)
+{
     logVelocity = v;
 }
 
-void River::updateCurrent(sf::Time dt) {
+void River::updateCurrent(sf::Time dt)
+{
     // set up variables for reverse
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
 
     // log circling when out of view
-    Log* lastLog = logs.back();
-    Log* firstLog = logs.front();
-    int distance = laneLength/logs.size();
-    if ((isReverse && lastLog->getPosition().x < -padding) || (!isReverse && lastLog->getPosition().x > laneLength + padding))
-        logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale, lastLog->getPosition().y);
+    Log *lastLog = logs.back();
+    Log *firstLog = logs.front();
+    int distance = laneLength / logs.size();
+    if ((isReverse && lastLog->getPosition().x < -padding)
+        || (!isReverse && lastLog->getPosition().x > laneLength + padding))
+    {
+        logs[logs.size() - 1]->setPosition(firstLog->getPosition().x
+                                               - padding * reverseScale
+                                               - distance * reverseScale,
+                                           lastLog->getPosition().y);
+    }
     // make the last car becomes the first car in the next iteration
     logs.pop_back();
     logs.insert(logs.begin(), lastLog);
 }
 
-void River::buildLane() {
+void River::buildLane()
+{
     // set up variables for reverse
     int reverseScale;
     (isReverse) ? reverseScale = -1 : reverseScale = 1;
 
     // creating vehicles, vehicles should have the same type for consisteny
-    for (int i = 0; i < numOfLog; ++i) {
+    for (int i = 0; i < numOfLog; ++i)
+    {
         std::unique_ptr<Log> log(new Log(Log::Wood, *laneTextures));
         logs.push_back(log.get());
         log->setVelocity(logVelocity * reverseScale, 0.f);
@@ -79,21 +94,26 @@ void River::buildLane() {
     }
 
     // reverse log vector for updateCurrent
-    if (isReverse) {
+    if (isReverse)
+    {
         std::reverse(logs.begin(), logs.end());
     }
 }
 
-void River::pushLogZones(Log* log) {
-    SeqZone* logZone = log->getSeqZone();
-    for (int i = 0; i < logZone->getNumZone(); ++i) {
+void River::pushLogZones(Log *log)
+{
+    SeqZone *logZone = log->getSeqZone();
+    for (int i = 0; i < logZone->getNumZone(); ++i)
+    {
         seqZone->pushZone(logZone->getZone(i));
     }
 }
 
-void River::removeLogZones(Log* log) {
-    SeqZone* logZone = log->getSeqZone();
-    for (int i = 0; i < logZone->getNumZone(); ++i) {
+void River::removeLogZones(Log *log)
+{
+    SeqZone *logZone = log->getSeqZone();
+    for (int i = 0; i < logZone->getNumZone(); ++i)
+    {
         seqZone->removeZone(logZone->getZone(i));
     }
 }
