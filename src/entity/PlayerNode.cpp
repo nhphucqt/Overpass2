@@ -350,52 +350,11 @@ bool PlayerNode::isDead() const
     return __isDead;
 }
 
-void PlayerNode::savePlayerData(const std::string &filename)
+void PlayerNode::savePlayerData(std::ofstream &outf)
 {
-    std::ofstream outf(filename, std::ios::out | std::ios::binary);
     if (outf.is_open())
     {
-        PlayerData data;
-        data.state = static_cast<int>(state);
-        data.curLane = curLane;
-        data.onRiver = onRiver;
-        data.x = getPosition().x;
-
-        outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
-        outf.close();
-    }
-    else
-    {
-        std::runtime_error("PLAYERDATA ERR: " + filename + " cannot be openned.\n");
-    }
-}
-
-void PlayerNode::loadPlayerData(const std::string &filename)
-{
-    std::ifstream inf(filename, std::ios::in | std::ios::binary);
-    if (inf.is_open())
-    {
-        PlayerData data;
-        inf.read(reinterpret_cast<char *>(&data), sizeof(data));
-        inf.close();
-
-        state = static_cast<State>(data.state);
-        onRiver = data.onRiver;
-        setPosition(data.x, lanes[curLane]->getPosition().y + 24);
-
-        std::cout << "Player spawns at: " << data.x << ' ' << curLane << std::endl;
-    }
-    else
-    {
-        std::runtime_error("PLAYERDATA ERR: " + filename + " not found.\n");
-    }
-}
-
-void PlayerNode::savePlayerData(const std::string &filename)
-{
-    std::ofstream outf(filename, std::ios::out | std::ios::binary);
-    if (outf.is_open())
-    {
+        outf.write(reinterpret_cast<const char *>(&curLane), sizeof(curLane));
         PlayerData data;
         data.state = static_cast<int>(state);
         data.onRiver = onRiver;
@@ -424,6 +383,6 @@ void PlayerNode::loadPlayerData(std::ifstream &inf)
     }
     else
     {
-        std::runtime_error("PLAYERDATA ERR: " + filename + " not found.\n");
+        std::runtime_error("PLAYERDATA ERR: \"save.data\" not found.\n");
     }
 }

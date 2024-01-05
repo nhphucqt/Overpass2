@@ -46,6 +46,16 @@ public:
     GreenData serialize() const;
     void deserialize(GreenData& data);
 
+public:
+    struct GreenData {
+        int type;
+        float x;
+        float y;
+    };
+
+    GreenData serialize() const;
+    void deserialize(GreenData& data);
+
 private:
     Type type;
 };

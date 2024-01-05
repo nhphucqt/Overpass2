@@ -1,6 +1,8 @@
 #ifndef ROAD_HPP
 #define ROAD_HPP
 
+#include <fstream>
+#include <iostream>
 #include <Lane.hpp>
 #include <TrafficLight.hpp>
 #include <Animal.hpp>

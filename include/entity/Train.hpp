@@ -13,15 +13,11 @@ class Train : public Entity
 public:
     Train(const TextureManager &textures);
     unsigned int getCategory() const;
+    sf::FloatRect getBoundingRect() const;
 
 public:
-    struct TrainData {
-        float trainPosX;
-        float trainPosY;
-    };
-
-public:
-    struct TrainData {
+    struct TrainData
+    {
         float posX;
         float posY;
         float vx;
@@ -31,7 +27,7 @@ public:
     };
 
     TrainData serialize() const;
-    void deserialize(TrainData& data);
+    void deserialize(TrainData &data);
 };
 
 #endif

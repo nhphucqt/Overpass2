@@ -4,7 +4,7 @@
 #include <Field.hpp>
 #include <RectangleView.hpp>
 
-Field::Field(TextureManager *textures, bool isReverse, bool isLoad) : Lane(textures->get(TextureID::Field), textures, isReverse)
+Field::Field(TextureManager *textures, bool isReverse, bool isLoad, bool isLoad) : Lane(textures->get(TextureID::Field), textures, isReverse)
 {
     type = Lane::Type::Field;
     textures->get(TextureID::Field).setRepeated(true);
@@ -73,7 +73,6 @@ void Field::saveLaneData(std::ofstream &outf)
 
         for (const auto &green : greens)
         {
-            // data.greenData.push_back(green->serialize());
             Green::GreenData greendata = green->serialize();
             outf.write(reinterpret_cast<const char *>(&greendata), sizeof(greendata));
         }

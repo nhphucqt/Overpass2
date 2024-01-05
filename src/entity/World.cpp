@@ -3,42 +3,36 @@
 #include <UserSession.hpp>
 
 World::World(sf::RenderWindow &window, bool isLoad)
-	: mWindow(window)
-	, mWorldView(window.getDefaultView())
-	, mTextures()
-	, mSceneGraph()
-	, mSceneLayers()
-	, mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10)
-	, mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
-	, mScrollSpeed(-600.f)
-	, clock()
-	, stop(false)
-	, playerLaneIndex(3)
-	, scrollDistance(0)
-	, actualScrollDistance(0)
+	: mWindow(window), mWorldView(window.getDefaultView()), mTextures(), mSceneGraph(), mSceneLayers(), mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y * 10), mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f), mScrollSpeed(-600.f), clock(), stop(false), playerLaneIndex(3), scrollDistance(0), actualScrollDistance(0)
 {
 	loadTextures();
-	if (!isLoad) {
+	if (!isLoad)
+	{
 		buildScene();
 		mWorldView.setCenter(mSpawnPosition);
-	} else {
+	}
+	else
+	{
 		loadGameState("data/" + UserSession::getInstance().getUsername());
 		mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayer->getPosition().y);
 	}
 }
 
-void World::update(sf::Time dt) {
+void World::update(sf::Time dt)
+{
 	if (stop)
 		return;
 	// Scroll the world
 	scroll(dt);
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
-	while (!mCommandQueue.isEmpty()) {
-		if (mPlayer->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.1) {
+	while (!mCommandQueue.isEmpty())
+	{
+		if (mPlayer->getState() == PlayerNode::State::Idle && clock.getElapsedTime().asSeconds() > 0.1)
+		{
 			mSceneGraph.onCommand(mCommandQueue.pop(), dt);
 			clock.restart();
-		} 
+		}
 		else
 			mCommandQueue.pop();
 	}
@@ -48,22 +42,26 @@ void World::update(sf::Time dt) {
 	mSceneGraph.update(dt);
 	adaptPlayerPosition();
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	{
 		std::cout << "Save data.\n";
 		saveGameState("data/" + UserSession::getInstance().getUsername());
 	}
 }
 
-void World::draw() {
+void World::draw()
+{
 	mWindow.setView(mWorldView);
 	mWindow.draw(mSceneGraph);
 }
 
-CommandQueue &World::getCommandQueue() {
+CommandQueue &World::getCommandQueue()
+{
 	return mCommandQueue;
 }
 
-void World::loadTextures() {
+void World::loadTextures()
+{
 	// lanes
 	mTextures.load(TextureID::Road, "res/textures/Lane/Road.png");
 	mTextures.load(TextureID::River, "res/textures/Lane/River.png");
@@ -101,9 +99,11 @@ void World::loadTextures() {
 	mTextures.load(TextureID::GameOver, "res/textures/Lane/GameOver.png");
 }
 
-void World::buildScene() {
+void World::buildScene()
+{
 	// Initialize the different layers
-	for (std::size_t i = 0; i < LayerCount; ++i) {
+	for (std::size_t i = 0; i < LayerCount; ++i)
+	{
 		std::unique_ptr<ViewGroup> layer(new Entity());
 		mSceneLayers[i] = layer.get();
 
@@ -113,11 +113,13 @@ void World::buildScene() {
 
 	srand(time(NULL));
 	int laneTypeCount = Lane::Type::Count;
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 50; ++i)
+	{
 		int randLane = rand() % laneTypeCount;
 		bool reverse = rand() % 2;
 		std::unique_ptr<Lane> lane;
-		switch (randLane) {
+		switch (randLane)
+		{
 		case 0:
 			lane.reset(new Road(&mTextures, reverse));
 			break;
@@ -142,7 +144,8 @@ void World::buildScene() {
 	mSceneLayers[Aboveground]->attachView(std::move(player));
 }
 
-void World::adaptPlayerPosition() {
+void World::adaptPlayerPosition()
+{
 	// Keep player's position inside the screen bounds, at least borderDistance units from the border
 	sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
 
@@ -151,53 +154,63 @@ void World::adaptPlayerPosition() {
 
 	bool isChanged = false;
 
-	if (position.x <= viewBounds.left) {
+	if (position.x <= viewBounds.left)
+	{
 		position.x = position.x + 1;
 		velocity.x = 0;
 		isChanged = true;
-	} 
-	else if (position.x >= viewBounds.left + viewBounds.width - 72.f) {
+	}
+	else if (position.x >= viewBounds.left + viewBounds.width - 72.f)
+	{
 		position.x = position.x - 1;
 		velocity.x = 0;
 		isChanged = true;
 	}
 
-	if (position.y <= viewBounds.top) {
+	if (position.y <= viewBounds.top)
+	{
 		position.y = position.y + 1;
 		velocity.y = 0;
 		isChanged = true;
-	} 
-	else if (position.y >= viewBounds.top + viewBounds.height - 90.f) {
+	}
+	else if (position.y >= viewBounds.top + viewBounds.height - 90.f)
+	{
 		// position.y = position.y - 1;
 		// velocity.y = 0;
 		// isChanged = true;
 		// gameOver();
 	}
 
-	if (isChanged) {
+	if (isChanged)
+	{
 		mPlayer->move(velocity);
 		mPlayer->setPosition(position);
 	}
 }
 
-bool World::matchesCategories(ViewGroup::Pair &colliders, Category::Type type1, Category::Type type2) {
+bool World::matchesCategories(ViewGroup::Pair &colliders, Category::Type type1, Category::Type type2)
+{
 	unsigned int category1 = colliders.first->getCategory();
 	unsigned int category2 = colliders.second->getCategory();
 
 	// Make sure first pair entry has category type1 and second has type2
-	if (type1 & category1 && type2 & category2) {
+	if (type1 & category1 && type2 & category2)
+	{
 		return true;
 	}
-	else if (type1 & category2 && type2 & category1) {
+	else if (type1 & category2 && type2 & category1)
+	{
 		std::swap(colliders.first, colliders.second);
 		return true;
 	}
-	else {
+	else
+	{
 		return false;
 	}
 }
 
-void World::handleCollisions() {
+void World::handleCollisions()
+{
 	std::set<ViewGroup::Pair> collisionPairs;
 	mPlayer->checkSceneCollision(*lanes[mPlayer->getCurrentLane()], collisionPairs);
 
@@ -207,35 +220,44 @@ void World::handleCollisions() {
 		mPlayer->checkSceneCollision(*lanes.at(mPlayer->getCurrentLane() - 1), collisionPairs);
 
 	bool onRiver = false;
-	for (ViewGroup::Pair pair : collisionPairs) {
+	for (ViewGroup::Pair pair : collisionPairs)
+	{
 		if (matchesCategories(pair, Category::Player, Category::Lane))
 			onRiver = false;
-		else if (matchesCategories(pair, Category::Player, Category::Vehicle)) {
+		else if (matchesCategories(pair, Category::Player, Category::Vehicle))
+		{
 			gameOver();
 		}
-		else if (matchesCategories(pair, Category::Player, Category::Animal)) {
+		else if (matchesCategories(pair, Category::Player, Category::Animal))
+		{
 			gameOver();
 		}
-		else if (matchesCategories(pair, Category::Player, Category::Train)) {
+		else if (matchesCategories(pair, Category::Player, Category::Train))
+		{
 			gameOver();
 		}
-		else if (matchesCategories(pair, Category::Player, Category::Log)) {
+		else if (matchesCategories(pair, Category::Player, Category::Log))
+		{
 			onRiver = false;
-			if (mPlayer->getState() == PlayerNode::Idle) {
+			if (mPlayer->getState() == PlayerNode::Idle)
+			{
 				auto &log = static_cast<Log &>(*pair.second);
 				mPlayer->setVelocity(log.getVelocity());
 			}
 			break;
 		}
-		else if (matchesCategories(pair, Category::Player, Category::River)) {
+		else if (matchesCategories(pair, Category::Player, Category::River))
+		{
 			onRiver = true;
 		}
-		else if (matchesCategories(pair, Category::Player, Category::Green)) {
+		else if (matchesCategories(pair, Category::Player, Category::Green))
+		{
 			mPlayer->moveBack();
 		}
 	}
 
-	if (onRiver) {
+	if (onRiver)
+	{
 		gameOver();
 	}
 }
@@ -243,18 +265,21 @@ void World::handleCollisions() {
 void World::scroll(sf::Time dt)
 {
 	int currentLaneIndex = mPlayer->getCurrentLane();
-	if (currentLaneIndex > playerLaneIndex) {
+	if (currentLaneIndex > playerLaneIndex)
+	{
 		scrollDistance += 128.f;
 		++playerLaneIndex;
 	}
-	else if (currentLaneIndex < playerLaneIndex) {
+	else if (currentLaneIndex < playerLaneIndex)
+	{
 		scrollDistance -= 128.f;
 		--playerLaneIndex;
 	}
 
 	float scrollStep = mScrollSpeed * dt.asSeconds();
 
-	if (scrollDistance > 0) {
+	if (scrollDistance > 0)
+	{
 		scrollDistance += scrollStep;
 		mWorldView.move(0.f, scrollStep);
 	}
@@ -266,7 +291,8 @@ void World::scroll(sf::Time dt)
 	// }
 }
 
-void World::gameOver() {
+void World::gameOver()
+{
 	std::unique_ptr<Entity> banner(new Entity(mTextures.get(TextureID::GameOver)));
 	sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
 	banner->setPosition(viewBounds.getPosition().x, viewBounds.getPosition().y + 300);
@@ -275,46 +301,55 @@ void World::gameOver() {
 	DeleteDirContent("data/" + UserSession::getInstance().getUsername());
 }
 
-void World::saveGameState(const std::string &filepath) {
+void World::saveGameState(const std::string &filepath)
+{
 	DeleteDirContent("data/" + UserSession::getInstance().getUsername());
 	std::error_code err;
-	if (!CreateDirectoryRecursive(filepath, err)) {
+	if (!CreateDirectoryRecursive(filepath, err))
+	{
 		std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
 	}
 	std::ofstream outf(filepath + "/save.data", std::ios::binary);
 	int laneSize = lanes.size();
-	outf.write(reinterpret_cast<const char*>(&laneSize), sizeof(laneSize));
-	if (lanes.size() > 0) {
-		for (int i = 0; i < lanes.size(); ++i) {
+	outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
+	if (lanes.size() > 0)
+	{
+		for (int i = 0; i < lanes.size(); ++i)
+		{
 			lanes.at(i)->saveLaneData(outf);
 		}
 	}
-	if (mPlayer) {
+	if (mPlayer)
+	{
 		mPlayer->savePlayerData(outf);
 	}
 }
 
-void World::loadGameState(const std::string &filepath) {
-	for (std::size_t i = 0; i < LayerCount; ++i) {
+void World::loadGameState(const std::string &filepath)
+{
+	for (std::size_t i = 0; i < LayerCount; ++i)
+	{
 		std::unique_ptr<ViewGroup> layer(new Entity());
 		mSceneLayers[i] = layer.get();
 
 		mSceneGraph.attachView(std::move(layer));
 	}
 	mSceneLayers[Background]->setReverse(true);
-	
+
 	std::ifstream inf(filepath + "/save.data", std::ios::binary);
 	int laneSize;
-	inf.read(reinterpret_cast<char*>(&laneSize), sizeof(laneSize));
+	inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
 
-	for (int i = 0; i < laneSize; ++i) {
+	for (int i = 0; i < laneSize; ++i)
+	{
 		int laneType;
 		bool laneIsReverse;
 		inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
 		inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
 
 		std::unique_ptr<Lane> lane;
-		switch (static_cast<Lane::Type>(laneType)) {
+		switch (static_cast<Lane::Type>(laneType))
+		{
 		case Lane::Type::Road:
 			lane.reset(new Road(&mTextures, laneIsReverse, true));
 			lane->loadLaneData(inf);
@@ -341,7 +376,7 @@ void World::loadGameState(const std::string &filepath) {
 	}
 
 	int playerCurrentLane;
-	inf.read(reinterpret_cast<char*>(&playerCurrentLane), sizeof(playerCurrentLane));
+	inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
 	std::unique_ptr<PlayerNode> player(new PlayerNode(mTextures, lanes, playerCurrentLane)); // last argument must be consistent with playerLaneIndex
 	mPlayer = player.get();
 

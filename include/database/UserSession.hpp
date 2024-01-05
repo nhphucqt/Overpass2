@@ -28,6 +28,7 @@ private:
     void saveLoginState(const std::string &filename);
 
 private:
+    UserSession();
     UserData *currentUser;
     UserRepo &repo;
     bool isLogin;
