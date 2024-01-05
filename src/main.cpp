@@ -6,6 +6,10 @@
 
 int main()
 {
+  unsigned int seed = std::time(nullptr);
+  // seed = 1704450765;
+  std::cerr << "Seed: " << seed << std::endl;
+  std::srand(seed);
   AppConfig &config = AppConfig::getInstance();
   sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
   std::string windowTitle = config.get<std::string>(ConfigKey::AppName);

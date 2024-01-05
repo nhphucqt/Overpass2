@@ -25,6 +25,10 @@ bool Lane::receivePlayer(ViewGroup* player) {
     return seqZone->receivePlayer(player);
 }
 
+bool Lane::spawnPlayer(ViewGroup::Ptr player, int index) {
+    return seqZone->spawnPlayer(std::move(player), index);
+}
+
 bool Lane::spawnPlayer(ViewGroup::Ptr player) {
     return seqZone->spawnPlayer(std::move(player));
 }

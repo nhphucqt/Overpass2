@@ -1,4 +1,5 @@
 #include "RoadProperties.hpp"
+#include <MyRandom.hpp>
 
 RoadProperties::RoadProperties(unsigned int map_width, unsigned int level)
     : LaneProperties(map_width, level),
@@ -47,10 +48,10 @@ float RoadProperties::getVelocity() const
 
 void RoadProperties::generate()
 {
-    m_reverse_p = LaneUtils::random_range(0, 1);
-    m_has_animal_p = LaneUtils::random_range(0, 1);
-    m_animal_type = static_cast<Animal::Type>(LaneUtils::random_range(
+    m_reverse_p = MyRandom::random_range(0, 1);
+    m_has_animal_p = MyRandom::random_range(0, 1);
+    m_animal_type = static_cast<Animal::Type>(MyRandom::random_range(
         0, static_cast<unsigned int>(Animal::Type::Count) - 1));
-    m_vehicle_type = static_cast<Vehicle::Type>(LaneUtils::random_range(
+    m_vehicle_type = static_cast<Vehicle::Type>(MyRandom::random_range(
         0, static_cast<unsigned int>(Vehicle::Type::Count) - 1));
 }

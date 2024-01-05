@@ -6,6 +6,7 @@
 #include "RailwayProperties.hpp"
 #include "RiverProperties.hpp"
 #include "RoadProperties.hpp"
+#include <MyRandom.hpp>
 
 #include <memory>
 
@@ -18,7 +19,6 @@ MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
       m_level_lanes_cnts{0},
       m_initial_lanes_cnt(0)
 {
-    std::srand(std::time(nullptr));
 }
 
 void MapGenerator::moveView(bool initializing_p)
@@ -58,12 +58,12 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
     if (m_cons_nonfields_cnt
         == LEVEL_MAX_CONS_NONFIELDS_CNTS[static_cast<unsigned int>(m_level)])
     {
-        return static_cast<Lane::Type>(LaneUtils::random_range(0, 1) + 1);
+        return static_cast<Lane::Type>(MyRandom::random_range(2) + 1);
     }
 
     if (m_river_width == MAX_RIVER_WIDTH)
     {
-        int lane_type = LaneUtils::random_range(
+        int lane_type = MyRandom::random_range(
             0, static_cast<unsigned int>(Lane::Type::Count) - 1);
         if (lane_type == static_cast<unsigned int>(Lane::Type::River))
         {
@@ -72,7 +72,7 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
         return static_cast<Lane::Type>(lane_type);
     }
 
-    return static_cast<Lane::Type>(LaneUtils::random_range(
+    return static_cast<Lane::Type>(MyRandom::random_range(
         0, static_cast<unsigned int>(Lane::Type::Count) - 1));
 }
 

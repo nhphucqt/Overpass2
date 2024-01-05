@@ -32,7 +32,8 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Fox, "res/textures/Animal/Fox.png");
     mTextures.load(TextureID::Wolf, "res/textures/Animal/Wolf.png");
     // log
-    mTextures.load(TextureID::Wood, "res/textures/Wood.png");
+    mTextures.load(TextureID::WoodL2, "res/textures/WoodL2.png");
+    mTextures.load(TextureID::WoodL3, "res/textures/WoodL3.png");
     // greens aka plants
     mTextures.load(TextureID::Tree, "res/textures/Green/Tree.png");
     mTextures.load(TextureID::Bush, "res/textures/Green/Bush.png");

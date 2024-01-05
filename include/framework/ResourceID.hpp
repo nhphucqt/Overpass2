@@ -23,7 +23,8 @@ enum class TextureID
     Field,
 
     // logs
-    Wood,
+    WoodL2,
+    WoodL3,
     Crocodile,
 
     // vehicles

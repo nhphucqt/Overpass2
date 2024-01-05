@@ -1,6 +1,7 @@
 #include "RailwayProperties.hpp"
 
 #include "Railway.hpp"
+#include <MyRandom.hpp>
 
 #include <memory>
 
@@ -21,5 +22,5 @@ bool RailwayProperties::isReverse() const
 
 void RailwayProperties::generate()
 {
-    m_reverse_p = LaneUtils::random_range(0, 1);
+    m_reverse_p = MyRandom::random_range(0, 1);
 }

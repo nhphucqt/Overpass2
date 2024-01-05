@@ -2,6 +2,7 @@
 
 #include "Field.hpp"
 #include "LaneProperties.hpp"
+#include <MyRandom.hpp>
 
 #include <climits>
 
@@ -26,25 +27,35 @@ FieldProperties::Greens const &FieldProperties::getGreens() const
 
 void FieldProperties::generate()
 {
-    unsigned int green_cnt = LaneUtils::random_range(0, m_width - 1);
+    // unsigned int green_cnt = MyRandom::random_range(0, m_width / 2);
 
-    unsigned int field_slot = generateFieldSlot();
+    // unsigned int field_slot = generateFieldSlot();
 
-    unsigned int lbound = 0;
-    unsigned int rbound = m_width - green_cnt - (field_slot < m_width);
-    for (int i = 1; i <= green_cnt; ++i)
+    // unsigned int lbound = 0;
+    // unsigned int rbound = m_width - green_cnt - (field_slot < m_width);
+    // for (int i = 1; i <= green_cnt; ++i)
+    // {
+    //     unsigned int green_type = MyRandom::random_range(
+    //         0, static_cast<unsigned int>(Green::Type::Count) - 1);
+    //     unsigned int green_slot = MyRandom::random_range(lbound, rbound);
+    //     m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
+
+    //     lbound = green_slot + 1;
+    //     ++rbound;
+    // }
+    // for (auto &[index, green] : m_greens)
+    // {
+    //     index += (index >= field_slot);
+    // }
+
+    unsigned int green_cnt = MyRandom::random_range(0, m_width / 2);
+    std::vector<unsigned int> green_slots = MyRandom::sample(green_cnt, m_width);
+    std::sort(green_slots.begin(), green_slots.end());
+    for (auto slot : green_slots)
     {
-        unsigned int green_type = LaneUtils::random_range(
+        unsigned int green_type = MyRandom::random_range(
             0, static_cast<unsigned int>(Green::Type::Count) - 1);
-        unsigned int green_slot = LaneUtils::random_range(lbound, rbound);
-        m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
-
-        lbound = green_slot + 1;
-        ++rbound;
-    }
-    for (auto &[index, green] : m_greens)
-    {
-        index += (index >= field_slot);
+        m_greens.emplace_back(slot, static_cast<Green::Type>(green_type));
     }
 }
 
@@ -58,7 +69,7 @@ unsigned int FieldProperties::generateFieldSlot() const
     else if (m_prev_lane && m_prev_lane->getType() == Lane::Type::Field)
     {
         std::vector<unsigned int> prev_lane_fields = findPrevLaneFields();
-        field_slot = prev_lane_fields[LaneUtils::random_range(
+        field_slot = prev_lane_fields[MyRandom::random_range(
             0, prev_lane_fields.size() - 1)];
     }
     return field_slot;
