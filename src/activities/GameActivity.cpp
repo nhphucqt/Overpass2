@@ -84,8 +84,12 @@ void GameActivity::onAttach()
     }
     mSceneLayers[Background]->setReverse(true);
 
-    attachLanes();
-    attachPlayer();
+    if (getIntent()->getAction() == ACTION_NEW_GAME) {
+        attachLanes();
+        attachPlayer();
+    } else {
+        // load game
+    }
 }
 
 void GameActivity::onResume()
