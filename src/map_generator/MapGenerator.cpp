@@ -15,7 +15,7 @@ MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
       m_width(m_sizes.x),
       m_max_height(m_sizes.y),
       m_level(level),
-      m_level_lanes_cnts{0},
+      m_level_lanes_cnts{0, 0, 0},
       m_initial_lanes_cnt(0)
 {
     std::srand(std::time(nullptr));
