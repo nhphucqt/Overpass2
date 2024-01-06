@@ -24,6 +24,8 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Police, "res/textures/Vehicle/Police.png");
     // traffic light
     mTextures.load(TextureID::TrafficLight, "res/textures/TrafficLight.png");
+    mTextures.load(TextureID::RailwayLightOff, "res/textures/RailwayLightOff.png");
+    mTextures.load(TextureID::RailwayLightOn, "res/textures/RailwayLightOn.png");
     // animals
     mTextures.load(TextureID::Bear, "res/textures/Animal/Bear.png");
     mTextures.load(TextureID::Boar, "res/textures/Animal/Boar.png");
@@ -32,7 +34,8 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Fox, "res/textures/Animal/Fox.png");
     mTextures.load(TextureID::Wolf, "res/textures/Animal/Wolf.png");
     // log
-    mTextures.load(TextureID::Wood, "res/textures/Wood.png");
+    mTextures.load(TextureID::WoodL2, "res/textures/WoodL2.png");
+    mTextures.load(TextureID::WoodL3, "res/textures/WoodL3.png");
     // greens aka plants
     mTextures.load(TextureID::Tree, "res/textures/Green/Tree.png");
     mTextures.load(TextureID::Bush, "res/textures/Green/Bush.png");

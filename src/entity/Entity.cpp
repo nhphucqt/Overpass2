@@ -132,3 +132,7 @@ void Entity::drawBoundingRect(sf::RenderTarget& target, sf::RenderStates) const 
 	target.draw(shape);
 	target.draw(hitBoxShape);
 }
+
+void Entity::reverseSprite() {
+	sprite.scale(-1, 1);
+}

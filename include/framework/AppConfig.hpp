@@ -14,6 +14,7 @@ enum class ConfigKey
     FPS,
     CellSize,
     NumLaneCells,
+    LANE_LENGTH,
     ConfigCount
 };
 

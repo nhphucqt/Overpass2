@@ -28,6 +28,8 @@ public:
 
 	sf::Vector2f getAbsoluteVelocity() const;
 
+	virtual void reverseSprite();
+
 protected: 
     sf::Sprite sprite;
 	virtual void updateCurrent(sf::Time dt);

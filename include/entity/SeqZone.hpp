@@ -34,7 +34,9 @@ public:
     ViewGroup::Ptr detachPlayer(ViewGroup* player);
     bool attachPlayer(ViewGroup::Ptr player, Zone* zone);
     bool receivePlayer(ViewGroup* player);
-    bool spawnPlayer(ViewGroup::Ptr player);
+
+    virtual bool spawnPlayer(ViewGroup::Ptr player, int index);
+    virtual bool spawnPlayer(ViewGroup::Ptr player);
 };
 
 #endif

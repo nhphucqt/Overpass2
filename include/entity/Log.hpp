@@ -12,9 +12,12 @@
 
 class Log: public Entity {
 public:
+    typedef std::unique_ptr<Log> Ptr;
+
     enum Type
     {
-        Wood,
+        WoodL2,
+        WoodL3,
         Crocodile,
         Count
     };

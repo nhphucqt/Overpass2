@@ -32,6 +32,8 @@ public:
 
 	void update(sf::Time dt);
 
+	void reverseSprite();
+
 private:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 

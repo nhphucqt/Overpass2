@@ -1,10 +1,14 @@
 #include "RiverProperties.hpp"
 
 #include "LaneProperties.hpp"
+#include <MyRandom.hpp>
 
 RiverProperties::RiverProperties(unsigned int map_width, unsigned int level)
     : LaneProperties(map_width, level),
-      m_velocity(LEVEL_VELOCITIES[static_cast<unsigned int>(level)])
+      m_velocity(MyRandom::random_float(
+        LEVEL_VELOCITIES[static_cast<unsigned int>(level)][0],
+        LEVEL_VELOCITIES[static_cast<unsigned int>(level)][1])
+      )
 {
 }
 
@@ -30,7 +34,7 @@ Log::Type RiverProperties::getLogType() const
 
 void RiverProperties::generate()
 {
-    m_reverse_p = LaneUtils::random_range(0, 1);
-    m_log_type = static_cast<Log::Type>(LaneUtils::random_range(
+    m_reverse_p = MyRandom::random_range(0, 1);
+    m_log_type = static_cast<Log::Type>(MyRandom::random_range(
         0, static_cast<unsigned int>(Log::Type::Count) - 1));
 }

@@ -17,11 +17,14 @@ public:
     Field(TextureManager *textures, bool isReverse = false);
     void add(std::unique_ptr<Green> green, unsigned int index);
 
+    bool spawnPlayer(ViewGroup::Ptr player) override;
+
 private:
     static sf::Vector2f calcGreenCenter(Green const &green);
     static sf::Vector2f calcGreenPosition(Green const &green,
                                           unsigned int index);
 
+    std::vector<int> greenSlots;
     std::vector<Green *> greens;
     void updateCurrent(sf::Time dt);
     void buildLane();

@@ -3,6 +3,7 @@
 #include <AppConfig.hpp>
 #include <Field.hpp>
 #include <RectangleView.hpp>
+#include <MyRandom.hpp>
 
 Field::Field(TextureManager *textures, bool isReverse)
     : Lane(textures->get(TextureID::Field), textures, isReverse)
@@ -22,7 +23,24 @@ void Field::add(std::unique_ptr<Green> green, unsigned int index)
     green->setOrigin(Field::calcGreenCenter(*green));
     green->setPosition(Field::calcGreenPosition(*green, index));
     greens.push_back(green.get());
+    greenSlots.push_back(index);
     this->attachView(std::move(green));
+}
+
+bool Field::spawnPlayer(ViewGroup::Ptr player)
+{
+    std::vector<bool> markSlots(seqZone->getNumZone(), false);
+    for (int slot : greenSlots) {
+        markSlots[slot] = true;
+    }
+    std::vector<int> emptySlots;
+    for (int i = 0; i < markSlots.size(); i++) {
+        if (!markSlots[i]) {
+            emptySlots.push_back(i);
+        }
+    }
+    int index = MyRandom::sample(1, emptySlots)[0];
+    return seqZone->spawnPlayer(std::move(player), index);
 }
 
 void Field::updateCurrent(sf::Time dt)

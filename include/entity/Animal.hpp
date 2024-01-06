@@ -11,6 +11,8 @@
 class Animal : public Entity
 {
 public:
+    typedef std::unique_ptr<Animal> Ptr;
+
     enum Type
     {
         Bear,
@@ -25,6 +27,8 @@ public:
     Animal(Type mType, const TextureManager &textures);
     void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     unsigned int getCategory() const;
+
+    void reverseSprite() override;
 
 private:
     Type type;

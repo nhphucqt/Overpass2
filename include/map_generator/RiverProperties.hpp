@@ -19,7 +19,11 @@ protected:
     virtual void generate() override;
 
 private:
-    static constexpr float LEVEL_VELOCITIES[] = {200.f, 300.f, 400.f};
+    static constexpr float LEVEL_VELOCITIES[][2] = {
+        {150.f, 300.f}, 
+        {200.f, 400.f},
+        {300.f, 500.f}
+    };
 
     using LaneProperties::m_level;
     using LaneProperties::m_width;

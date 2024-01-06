@@ -3,49 +3,34 @@
 #include <AppConfig.hpp>
 #include <Road.hpp>
 
-namespace DEFAULT
-{
-const float LANELENGTH = 1400.f;
-const float PADDING = 100.f;
-const int NUMOFVEHICLE = 3;
-const int NUMOFANIMAL = 2;
-const float VEHICLEVELOCITY = 300.f;
-const float VEHICLESLOWVELOCITY = 100.f;
-const float ANIMALVELOCITY = 200.f;
-const float TRAFFICLIGHTPOSITION = 400.f;
-}; // namespace DEFAULT
+const float Road::VEHICLE_SLOW_VELOCITY = 100.f;
+const float Road::TRAFFIC_LIGHT_POSITION = 400.f;
+const float Road::ANIMAL_TIMER_LOW = 3.f;
+const float Road::ANIMAL_TIMER_HIG = 5.f;
+const float Road::VEHICLE_TIMER_LOW = 1.f;
+const float Road::VEHICLE_TIMER_HIG = 2.f;
 
-Road::Road(TextureManager *textures, bool isReverse, unsigned int vehicles_cnt,
-           unsigned int animals_cnt, Vehicle::Type vehicle_type,
-           Animal::Type animal_type, float velocity)
+Road::Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle)
     : Lane(textures->get(TextureID::Road), textures, isReverse),
-      laneLength(DEFAULT::LANELENGTH),
-      padding(DEFAULT::PADDING),
-      numOfVehicle(vehicles_cnt),
-      numOfAnimal(animals_cnt),
-      vehicleVelocity(velocity),
-      vehicleSlowVelocity(DEFAULT::VEHICLESLOWVELOCITY),
-      animalVelocity(velocity),
-      trafficLightPosition(DEFAULT::TRAFFICLIGHTPOSITION),
-      animalType(animal_type),
-      vehicleType(vehicle_type)
+      laneLength(AppConfig::getInstance().get<float>(ConfigKey::LANE_LENGTH)),
+      vehicleVelocity(vehicleVelo),
+      vehicleSlowVelocity(VEHICLE_SLOW_VELOCITY),
+      animalVelocity(animalVelo),
+      trafficLightPosition(TRAFFIC_LIGHT_POSITION),
+      vehicleFactory(new VehicleFactory(textures, isReverse, vehicleVelocity, laneLength)),
+      animalFactory(new AnimalFactory(textures, isReverse, animalVelocity, laneLength)),
+      vehicleTimer(VEHICLE_TIMER_LOW, VEHICLE_TIMER_HIG),
+      animalTimer(ANIMAL_TIMER_LOW, ANIMAL_TIMER_HIG),
+      hasAnimal(hasAnimal),
+      hasVehicle(hasVehicle)
 {
+    setReverse(true);
     type = Lane::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
     sf::IntRect textureRect(0, 0, laneLength, 16);
     sprite.setTextureRect(textureRect);
     buildLane();
-}
-
-void Road::setNumOfVehicle(int n)
-{
-    numOfVehicle = n;
-}
-
-void Road::setNumOfAnimal(int n)
-{
-    numOfAnimal = n;
 }
 
 void Road::setVehicleVelocity(float v)
@@ -70,109 +55,111 @@ void Road::setTrafficLightPosition(float position)
 
 void Road::updateCurrent(sf::Time dt)
 {
-    // set up variables for reverse
-    int reverseScale;
-    (isReverse) ? reverseScale = -1 : reverseScale = 1;
+    updateTraffic(dt);
+    if (checkHasVehicle() && trafficlight->isGreen()) {
+        updateVehicle(dt);
+    }
+    if (checkHasAnimal()) {
+        updateAnimal(dt);
+    }
+}
 
+void Road::updateTraffic(sf::Time dt) {
     // vehicles responding to traffic light
-    TrafficLight::Color curColor = trafficlight->getCurrentColor();
-    if (curColor == TrafficLight::Color::Red)
-    {
-        for (auto &x : vehicles)
-        {
+    float reverseScale = (isReverse) ? -1 : 1;
+    if (trafficlight->isRed()) {
+        for (auto &x : vehicles) {
             x->setVelocity(0, 0);
         }
-    }
-    else if (curColor == TrafficLight::Color::Green)
-    {
-        for (auto &x : vehicles)
-        {
+    } else if (trafficlight->isGreen()) {
+        for (auto &x : vehicles) {
             x->setVelocity(vehicleVelocity * reverseScale, 0.f);
         }
-    }
-    else
-    {
-        for (auto &x : vehicles)
-        {
+    } else {
+        for (auto &x : vehicles) {
             x->setVelocity(vehicleSlowVelocity * reverseScale, 0.f);
         }
     }
+}
 
-    // vehicle circling when out of view
-    Vehicle *lastVehicle = vehicles.back();
-    Vehicle *firstVehicle = vehicles.front();
-    int distanceVehicle = laneLength / vehicles.size();
-    if ((isReverse && lastVehicle->getPosition().x < -padding)
-        || (!isReverse && lastVehicle->getPosition().x > laneLength + padding))
-    {
-        vehicles[vehicles.size() - 1]->setPosition(
-            firstVehicle->getPosition().x - padding * reverseScale
-                - distanceVehicle * reverseScale,
-            lastVehicle->getPosition().y);
+void Road::updateVehicle(sf::Time dt) {
+    while (!vehicles.empty() && isOutofView(vehicles.front(), laneLength)) {
+        popVehicle();
     }
-    // make the last car becomes the first car in the next iteration
-    vehicles.pop_back();
-    vehicles.insert(vehicles.begin(), lastVehicle);
+    vehicleTimer.update(dt);
+    if (!vehicleTimer.isTiming() && !vehicles.empty() && isIntoView(vehicles.back(), laneLength)) {
+        vehicleTimer.restart();
+    }
+    if (vehicleTimer.isTimeout()) {
+        vehicleTimer.stop();
+        createVehicle();
+    }
+}
 
-    Animal *lastAnimal = animals.back();
-    Animal *firstAnimal = animals.front();
-    int distanceAnimal = laneLength / animals.size();
-    if ((isReverse && lastAnimal->getPosition().x < -padding)
-        || (!isReverse && lastAnimal->getPosition().x > laneLength + padding))
-    {
-        animals[animals.size() - 1]->setPosition(
-            firstAnimal->getPosition().x - padding * reverseScale
-                - distanceAnimal * reverseScale,
-            lastAnimal->getPosition().y);
+void Road::updateAnimal(sf::Time dt)
+{
+    while (!animals.empty() && isOutofView(animals.front(), laneLength)) {
+        popAnimal();
     }
-    // make the last animal becomes the first animal in the next iteration
-    // animals.erase(animals.end());
-    animals.pop_back();
-    animals.insert(animals.begin(), lastAnimal);
+    animalTimer.update(dt);
+    if (!animalTimer.isTiming() && !animals.empty() && isIntoView(animals.back(), laneLength)) {
+        animalTimer.restart();
+    }
+    if (animalTimer.isTimeout()) {
+        animalTimer.stop();
+        createAnimal();
+    }
 }
 
 void Road::buildLane()
 {
-    // set up variables for reverse
-    int reverseScale;
-    (isReverse) ? reverseScale = -1 : reverseScale = 1;
-
-    // creating vehicles, vehicles should have the same type for consisteny
-    for (int i = 0; i < numOfVehicle; ++i)
-    {
-        std::unique_ptr<Vehicle> vehicle(
-            new Vehicle(vehicleType, *laneTextures));
-        vehicles.push_back(vehicle.get());
-        // vehicle->setPosition((laneLength + padding) / numOfVehicle *
-        // i, 64.f);
-        vehicle->setVelocity(vehicleVelocity * reverseScale, 0.f);
-        vehicle->scale(reverseScale, 1);
-        this->attachView(std::move(vehicle));
-    }
-
-    // create animals, animals should have the same type for consistency
-    for (int i = 0; i < numOfAnimal; ++i)
-    {
-        std::unique_ptr<Animal> bear(new Animal(animalType, *laneTextures));
-        animals.push_back(bear.get());
-        bear->setPosition((laneLength + padding) / numOfAnimal * i, 16.f);
-        bear->setVelocity(animalVelocity * reverseScale, 0.f);
-        bear->scale(reverseScale, 1);
-        this->attachView(std::move(bear));
-    }
-
-    // reverse vehicle and animal vectors for updateCurrent
-    if (isReverse)
-    {
-        std::reverse(vehicles.begin(), vehicles.end());
-        std::reverse(animals.begin(), animals.end());
-    }
-
+    float reverseScale = (isReverse) ? -1 : 1;
     // create traffic light
     std::unique_ptr<TrafficLight> light(new TrafficLight(*laneTextures));
-    light->setPosition(
-        laneLength * isReverse + trafficLightPosition * reverseScale, 64.f);
-    light->scale(reverseScale, 1);
+    light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 0);
+    // light->scale(reverseScale, 1);
     trafficlight = light.get();
     this->attachView(std::move(light));
+
+    if (checkHasVehicle()) {
+        createVehicle();
+    }
+    if (checkHasAnimal()) {
+        createAnimal();
+    }
 }
+
+void Road::createVehicle()
+{
+    Vehicle::Ptr vehicle = vehicleFactory->createVehicle();
+    vehicles.push_back(vehicle.get());
+    attachView(std::move(vehicle));
+}
+
+void Road::popVehicle() {
+    detachView(*vehicles.front());
+    vehicles.pop_front();
+}
+
+void Road::createAnimal()
+{
+    Animal::Ptr animal = animalFactory->createAnimal();
+    animals.push(animal.get());
+    attachView(std::move(animal));
+}
+
+void Road::popAnimal() {
+    detachView(*animals.front());
+    animals.pop();
+}
+
+bool Road::checkHasVehicle()
+{
+    return hasVehicle;
+}
+
+bool Road::checkHasAnimal()
+{
+    return hasAnimal;
+}
+

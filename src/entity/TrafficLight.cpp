@@ -13,9 +13,11 @@ rect(sprite.getLocalBounds())
     setSize(cellSize);
     sf::FloatRect rect = sprite.getLocalBounds();
     sprite.setTextureRect(sf::IntRect(0, 0, rect.width / 3, rect.height));
-    sprite.scale(0.3, 0.3);
+    sprite.scale(cellSize.x / (rect.width / 3), cellSize.y / rect.height);
+    sprite.scale(0.5f, 0.5f);
 	sf::FloatRect bounds = sprite.getLocalBounds();
-	sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+	sprite.setOrigin(bounds.width / 2.f, bounds.height);
+    sprite.setPosition(cellSize.x / 2, cellSize.y);
     setHitBox(sprite.getGlobalBounds());
 }
 
@@ -44,4 +46,16 @@ void TrafficLight::updateCurrentColor(sf::Time dt) {
         current = Color::Red;
     else
         elapsed %= (red + yellow + green);
+}
+
+bool TrafficLight::isRed() {
+    return current == Color::Red;
+}
+
+bool TrafficLight::isYellow() {
+    return current == Color::Yellow;
+}
+
+bool TrafficLight::isGreen() {
+    return current == Color::Green;
 }

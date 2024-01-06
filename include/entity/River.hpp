@@ -9,22 +9,33 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SeqZoneRiver.hpp>
+#include <LogFactory.hpp>
+#include <MyTimer.hpp>
 
 class River : public Lane
 {
 public:
+    static const float LOG_TIMER_LOW;
+    static const float LOG_TIMER_HIG;
+
+
     River(TextureManager *textures, bool isReverse, float velocity);
-    void setNumOfLog(int n);
     void setLogVelocity(float v);
 
 private:
     float laneLength;
-    float padding;
-    int numOfLog;
     float logVelocity;
-    std::vector<Log *> logs;
+    
+    LogFactory::Ptr logFactory;
+    std::queue<Log*> logs;
+    MyTimer timer;
+
     void updateCurrent(sf::Time dt);
     void buildLane();
+    void buildZone();
+
+    void createLog();
+    void popLog();
 
     void pushLogZones(Log *log);
     void removeLogZones(Log *log);
