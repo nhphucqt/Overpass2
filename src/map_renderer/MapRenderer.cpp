@@ -10,12 +10,14 @@
 #include "RiverProperties.hpp"
 #include "Road.hpp"
 #include "RoadProperties.hpp"
+#include "UserSession.hpp"
+#include "UtilitySave.hpp"
 
 #include <memory>
 
 MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
                          unsigned int map_width, unsigned int map_max_height,
-                         unsigned int level)
+                         unsigned int level, bool isLoad)
     : m_textures(textures),
       m_foreground(foreground),
       m_sizes(map_width, map_max_height),
@@ -23,7 +25,10 @@ MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
       m_max_height(m_sizes.y),
       m_level(level)
 {
-    initialize();
+    if (!isLoad) 
+        initialize();
+    else
+        loadLanes("data/" + UserSession::getInstance().getCurrentUser().getUsername());
 }
 
 void MapRenderer::moveView()
@@ -57,6 +62,77 @@ void MapRenderer::pushLane(bool initializing_p)
     m_map_generator->moveView(initializing_p);
     m_lanes.push_back(convertPropertiesToLane(m_map_generator->getCurrLane()));
 }
+
+void MapRenderer::saveLanes(const std::string &filepath)
+{
+    std::error_code err;
+    if (!CreateDirectoryRecursive(filepath, err))
+    {
+        std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
+    }
+    std::ofstream outf(filepath + "/save.data", std::ios::binary);
+    int laneSize = m_lanes.size();
+    outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
+    if (m_lanes.size() > 0)
+    {
+        for (auto it = m_lanes.begin(); it != m_lanes.end(); ++it)
+        {
+            Lane *lane = *it;
+            lane->saveLaneData(outf);
+        }
+    }
+}
+
+void MapRenderer::loadLanes(const std::string& filepath)
+{
+    std::ifstream inf(filepath + "/save.data", std::ios::binary);
+
+    int laneSize;
+    inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
+    // MapRenderer::LaneList moddedLane;
+    for (int i = 0; i < laneSize; ++i)
+    {
+        int laneType;
+        bool laneIsReverse;
+        inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
+        inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
+
+        std::unique_ptr<Lane> lane;
+        switch (static_cast<Lane::Type>(laneType))
+        {
+        case Lane::Type::Road:
+            unsigned int vehiclesCnt, animalsCnt, vehicleType, animalType;
+            float velocity;
+            inf.read(reinterpret_cast<char *>(&vehiclesCnt), sizeof(vehiclesCnt));
+            inf.read(reinterpret_cast<char *>(&animalsCnt), sizeof(animalsCnt));
+            inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
+            inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
+            inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
+
+            lane.reset(new Road(&m_textures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true));
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::River:
+            float logVelocity;
+            inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
+            lane.reset(new River(&m_textures, laneIsReverse, logVelocity, true));
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::Field:
+            lane.reset(new Field(&m_textures, laneIsReverse, true));
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::Railway:
+            lane.reset(new Railway(&m_textures, &m_foreground, laneIsReverse, true));
+            lane->loadLaneData(inf);
+            break;
+        default:
+            throw std::runtime_error("LOAD ERR: Lane type not found");
+        }
+        m_lanes.push_back(lane.get());
+    }
+}
+
 void MapRenderer::popLane()
 {
     m_lanes.pop_front();

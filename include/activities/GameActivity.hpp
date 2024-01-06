@@ -96,6 +96,7 @@ private:
 
     void saveGameState(const std::string &filepath);
     void loadGameState(const std::string &filepath);
+    void loadPlayer(const std::string& filepath);
 };
 
 #endif

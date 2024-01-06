@@ -25,10 +25,12 @@ public:
 
     MapRenderer(TextureManager &textures, ViewGroup &foreground,
                 unsigned int map_width, unsigned int map_max_height,
-                unsigned int level);
+                unsigned int level, bool isLoad = false);
 
     void moveView();
     LaneList const &getLanes() const;
+    void loadLanes(const std::string& filepath);
+    void saveLanes(const std::string& filepath);
 
 private:
     void initialize();

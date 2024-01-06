@@ -127,9 +127,9 @@ void GameActivity::onEventProcessing()
 void GameActivity::updateCurrent(sf::Time dt)
 {
     // Scroll the world
-    // std::cout << "scroll is fine1\n";
+    std::cout << "scroll is fine1\n";
     scroll(dt);
-    // std::cout << "scroll is fine2\n";
+    std::cout << "scroll is fine2\n";
     // Forward commands to scene graph, adapt velocity (scrolling, diagonal
     // correction)
     while (!mCommandQueue.isEmpty())
@@ -221,10 +221,12 @@ void GameActivity::scroll(sf::Time dt)
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     int currentLaneIndex = std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
+    // std::cout << currentLaneIndex << ' ' << playerLaneIndex << std::endl;
     if (currentLaneIndex > playerLaneIndex)
     {
         scrollDistance += 128.f;
         ++playerLaneIndex;
+        std::cout << "scroll up\n";
     }
     else if (currentLaneIndex < playerLaneIndex)
     {
@@ -236,11 +238,17 @@ void GameActivity::scroll(sf::Time dt)
 
     if (scrollDistance > 0)
     {
+        std::cout << "scroll up1\n";
         scrollDistance += scrollStep;
         mWorldView.move(0.f, scrollStep);
+        std::cout << "scroll up2\n";
+        
         mMapRenderer->moveView();
+
         mSceneLayers[Background]->attachView(
             std::unique_ptr<ViewGroup>(lanes->back()));
+        std::cout << "scroll up3\n";
+        
     }
 }
 
@@ -302,98 +310,163 @@ void GameActivity::attachPlayer()
     mWorldView.setCenter(mSpawnPosition);
 }
 
-void GameActivity::saveGameState(const std::string &filepath)
+void GameActivity::saveGameState(const std::string& filepath)
 {
     DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
-    std::error_code err;
-    if (!CreateDirectoryRecursive(filepath, err))
-    {
-        std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
-    }
-    std::ofstream outf(filepath + "/save.data", std::ios::binary);
-    int laneSize = lanes->size();
-    outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
-    if (lanes->size() > 0)
-    {
-        for (auto it = lanes->begin(); it != lanes->end(); ++it)
-        {
-            Lane *lane = *it;
-            lane->saveLaneData(outf);
-        }
-    }
-    if (mPlayerNode)
-    {
-        mPlayerNode->savePlayerData(outf);
-    }
+    mMapRenderer->saveLanes(filepath);
+    std::ofstream outf(filepath + "/player.data", std::ios::binary);
+    mPlayerNode->savePlayerData(outf); 
 }
 
-void GameActivity::loadGameState(const std::string &filepath)
+void GameActivity::loadGameState(const std::string& filepath)
 {
-    std::ifstream inf(filepath + "/save.data", std::ios::binary);
-    if (!inf)
+    if (!std::filesystem::exists(filepath)) 
     {
-        std::cerr << filepath + "/save.data not found.\n";
-        // tell player to create new game instead
+        std::cerr << filepath + " not found.\n";
+        // re-direct player to new game
     }
 
-    int laneSize;
-    inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
-    // MapRenderer::LaneList moddedLane;
-    for (int i = 0; i < laneSize; ++i)
+    Intent *intent = getIntent();
+    unsigned int level = intent->getExtra<int>("level", -1);
+
+    mMapRenderer = std::make_unique<MapRenderer>(
+        mTextures, *mSceneLayers[Layer::Aboveground],
+        AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells),
+        DEFAULT_MAP_MAX_HEIGHT, level, true);
+    lanes = &mMapRenderer->getLanes();
+    std::cout << "lane size: " << lanes->size() << std::endl;
+    unsigned int lane_index = 0;
+    for (auto it = lanes->begin(); it != lanes->end(); ++it)
     {
-        int laneType;
-        bool laneIsReverse;
-        inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
-        inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
+        std::cout << "lane " << lane_index << std::endl;
+        Lane &lane = **it;
+        std::cout << "lane1 " << lane_index << std::endl;
+        float const CELL_HEIGHT =
+            AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+        lane.setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * lane_index);
+        std::cout << "lane2 " << lane_index << std::endl;
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
+        std::cout << "lane3 " << lane_index << std::endl;
 
-        std::unique_ptr<Lane> lane;
-        switch (static_cast<Lane::Type>(laneType))
-        {
-        case Lane::Type::Road:
-            unsigned int vehiclesCnt, animalsCnt, vehicleType, animalType;
-            float velocity;
-            inf.read(reinterpret_cast<char *>(&vehiclesCnt), sizeof(vehiclesCnt));
-            inf.read(reinterpret_cast<char *>(&animalsCnt), sizeof(animalsCnt));
-            inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
-            inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
-            inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
-
-            lane.reset(new Road(&mTextures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true));
-            lane->loadLaneData(inf);
-            break;
-        case Lane::Type::River:
-            float logVelocity;
-            inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
-            lane.reset(new River(&mTextures, laneIsReverse, logVelocity, true));
-            lane->loadLaneData(inf);
-            break;
-        case Lane::Type::Field:
-            lane.reset(new Field(&mTextures, laneIsReverse, true));
-            lane->loadLaneData(inf);
-            break;
-        case Lane::Type::Railway:
-            lane.reset(new Railway(&mTextures, mSceneLayers[Aboveground], laneIsReverse, true));
-            lane->loadLaneData(inf);
-            break;
-        default:
-            throw std::runtime_error("LOAD ERR: Lane type not found");
-        }
-        moddedLane.push_back(lane.get());
-        float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-        // lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * i);
-        lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128 * i);
-        mSceneLayers[Background]->attachView(std::move(lane));
+        ++lane_index;
     }
-    lanes = &moddedLane;
+
+    loadPlayer(filepath);
+}
+
+void GameActivity::loadPlayer(const std::string& filepath)
+{
+    std::ifstream inf(filepath + "/player.data", std::ios::binary);
     int playerCurrentLane;
     inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
     auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
+    std::cout << "load player1\n";
     mPlayerNode = player.get();
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
-    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
 
     mPlayerNode->loadPlayerData(inf);
+    std::cout << "load player2\n";
     playerLaneIndex = playerCurrentLane;
-    (*std::next(lanes->begin(), playerCurrentLane))->spawnPlayer(std::move(player));
-    mWorldView.setCenter(mWorldView.getSize().x / 2.f, mPlayerNode->getPosition().y);
+    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+    mSceneLayers[Aboveground]->attachView(std::move(player));
+    mWorldView.setCenter(mSpawnPosition);
+    std::cout << "load player5\n";
 }
+
+// void GameActivity::saveGameState(const std::string &filepath)
+// {
+//     DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
+//     std::error_code err;
+//     if (!CreateDirectoryRecursive(filepath, err))
+//     {
+//         std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
+//     }
+//     std::ofstream outf(filepath + "/save.data", std::ios::binary);
+//     int laneSize = lanes->size();
+//     outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
+//     if (lanes->size() > 0)
+//     {
+//         for (auto it = lanes->begin(); it != lanes->end(); ++it)
+//         {
+//             Lane *lane = *it;
+//             lane->saveLaneData(outf);
+//         }
+//     }
+//     if (mPlayerNode)
+//     {
+//         mPlayerNode->savePlayerData(outf);
+//     }
+// }
+
+// void GameActivity::loadGameState(const std::string &filepath)
+// {
+//     std::ifstream inf(filepath + "/save.data", std::ios::binary);
+//     if (!inf)
+//     {
+//         std::cerr << filepath + "/save.data not found.\n";
+//         // tell player to create new game instead
+//     }
+
+//     int laneSize;
+//     inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
+//     // MapRenderer::LaneList moddedLane;
+//     for (int i = 0; i < laneSize; ++i)
+//     {
+//         int laneType;
+//         bool laneIsReverse;
+//         inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
+//         inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
+
+//         std::unique_ptr<Lane> lane;
+//         switch (static_cast<Lane::Type>(laneType))
+//         {
+//         case Lane::Type::Road:
+//             unsigned int vehiclesCnt, animalsCnt, vehicleType, animalType;
+//             float velocity;
+//             inf.read(reinterpret_cast<char *>(&vehiclesCnt), sizeof(vehiclesCnt));
+//             inf.read(reinterpret_cast<char *>(&animalsCnt), sizeof(animalsCnt));
+//             inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
+//             inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
+//             inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
+
+//             lane.reset(new Road(&mTextures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true));
+//             lane->loadLaneData(inf);
+//             break;
+//         case Lane::Type::River:
+//             float logVelocity;
+//             inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
+//             lane.reset(new River(&mTextures, laneIsReverse, logVelocity, true));
+//             lane->loadLaneData(inf);
+//             break;
+//         case Lane::Type::Field:
+//             lane.reset(new Field(&mTextures, laneIsReverse, true));
+//             lane->loadLaneData(inf);
+//             break;
+//         case Lane::Type::Railway:
+//             lane.reset(new Railway(&mTextures, mSceneLayers[Aboveground], laneIsReverse, true));
+//             lane->loadLaneData(inf);
+//             break;
+//         default:
+//             throw std::runtime_error("LOAD ERR: Lane type not found");
+//         }
+//         moddedLane.push_back(lane.get());
+//         float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+//         lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * i);
+//         // lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128 * i);
+//         mSceneLayers[Background]->attachView(std::move(lane));
+//     }
+//     lanes = &moddedLane;
+
+//     int playerCurrentLane;
+//     inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
+//     auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
+//     mPlayerNode = player.get();
+//     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+
+//     mPlayerNode->loadPlayerData(inf);
+//     playerLaneIndex = playerCurrentLane;
+//     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+//     (*std::next(lanes->begin(), playerCurrentLane))->spawnPlayer(std::move(player));
+//     // mSceneLayers[Aboveground]->attachView(std::move(player));
+//     mWorldView.setCenter(mSpawnPosition);
+// }
