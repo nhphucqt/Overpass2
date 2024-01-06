@@ -1,9 +1,9 @@
 #include <EventListener.hpp>
 
-EventListener::EventListener() : publisher(nullptr) {
+EventListener::EventListener() : publisher(nullptr), mIsListening(true) {
 }
 
-EventListener::EventListener(EventPublisher* publisher) : publisher(publisher) {
+EventListener::EventListener(EventPublisher* publisher) : publisher(publisher), mIsListening(true) {
 }
 
 void EventListener::setOnMouseButtonPressed(EventCallback onMouseButtonPressed) {
@@ -52,6 +52,8 @@ EventPublisher* EventListener::getPublisher() const {
 }
 
 void EventListener::eventDispatch(const sf::Event& event) {
+    if (!isListening())
+        return;
     switch (event.type) {
         case sf::Event::MouseButtonPressed:
             if (isOnMouseButtonPressed(event))
@@ -99,4 +101,12 @@ void EventListener::setPublisher(EventPublisher* publisher) {
 void EventListener::ensurePublisher() {
     if (publisher == nullptr)
         throw std::runtime_error("Publisher is not set");
+}
+
+void EventListener::setIsListening(bool isListening) {
+    mIsListening = isListening;
+}
+
+bool EventListener::isListening() const {
+    return mIsListening;
 }

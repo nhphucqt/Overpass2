@@ -51,12 +51,17 @@ public:
     void setUpdate(bool isUpdate);
     bool isUpdate();
 
+    void setVisibility(bool isVisible);
+    bool isVisible() const;
+
+    void setIsListeningAll(bool isListening);
+    
 protected:
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const = 0;
 
 private:
-    bool isReverse, mIsUpdate;
+    bool isReverse, mIsUpdate, mIsVisible;
     ViewGroup* parent;
     std::vector<ViewGroup::Ptr> childViews;
 

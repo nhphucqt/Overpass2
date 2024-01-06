@@ -4,11 +4,17 @@
 #include <DemoActivity.hpp>
 #include <Field.hpp>
 #include <GameActivity.hpp>
+#include <SettingsActivity.hpp>
 #include <Railway.hpp>
 #include <River.hpp>
 #include <Road.hpp>
-#include <TextView.hpp>
 #include <iterator>
+
+#include <LayerView.hpp>
+#include <ButtonView.hpp>
+#include <SpriteButtonView.hpp>
+#include <TextView.hpp>
+#include <IconButtonFactory.hpp>
 
 void GameActivity::onLoadResources()
 {
@@ -53,9 +59,14 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::CharacterIdle,
                    "res/textures/Character/Cat-Idle.png");
     // game over banner
-    mTextures.load(TextureID::GameOver, "res/textures/Lane/GameOver.png");
+    mTextures.load(TextureID::homeButtonsTexture, "res/textures/ui/buttons/home_button.png");
+    mTextures.load(TextureID::pauseButtonsTexture, "res/textures/ui/buttons/pause_button.png");
+    mTextures.load(TextureID::continueButtonsTexture, "res/textures/ui/buttons/continue_button.png");
+    mTextures.load(TextureID::settingButtonsTexture, "res/textures/ui/buttons/setting_button.png");
+    mTextures.load(TextureID::replayButtonsTexture, "res/textures/ui/buttons/replay_button.png");
+    mTextures.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
 
-    mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
 }
 
 void GameActivity::onCreate() {}
@@ -76,6 +87,11 @@ void GameActivity::onAttach()
     playerLaneIndex = 3;
     scrollDistance = 0;
     actualScrollDistance = 0;
+
+    effectLayer = std::make_unique<LayerView>();
+    statusLayer = std::make_unique<LayerView>();
+
+    createStatusLayer();
 
     // Initialize the different layers
     for (std::size_t i = 0; i < LayerCount; ++i)
@@ -110,6 +126,13 @@ void GameActivity::onDestroy()
     // ...
 }
 
+void GameActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+    target.setView(target.getDefaultView());
+    target.draw(*effectLayer, states);
+    target.draw(*statusLayer, states);
+}
+
 void GameActivity::onEvent(const sf::Event &event)
 {
     CommandQueue &commands = getCommandQueue();
@@ -136,6 +159,9 @@ void GameActivity::updateCurrent(sf::Time dt)
 
     handleCollisions();
     // Apply movements
+
+    // Update score
+    updateScore(scoreText, mPlayerNode);
 }
 
 void GameActivity::drawCurrent(sf::RenderTarget &target,
@@ -237,14 +263,7 @@ void GameActivity::scroll(sf::Time dt)
 
 void GameActivity::gameOver()
 {
-    std::unique_ptr<Entity> banner(
-        new Entity(mTextures.get(TextureID::GameOver)));
-    sf::FloatRect viewBounds(mWorldView.getCenter()
-                                 - mWorldView.getSize() / 2.f,
-                             mWorldView.getSize());
-    banner->setPosition(viewBounds.getPosition().x,
-                        viewBounds.getPosition().y + 300);
-    mSceneLayers[Aboveground]->attachView(std::move(banner));
+    createGameOverBanner();
     setUpdate(false);
 }
 
@@ -291,4 +310,155 @@ void GameActivity::attachPlayer()
     // createTitle();
 
     mWorldView.setCenter(mSpawnPosition);
+}
+
+void GameActivity::createStatusLayer() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
+
+    TextView::Ptr pointView = std::make_unique<TextView>(
+        this,
+        "0",
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(10, 10),
+        64
+    );
+    pointView->setFillColor(sf::Color::White);
+    scoreText = pointView.get();
+
+    SpriteView::Ptr menuView = std::make_unique<SpriteView>(
+        this,
+        mTextures.get(TextureID::mainMenuButtonTexture),
+        sf::Vector2f(0, 0),
+        sf::Vector2f(90, 25) * 5.f,
+        sf::IntRect(99, 4, 90, 25)
+    );
+    sf::Vector2f menuSize = menuView->get().getGlobalBounds().getSize();
+    menuView->setOrigin(menuSize / 2.f);
+    menuView->setPosition(windowSize / 2.f);
+    menuView->setVisibility(false);
+    pauseMenu = menuView.get();
+
+    SpriteButtonView::Ptr pauseButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::pauseButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->setUpdate(false);
+            this->pauseMenu->setVisibility(true);
+            this->pauseMenu->setIsListeningAll(true);
+        }
+    );
+    pauseButton->setOrigin(pauseButton->getGlobalBounds().getSize().x, 0);
+    pauseButton->setPosition(windowSize.x - 10.f, 10.f);
+
+    SpriteButtonView::Ptr continueButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::continueButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->setUpdate(true);
+            this->pauseMenu->setVisibility(false);
+            this->pauseMenu->setIsListeningAll(false);
+        }
+    );
+
+    SpriteButtonView::Ptr homeButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::homeButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->finish();
+        }
+    );
+    homeButton->setOrigin(homeButton->getGlobalBounds().getSize() / 2.f);
+
+    SpriteButtonView::Ptr settingButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::settingButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            Intent::Ptr intent = Intent::Builder()
+                    .setAction(SettingsActivity::ACTION_INGAME)
+                    .build();
+            this->startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+        }
+    );
+
+    float padding = 125;
+    continueButton->setPosition(-padding, 0);
+    settingButton->setPosition(padding, 0);
+    homeButton->setPosition(menuSize / 2.f);
+
+    homeButton->attachView(std::move(continueButton));
+    homeButton->attachView(std::move(settingButton));
+    menuView->attachView(std::move(homeButton));
+
+    statusLayer->attachView(std::move(pointView));
+    statusLayer->attachView(std::move(pauseButton));
+    statusLayer->attachView(std::move(menuView));
+}
+
+void GameActivity::createGameOverBanner() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
+
+    ButtonView::Ptr bannerView = std::make_unique<ButtonView>(
+        this,
+        mTextures.get(TextureID::mainMenuButtonTexture),
+        mFontManager.get(FontID::defaultFont),
+        "Game Over",
+        64,
+        sf::Vector2f(0, 0),
+        sf::IntRect(99, 4, 90, 25),
+        sf::Vector2f(90, 25) * 5.f
+    );
+    sf::Vector2f bannerSize = bannerView->getGlobalBounds().getSize();
+    bannerView->setOrigin(bannerSize.x / 2.f, bannerSize.y / 2.f);
+    bannerView->setPosition(windowSize.x / 2.f, windowSize.y / 2.f);
+
+    SpriteButtonView::Ptr replayButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::replayButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            Intent* intent = this->getIntent();
+            Intent::Ptr resIntent = Intent::Builder()
+                .setAction(GameActivity::ACTION_NEW_GAME)
+                .putExtra("level", intent->getExtra<int>("level", -1))
+                .build();
+            this->setResult(RESULT_OK, std::move(resIntent));
+            this->finish();
+        }
+    );
+    replayButton->setOrigin(replayButton->getGlobalBounds().getSize().x, 0);
+
+    SpriteButtonView::Ptr homeButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::homeButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->finish();
+        }
+    );
+    homeButton->setOrigin(homeButton->getGlobalBounds().getSize().x / 2.f, 0);
+
+    float paddingX = 100;
+    float paddingY = 10;
+    replayButton->setPosition(bannerSize.x / 2.f - paddingX, bannerSize.y + paddingY);
+    homeButton->setPosition(bannerSize.x / 2.f + paddingX, bannerSize.y + paddingY);
+
+    bannerView->attachView(std::move(replayButton));
+    bannerView->attachView(std::move(homeButton));
+    statusLayer->attachView(std::move(bannerView));
+}
+
+void GameActivity::updateScore(TextView* scoreText, PlayerNode* playerNode) {
+    scoreText->setText(std::to_string(playerNode->getScore()));
 }

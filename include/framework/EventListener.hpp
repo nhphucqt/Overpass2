@@ -20,6 +20,7 @@ private:
     EventCallback onMouseButtonReleased;
     EventCallback onMouseMoved;
     EventCallback onTextEntered;
+    bool mIsListening;
     
 public:
     EventListener();
@@ -33,11 +34,14 @@ public:
 
     void unsubscribe();
 
+    void setIsListening(bool isListening);
+    bool isListening() const;
+
     EventPublisher* getPublisher() const;
 
 private:
-    void eventDispatch(const sf::Event& event);
     void ensurePublisher();
+    void eventDispatch(const sf::Event& event);
 
 protected:
     virtual bool isOnMouseButtonPressed(const sf::Event& event) const;

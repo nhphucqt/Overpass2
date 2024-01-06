@@ -52,6 +52,8 @@ protected:
     virtual void onResume();
     virtual void onPause();
     virtual void onDestroy();
+    virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data);
 

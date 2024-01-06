@@ -67,6 +67,7 @@ void SettingsActivity::createBackground() {
 }
 
 void SettingsActivity::createTitle() {
+    int requestCode = getIntent()->getAction() == ACTION_INGAME ? -1 : REQUEST_TITLEBAR_BUTTONS;
     attachView(
         TitlebarFactory::create(
             this,
@@ -74,7 +75,7 @@ void SettingsActivity::createTitle() {
             mFontManager.get(FontID::defaultFont),
             "Settings",
             TitlebarFactory::TitlebarType::SETTINGS,
-            REQUEST_TITLEBAR_BUTTONS
+            requestCode
         )
     );
 }

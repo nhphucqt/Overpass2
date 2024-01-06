@@ -3,10 +3,10 @@
 #include <iostream>
 #include <cassert>
 
-ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true), parent(nullptr) {
+ViewGroup::ViewGroup(): isReverse(false), mIsUpdate(true), parent(nullptr), mIsVisible(true) {
 }
 
-ViewGroup::ViewGroup(EventPublisher* publisher): EventListener(publisher), isReverse(false), mIsUpdate(true), parent(nullptr) {
+ViewGroup::ViewGroup(EventPublisher* publisher): EventListener(publisher), isReverse(false), mIsUpdate(true), parent(nullptr), mIsVisible(true) {
 }
 
 ViewGroup* ViewGroup::getParent() const {
@@ -55,6 +55,8 @@ void ViewGroup::unsubscribeAll() {
 }
 
 void ViewGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    if (!isVisible())
+        return;
     states.transform *= getTransform();
     drawCurrent(target, states);
     if (isReverse)
@@ -131,4 +133,19 @@ void ViewGroup::setUpdate(bool isUpdate) {
 
 bool ViewGroup::isUpdate() {
 	return mIsUpdate;
+}
+
+void ViewGroup::setVisibility(bool isVisible) {
+    mIsVisible = isVisible;
+}
+
+bool ViewGroup::isVisible() const {
+    return mIsVisible;
+}
+
+void ViewGroup::setIsListeningAll(bool isListening) {
+    setIsListening(isListening);
+    for (auto& child : childViews) {
+        child->setIsListeningAll(isListening);
+    }
 }
