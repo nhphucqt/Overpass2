@@ -149,6 +149,17 @@ void GameActivity::updateCurrent(sf::Time dt)
     // Scroll the world
     scroll(dt);
 
+    // generate new lanes when there are few lanes left
+    if (lanes->size() - playerLaneIndex < 25)
+    {
+        for (int i = 1; i <= 50; ++i)
+        {
+            mMapRenderer->moveView();
+            mSceneLayers[Background]->attachView(
+                std::unique_ptr<ViewGroup>(lanes->back()));
+        }
+    }
+
     // Forward commands to scene graph, adapt velocity (scrolling, diagonal
     // correction)
     while (!mCommandQueue.isEmpty())
@@ -255,9 +266,6 @@ void GameActivity::scroll(sf::Time dt)
     {
         scrollDistance += scrollStep;
         mWorldView.move(0.f, scrollStep);
-        mMapRenderer->moveView();
-        mSceneLayers[Background]->attachView(
-            std::unique_ptr<ViewGroup>(lanes->back()));
     }
 }
 
