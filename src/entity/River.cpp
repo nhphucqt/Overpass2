@@ -162,6 +162,7 @@ void River::loadLaneData(std::ifstream &inf)
             std::unique_ptr<Log> logPtr(new Log(static_cast<Log::Type>(data.type), *laneTextures));
             logPtr->deserialize(data);
             logs.push_back(logPtr.get());
+            pushLogZones(logPtr.get());
             this->attachView(std::move(logPtr));
         }
 

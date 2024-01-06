@@ -328,8 +328,8 @@ void PlayerNode::savePlayerData(std::ofstream &outf)
         outf.write(reinterpret_cast<const char *>(&currentLane), sizeof(currentLane));
         PlayerData data;
         data.state = static_cast<int>(state);
-        data.x = getPosition().x;
-        data.y = getPosition().y;
+        data.x = getWorldTransform().transformPoint(getOrigin()).x;
+        data.y = getWorldTransform().transformPoint(getOrigin()).y;
 
         outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
     }

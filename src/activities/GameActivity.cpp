@@ -243,7 +243,7 @@ void GameActivity::scroll(sf::Time dt)
         mWorldView.move(0.f, scrollStep);
         std::cout << "scroll up2\n";
         
-        mMapRenderer->moveView();
+        // mMapRenderer->moveView();
 
         mSceneLayers[Background]->attachView(
             std::unique_ptr<ViewGroup>(lanes->back()));
@@ -363,15 +363,21 @@ void GameActivity::loadPlayer(const std::string& filepath)
     auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
     std::cout << "load player1\n";
     mPlayerNode = player.get();
+    // mPlayerNode = new PlayerNode(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
 
     mPlayerNode->loadPlayerData(inf);
     std::cout << "load player2\n";
     playerLaneIndex = playerCurrentLane;
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-    (*std::next(lanes->begin(), playerCurrentLane))->spawnPlayer(std::move(player));
-    // mSceneLayers[Aboveground]->attachView(std::move(player));
-    mWorldView.setCenter(mWorldView.getSize().x / 2.f, (*std::next(lanes->begin(), playerCurrentLane))->getPosition().y);
+    mSceneLayers[Aboveground]->attachView(std::move(player));
+    (*std::next(lanes->begin(), playerCurrentLane))->receivePlayer(mPlayerNode);
+    if (playerCurrentLane > 2)
+        mWorldView.setCenter(mWorldView.getSize().x / 2.f, (*std::next(lanes->begin(), playerCurrentLane))->getPosition().y);
+    else
+    {
+        mWorldView.setCenter(mSpawnPosition);
+    }
     std::cout << "load player5\n";
 }
 
