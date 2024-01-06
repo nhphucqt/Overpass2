@@ -13,6 +13,11 @@
 #include <ResourceManager.hpp>
 #include <Train.hpp>
 #include <ViewGroup.hpp>
+
+#include <LayerView.hpp>
+#include <TextView.hpp>
+#include <SpriteView.hpp>
+
 #include <array>
 #include <list>
 
@@ -21,8 +26,10 @@ class Lane;
 class GameActivity : public Activity
 {
 public:
-    static const int ACTION_NEW_GAME = 1;
-    static const int ACTION_CONTINUE_GAME = 2;
+    enum Action {
+        ACTION_NEW_GAME,
+        ACTION_CONTINUE_GAME
+    };
 
     enum class GameLevel
     {
@@ -33,6 +40,8 @@ public:
     };
 
 private:
+    static const int REQUEST_TITLEBAR_BUTTONS = -1;
+
     enum Layer
     {
         Background,
@@ -42,6 +51,10 @@ private:
 
 private:
     Player mPlayer;
+
+    LayerView::Ptr effectLayer, statusLayer;
+    TextView* scoreText;
+    SpriteView* pauseMenu;
 
     FontManager mFontManager;
     TextureManager mTextures;
@@ -74,6 +87,8 @@ protected:
     virtual void onResume() override;
     virtual void onPause() override;
     virtual void onDestroy() override;
+    virtual void onDraw(sf::RenderTarget &target,
+                        sf::RenderStates states) const override;
     void updateCurrent(sf::Time dt) override;
     virtual void onActivityResult(int requestCode, int resultCode,
                                   Intent::Ptr data) override;
@@ -91,6 +106,11 @@ private:
 
     void attachLanes();
     void attachPlayer();
+
+    void createGameOverBanner();
+    void createStatusLayer();
+
+    void updateScore(TextView* scoreText, PlayerNode* playerNode);
 };
 
 #endif

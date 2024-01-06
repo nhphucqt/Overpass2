@@ -66,9 +66,12 @@ void MainMenuActivity::updateCurrent(sf::Time dt) {
 }
 
 void MainMenuActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
-    if (requestCode == REQUEST_CODE_GAME_LEVEL) {
+    if (requestCode == REQUEST_CODE_GAME_LEVEL || requestCode == REQUEST_CODE_CONTINUE_GAME || requestCode == REQUEST_CODE_NEW_GAME) {
         if (resultCode == (int)ResultCode::RESULT_OK) {
-            startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(data));
+            if (data->getAction() == GameActivity::ACTION_NEW_GAME) {
+                data->setRequestCode(REQUEST_CODE_NEW_GAME);
+                startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(data));
+            }
         }
     } else if (requestCode == REQUEST_TITLEBAR_BUTTONS) {
         if (resultCode == (int)ResultCode::RESULT_OK) {

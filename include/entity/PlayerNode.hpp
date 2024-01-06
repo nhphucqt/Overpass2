@@ -48,7 +48,7 @@ public:
     ViewGroup *getLastParent();
 
     void pushAction(sf::Vector2i action);
-    void popAction();
+    void popActionAndUpdateScore();
     sf::Vector2i getCurrentAction();
     bool isActionQueueEmpty() const;
     void clearActionQueue();
@@ -59,11 +59,15 @@ public:
     void setDead();
     bool isDead() const;
 
+    int getScore() const;
+
 private:
     virtual void drawCurrent(sf::RenderTarget &target,
                              sf::RenderStates states) const;
     void updateCurrent(sf::Time delta);
     void updateMove(sf::Time delta);
+
+    void updateScore(int offset);
 
 private:
     State state;
@@ -80,6 +84,9 @@ private:
     std::queue<sf::Vector2i> actionQueue;
     sf::Time moveDuration;
     bool __isDead;
+
+    int currentScore;
+    int currentDistance;
 };
 
 #endif

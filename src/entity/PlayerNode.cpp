@@ -17,7 +17,10 @@ PlayerNode::PlayerNode(const TextureManager &textures,
       lanes(lanesVct),
       transitionLayer(nullptr),
       lastParent(nullptr),
-      __isDead(false)
+      __isDead(false),
+      currentScore(0),
+      currentDistance(0)
+      
 {
     sf::Vector2f cellSize =
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
@@ -166,7 +169,7 @@ void PlayerNode::updateMove(sf::Time delta)
                 {
                     setDead();
                 }
-                popAction();
+                popActionAndUpdateScore();
                 state = State::Idle;
             }
         }
@@ -220,14 +223,15 @@ void PlayerNode::moveBack()
 {
     sf::Vector2i action = getCurrentAction();
     clearActionQueue();
+    action *= -1;
     pushAction(action);
     if (action.y < 0)
     { // go up
-        curLane--;
+        curLane++;
     }
     else if (action.y > 0)
     {
-        curLane++;
+        curLane--;
     }
     transitionHandler.setIsReversed(true);
 }
@@ -277,8 +281,14 @@ void PlayerNode::pushAction(sf::Vector2i action)
     actionQueue.push(action);
 }
 
-void PlayerNode::popAction()
+void PlayerNode::popActionAndUpdateScore()
 {
+    sf::Vector2i action = getCurrentAction();
+    if (action.y < 0) {
+        updateScore(1);
+    } else if (action.y > 0) {
+        updateScore(-1);
+    }
     actionQueue.pop();
 }
 
@@ -318,4 +328,15 @@ void PlayerNode::setDead()
 bool PlayerNode::isDead() const
 {
     return __isDead;
+}
+
+void PlayerNode::updateScore(int offset)
+{
+    currentDistance += offset;
+    currentScore = std::max(currentScore, currentDistance);
+}
+
+int PlayerNode::getScore() const
+{
+    return currentScore;
 }
