@@ -47,7 +47,6 @@ private:
     TextureManager mTextures;
     bool stop;
     MapRenderer::LaneList const *lanes;
-    MapRenderer::LaneList moddedLane;
 
     std::unique_ptr<MapRenderer> mMapRenderer;
 

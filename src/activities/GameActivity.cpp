@@ -359,6 +359,7 @@ void GameActivity::loadPlayer(const std::string& filepath)
     std::ifstream inf(filepath + "/player.data", std::ios::binary);
     int playerCurrentLane;
     inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
+
     auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
     std::cout << "load player1\n";
     mPlayerNode = player.get();
@@ -368,8 +369,9 @@ void GameActivity::loadPlayer(const std::string& filepath)
     std::cout << "load player2\n";
     playerLaneIndex = playerCurrentLane;
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-    mSceneLayers[Aboveground]->attachView(std::move(player));
-    mWorldView.setCenter(mSpawnPosition);
+    (*std::next(lanes->begin(), playerCurrentLane))->spawnPlayer(std::move(player));
+    // mSceneLayers[Aboveground]->attachView(std::move(player));
+    mWorldView.setCenter(mWorldView.getSize().x / 2.f, (*std::next(lanes->begin(), playerCurrentLane))->getPosition().y);
     std::cout << "load player5\n";
 }
 

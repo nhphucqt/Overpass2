@@ -89,7 +89,6 @@ void MapRenderer::loadLanes(const std::string& filepath)
 
     int laneSize;
     inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
-    // MapRenderer::LaneList moddedLane;
     for (int i = 0; i < laneSize; ++i)
     {
         int laneType;
@@ -97,7 +96,8 @@ void MapRenderer::loadLanes(const std::string& filepath)
         inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
         inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
 
-        std::unique_ptr<Lane> lane;
+        // std::unique_ptr<Lane> lane;
+        Lane* lane;
         switch (static_cast<Lane::Type>(laneType))
         {
         case Lane::Type::Road:
@@ -108,28 +108,27 @@ void MapRenderer::loadLanes(const std::string& filepath)
             inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
             inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
             inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
-
-            lane.reset(new Road(&m_textures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true));
+            lane = new Road(&m_textures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true);
             lane->loadLaneData(inf);
             break;
         case Lane::Type::River:
             float logVelocity;
             inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
-            lane.reset(new River(&m_textures, laneIsReverse, logVelocity, true));
+            lane = new River(&m_textures, laneIsReverse, logVelocity, true);
             lane->loadLaneData(inf);
             break;
         case Lane::Type::Field:
-            lane.reset(new Field(&m_textures, laneIsReverse, true));
+            lane = new Field(&m_textures, laneIsReverse, true);
             lane->loadLaneData(inf);
             break;
         case Lane::Type::Railway:
-            lane.reset(new Railway(&m_textures, &m_foreground, laneIsReverse, true));
+            lane = new Railway(&m_textures, &m_foreground, laneIsReverse, true);
             lane->loadLaneData(inf);
             break;
         default:
             throw std::runtime_error("LOAD ERR: Lane type not found");
         }
-        m_lanes.push_back(lane.get());
+        m_lanes.push_back(lane);
     }
 }
 
