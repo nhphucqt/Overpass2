@@ -27,17 +27,17 @@ public:
                 unsigned int map_width, unsigned int map_max_height,
                 unsigned int level, bool isLoad = false);
 
-    Lane* createNewLane();
+    Lane *createNewLane();
     void popLane();
     LaneList const &getLanes() const;
-    void loadLanes(std::ifstream& outf);
-    void saveLanes(std::ofstream& inf);
+    void loadLanes(std::ifstream &outf);
+    void saveLanes(std::ofstream &inf);
 
     int getLevel() const;
 
 private:
     void initialize();
-    void pushLane(bool initializing_p);
+    void pushLane(bool initializing_p, bool spawn_lane_p);
 
     Lane *convertPropertiesToLane(LaneProperties const &properties) const;
 

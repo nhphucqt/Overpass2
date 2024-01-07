@@ -6,8 +6,8 @@
 #include "RailwayProperties.hpp"
 #include "RiverProperties.hpp"
 #include "RoadProperties.hpp"
-#include <MyRandom.hpp>
 
+#include <MyRandom.hpp>
 #include <memory>
 
 MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
@@ -21,10 +21,10 @@ MapGenerator::MapGenerator(unsigned int map_width, unsigned int map_max_height,
 {
 }
 
-void MapGenerator::moveView(bool initializing_p)
+void MapGenerator::moveView(bool initializing_p, bool spawn_lane_p)
 {
     m_prev_lane = std::move(m_curr_lane);
-    m_curr_lane = generateLaneProperties(initializing_p);
+    m_curr_lane = generateLaneProperties(initializing_p, spawn_lane_p);
     updateContext(initializing_p);
 }
 
@@ -39,11 +39,13 @@ LaneProperties const &MapGenerator::getCurrLane() const
 }
 
 std::unique_ptr<LaneProperties>
-MapGenerator::generateLaneProperties(bool initializing_p) const
+MapGenerator::generateLaneProperties(bool initializing_p,
+                                     bool spawn_lane_p) const
 {
     Lane::Type type = generateLaneType(initializing_p);
     std::unique_ptr<LaneProperties> lane_properties =
-        MapGenerator::createLanePropertiesWithType(type, initializing_p);
+        MapGenerator::createLanePropertiesWithType(type, initializing_p,
+                                                   spawn_lane_p);
     lane_properties->create();
     return lane_properties;
 }
@@ -77,16 +79,17 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
 }
 
 std::unique_ptr<LaneProperties>
-MapGenerator::createLanePropertiesWithType(Lane::Type type,
-                                           bool initializing_p) const
+MapGenerator::createLanePropertiesWithType(Lane::Type type, bool initializing_p,
+                                           bool spawn_lane_p) const
 {
     unsigned int real_level = getRealLevel();
     switch (type)
     {
     case Lane::Type::Field:
     {
-        return std::make_unique<FieldProperties>(
-            m_width, real_level, m_prev_lane.get(), initializing_p);
+        return std::make_unique<FieldProperties>(m_width, real_level,
+                                                 m_prev_lane.get(),
+                                                 initializing_p, spawn_lane_p);
     }
 
     case Lane::Type::Railway:
@@ -119,7 +122,9 @@ unsigned int MapGenerator::getRealLevel() const
 {
     GameActivity::GameLevel real_level =
         static_cast<GameActivity::GameLevel>(m_level);
-    if (static_cast<GameActivity::GameLevel>(m_level) == GameActivity::GameLevel::Endless) {
+    if (static_cast<GameActivity::GameLevel>(m_level)
+        == GameActivity::GameLevel::Endless)
+    {
         real_level = (m_level_lanes_cnts[0] < ENDLESS_LEVEL_LANES_CNT[0]
                           ? GameActivity::GameLevel::Easy
                           : (m_level_lanes_cnts[1] < ENDLESS_LEVEL_LANES_CNT[1]

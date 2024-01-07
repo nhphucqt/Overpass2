@@ -2,16 +2,17 @@
 
 #include "Field.hpp"
 #include "LaneProperties.hpp"
-#include <MyRandom.hpp>
 
+#include <MyRandom.hpp>
 #include <climits>
 
 FieldProperties::FieldProperties(unsigned int map_width, unsigned int level,
                                  LaneProperties const *prev_lane,
-                                 bool initializing_p)
+                                 bool initializing_p, bool spawn_lane_p)
     : LaneProperties(map_width, level),
       m_prev_lane(prev_lane),
-      m_initialing_p(initializing_p)
+      m_initialing_p(initializing_p),
+      m_spawn_lane_p(spawn_lane_p)
 {
 }
 
@@ -27,29 +28,14 @@ FieldProperties::Greens const &FieldProperties::getGreens() const
 
 void FieldProperties::generate()
 {
-    // unsigned int green_cnt = MyRandom::random_range(0, m_width / 2);
-
-    // unsigned int field_slot = generateFieldSlot();
-
-    // unsigned int lbound = 0;
-    // unsigned int rbound = m_width - green_cnt - (field_slot < m_width);
-    // for (int i = 1; i <= green_cnt; ++i)
-    // {
-    //     unsigned int green_type = MyRandom::random_range(
-    //         0, static_cast<unsigned int>(Green::Type::Count) - 1);
-    //     unsigned int green_slot = MyRandom::random_range(lbound, rbound);
-    //     m_greens.emplace_back(green_slot, static_cast<Green::Type>(green_type));
-
-    //     lbound = green_slot + 1;
-    //     ++rbound;
-    // }
-    // for (auto &[index, green] : m_greens)
-    // {
-    //     index += (index >= field_slot);
-    // }
+    if (m_spawn_lane_p)
+    {
+        return;
+    }
 
     unsigned int green_cnt = MyRandom::random_range(0, m_width / 2);
-    std::vector<unsigned int> green_slots = MyRandom::sample(green_cnt, m_width);
+    std::vector<unsigned int> green_slots =
+        MyRandom::sample(green_cnt, m_width);
     std::sort(green_slots.begin(), green_slots.end());
     for (auto slot : green_slots)
     {
