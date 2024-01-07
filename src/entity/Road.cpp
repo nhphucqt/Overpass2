@@ -164,6 +164,9 @@ void Road::saveLaneData(std::ofstream &outf)
 
         MyTimer::MyTimerData animalTimerData = animalTimer.serialize();
         outf.write(reinterpret_cast<const char *>(&animalTimerData), sizeof(animalTimerData));
+
+        TrafficLight::TrafficLightData trafficLightData = trafficlight->serialize();
+        outf.write(reinterpret_cast<const char *>(&trafficLightData), sizeof(trafficLightData));
     }
     else
     {
@@ -173,10 +176,7 @@ void Road::saveLaneData(std::ofstream &outf)
 
 void Road::loadLaneData(std::ifstream &inf) {
     if (inf.is_open()) {
-        // inf.read(reinterpret_cast<char *>(&animalVelocity), sizeof(animalVelocity));
-        // inf.read(reinterpret_cast<char *>(&vehicleVelocity), sizeof(vehicleVelocity));
-        // inf.read(reinterpret_cast<char *>(&hasAnimal), sizeof(hasAnimal));
-        // inf.read(reinterpret_cast<char *>(&hasVehicle), sizeof(hasVehicle));
+        buildTrafficLight();
 
         int numOfVehicle, numOfAnimal;
         inf.read(reinterpret_cast<char *>(&numOfVehicle), sizeof(numOfVehicle));
@@ -212,7 +212,9 @@ void Road::loadLaneData(std::ifstream &inf) {
         animalFactory.reset(new AnimalFactory(laneTextures, isReverse, animalVelocity, laneLength));
         vehicleFactory.reset(new VehicleFactory(laneTextures, isReverse, vehicleVelocity, laneLength));
 
-        buildTrafficLight();
+        TrafficLight::TrafficLightData trafficLightData;
+        inf.read(reinterpret_cast<char *>(&trafficLightData), sizeof(trafficLightData));
+        trafficlight->deserialize(trafficLightData);
     }
     else
     {
@@ -226,13 +228,6 @@ void Road::buildTrafficLight() {
     light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 0);
     trafficlight = light.get();
     this->attachView(std::move(light));
-
-    if (checkHasVehicle()) {
-        createVehicle();
-    }
-    if (checkHasAnimal()) {
-        createAnimal();
-    }
 }
 
 void Road::createVehicle()

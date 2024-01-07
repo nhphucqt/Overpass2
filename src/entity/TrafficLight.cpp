@@ -59,3 +59,15 @@ bool TrafficLight::isYellow() {
 bool TrafficLight::isGreen() {
     return current == Color::Green;
 }
+
+TrafficLight::TrafficLightData TrafficLight::serialize() const {
+    TrafficLightData data;
+    data.currentColor = (int)current;
+    data.elapsedTime = elapsed.asSeconds();
+    return data;
+}
+
+void TrafficLight::deserialize(const TrafficLightData& data) {
+    current = static_cast<Color>(data.currentColor);
+    elapsed = sf::seconds(data.elapsedTime);
+}

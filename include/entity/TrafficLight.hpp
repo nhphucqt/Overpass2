@@ -15,6 +15,11 @@ namespace Duration {
 
 class TrafficLight: public Entity {
 public:
+    struct TrafficLightData {
+        int currentColor;
+        float elapsedTime;
+    };
+
     enum Color{Red, Yellow, Green};
     TrafficLight(const TextureManager& textures);
     Color getCurrentColor();
@@ -23,6 +28,9 @@ public:
     bool isRed();
     bool isYellow();
     bool isGreen();
+
+    TrafficLightData serialize() const;
+    void deserialize(const TrafficLightData& data);
 
 private:
     sf::IntRect rect;
