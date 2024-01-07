@@ -205,8 +205,10 @@ void Road::saveLaneData(std::ofstream &outf)
                    sizeof(vehicleTimerData));
 
         MyTimer::MyTimerData animalTimerData = animalTimer.serialize();
-        outf.write(reinterpret_cast<const char *>(&animalTimerData),
-                   sizeof(animalTimerData));
+        outf.write(reinterpret_cast<const char *>(&animalTimerData), sizeof(animalTimerData));
+
+        TrafficLight::TrafficLightData trafficLightData = trafficlight->serialize();
+        outf.write(reinterpret_cast<const char *>(&trafficLightData), sizeof(trafficLightData));
     }
     else
     {
@@ -214,15 +216,9 @@ void Road::saveLaneData(std::ofstream &outf)
     }
 }
 
-void Road::loadLaneData(std::ifstream &inf)
-{
-    if (inf.is_open())
-    {
-        // inf.read(reinterpret_cast<char *>(&animalVelocity),
-        // sizeof(animalVelocity)); inf.read(reinterpret_cast<char
-        // *>(&vehicleVelocity), sizeof(vehicleVelocity));
-        // inf.read(reinterpret_cast<char *>(&hasAnimal), sizeof(hasAnimal));
-        // inf.read(reinterpret_cast<char *>(&hasVehicle), sizeof(hasVehicle));
+void Road::loadLaneData(std::ifstream &inf) {
+    if (inf.is_open()) {
+        buildTrafficLight();
 
         int numOfVehicle, numOfAnimal;
         inf.read(reinterpret_cast<char *>(&numOfVehicle), sizeof(numOfVehicle));
@@ -264,7 +260,9 @@ void Road::loadLaneData(std::ifstream &inf)
         vehicleFactory.reset(new VehicleFactory(laneTextures, isReverse,
                                                 vehicleVelocity, laneLength));
 
-        buildTrafficLight();
+        TrafficLight::TrafficLightData trafficLightData;
+        inf.read(reinterpret_cast<char *>(&trafficLightData), sizeof(trafficLightData));
+        trafficlight->deserialize(trafficLightData);
     }
     else
     {
@@ -280,15 +278,6 @@ void Road::buildTrafficLight()
         laneLength * isReverse + trafficLightPosition * reverseScale, 0);
     trafficlight = light.get();
     this->attachView(std::move(light));
-
-    if (checkHasVehicle())
-    {
-        createVehicle();
-    }
-    if (checkHasAnimal())
-    {
-        createAnimal();
-    }
 }
 
 void Road::createVehicle()
