@@ -125,18 +125,22 @@ void SettingsActivity::createMenu() {
     MusicPlayer& musicPlayer = MusicPlayer::getInstance();
     SoundPlayer& soundPlayer = SoundPlayer::getInstance();
 
-    assert(musicPlayer.getVolume() == 0 || musicPlayer.getVolume() == 100);
-    assert(soundPlayer.getVolume() == 0 || soundPlayer.getVolume() == 100);
+    // assert(musicPlayer.getVolume() == 0 || musicPlayer.getVolume() == 100);
+    // assert(soundPlayer.getVolume() == 0 || soundPlayer.getVolume() == 100);
 
-    musicToggle->setState(musicPlayer.getVolume() != 0);
-    soundToggle->setState(soundPlayer.getVolume() != 0);
+    // musicToggle->setState(musicPlayer.getVolume() != 0);
+    // soundToggle->setState(soundPlayer.getVolume() != 0);
+    musicToggle->setState(!musicPlayer.isMuted());
+    soundToggle->setState(!soundPlayer.isMuted());
 
     musicToggle->setOnMouseButtonReleased([&](EventListener* listener, const sf::Event& event) {
         ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
         if (button->getState()) {
-            musicPlayer.setVolume(100);
+            musicPlayer.setMute(false);
+            // musicPlayer.setVolume(100);
         } else {
-            musicPlayer.setVolume(0);
+            musicPlayer.setMute(true);
+            // musicPlayer.setVolume(0);
         }
         GameSetting::getInstance().saveSettingState();
     });
@@ -144,9 +148,11 @@ void SettingsActivity::createMenu() {
     soundToggle->setOnMouseButtonReleased([&](EventListener* listener, const sf::Event& event) {
         ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
         if (button->getState()) {
-            soundPlayer.setVolume(100);
+            soundPlayer.setMute(false);
+            // soundPlayer.setVolume(100);
         } else {
-            soundPlayer.setVolume(0);
+            soundPlayer.setMute(true);
+            // soundPlayer.setVolume(0);
         }
         GameSetting::getInstance().saveSettingState();
     });

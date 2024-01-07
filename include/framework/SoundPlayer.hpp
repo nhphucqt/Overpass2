@@ -16,9 +16,12 @@ public:
 
     void play(SoundBufferID effect);
     void removeStoppedSounds();
-    void setVolume(float volume);
 
+    void setVolume(float volume);
     float getVolume() const;
+
+    void setMute(bool mute);
+    bool isMuted() const;
 
 private:
     SoundPlayer();
@@ -26,6 +29,7 @@ private:
     SoundBufferManager mSoundBuffers;
     std::list<sf::Sound> mSounds;
     float mVolume;
+    bool mMuted;
 };
 
 #endif

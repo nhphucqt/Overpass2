@@ -15,9 +15,12 @@ public:
   void play(MusicID theme);
   void stop();
   void setPaused(bool paused);
-  void setVolume(float volume);
 
+  void setVolume(float volume);
   float getVolume() const;
+
+  void setMute(bool mute);
+  bool isMuted() const;
 
 private:
   MusicPlayer();
@@ -25,6 +28,7 @@ private:
   sf::Music mMusic;
   std::map<MusicID, std::string> mFilenames;
   float mVolume;
+  bool mMuted;
 };
 
 #endif

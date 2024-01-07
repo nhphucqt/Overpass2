@@ -1,7 +1,6 @@
 #include <ActivityFactory.hpp>
 #include <AppConfig.hpp>
 #include <ButtonView.hpp>
-#include <DemoActivity.hpp>
 #include <Field.hpp>
 #include <GameActivity.hpp>
 #include <SettingsActivity.hpp>
@@ -17,6 +16,9 @@
 #include <SpriteButtonView.hpp>
 #include <TextView.hpp>
 #include <IconButtonFactory.hpp>
+
+#include <MusicPlayer.hpp>
+#include <SoundPlayer.hpp>
 
 const std::string GameActivity::EXTRA_GAME_LEVEL = "level";
 const std::string GameActivity::EXTRA_NUM_PLAYERS = "num_players";
@@ -89,6 +91,8 @@ void GameActivity::onLoadResources()
 void GameActivity::onCreate() {
     Intent* intent = getIntent();
     assert(intent->hasExtra(EXTRA_NUM_PLAYERS));
+
+    MusicPlayer::getInstance().setVolume(50.f);
 }
 
 void GameActivity::onAttach()
@@ -146,6 +150,10 @@ void GameActivity::onDestroy()
     } else {
         savePlayerScore();
     }
+
+    MusicPlayer::getInstance().setVolume(100.f);
+    MusicPlayer::getInstance().stop();
+    MusicPlayer::getInstance().play(MusicID::backgroundMusic);
 }
 
 void GameActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -292,7 +300,11 @@ void GameActivity::scroll(sf::Time dt)
 
 void GameActivity::gameOver()
 {
+    SoundPlayer::getInstance().play(SoundBufferID::gameOver);
+    MusicPlayer::getInstance().setVolume(0.f);
+
     mIsGameOver = true;
+    statusLayer->setIsListeningAll(false);
     createGameOverBanner();
     setUpdate(false);
     removeSavedGame();
@@ -564,6 +576,7 @@ void GameActivity::createStatusLayer() {
     homeButton->attachView(std::move(continueButton));
     homeButton->attachView(std::move(settingButton));
     menuView->attachView(std::move(homeButton));
+    menuView->setIsListeningAll(false);
 
     statusLayer->attachView(std::move(pauseButton));
     statusLayer->attachView(std::move(menuView));

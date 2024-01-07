@@ -5,7 +5,6 @@
 
 enum class TextureID
 {
-    demoButtonTexture,
     mainMenuButtonTexture,
     mainMenuBackgroundTexture,
     titleBackgroundTexture,
@@ -82,14 +81,12 @@ enum class FontID
 
 enum class SoundBufferID
 {
-    testSound,
-    buttonfx,
-    buttonClick
+    buttonClick,
+    gameOver
 };
 
 enum class MusicID
 {
-    testMusic,
     backgroundMusic
 };
 

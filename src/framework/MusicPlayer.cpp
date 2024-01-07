@@ -1,9 +1,8 @@
 #include <MusicPlayer.hpp>
 
-MusicPlayer::MusicPlayer() : mMusic(), mFilenames(), mVolume(100.0f)
+MusicPlayer::MusicPlayer() : mMusic(), mFilenames(), mVolume(100.0f), mMuted(false)
 {
   // Example
-  mFilenames[MusicID::testMusic] = "res/musics/fellowship.mp3";
   mFilenames[MusicID::backgroundMusic] = "res/musics/cruising-down-8bit-lane.mp3";
   // mFilenames[MusicID::MissionTheme] = "[path to mission theme]";
 }
@@ -43,4 +42,18 @@ void MusicPlayer::setVolume(float volume)
 float MusicPlayer::getVolume() const
 {
   return mVolume;
+}
+
+void MusicPlayer::setMute(bool mute)
+{
+  mMuted = mute;
+  if (mute)
+    mMusic.setVolume(0);
+  else
+    mMusic.setVolume(mVolume);
+}
+
+bool MusicPlayer::isMuted() const
+{
+  return mMuted;
 }

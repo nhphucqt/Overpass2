@@ -6,7 +6,6 @@
 #include <SpriteButtonView.hpp>
 #include <ActivityFactory.hpp>
 
-#include <DemoActivity.hpp>
 #include <GameActivity.hpp>
 #include <SettingsActivity.hpp>
 #include <ProfileActivity.hpp>

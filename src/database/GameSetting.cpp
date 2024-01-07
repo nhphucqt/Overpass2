@@ -30,12 +30,14 @@ void GameSetting::loadSettingState(const std::string &filename)
         return;
     }
 
-    float musicVolume;
-    float soundVolume;
-    inf >> musicVolume >> soundVolume;
+    int musicMuted;
+    int soundMuted;
+    inf >> musicMuted >> soundMuted;
 
-    mMusicPlayer.setVolume(musicVolume);
-    mSoundPlayer.setVolume(soundVolume);
+    mMusicPlayer.setMute(musicMuted);
+    mSoundPlayer.setMute(soundMuted);
+    // mMusicPlayer.setVolume(musicVolume);
+    // mSoundPlayer.setVolume(soundVolume);
 
     inf.close();
 }
@@ -47,6 +49,7 @@ void GameSetting::saveSettingState() {
 void GameSetting::saveSettingState(const std::string &filename)
 {
     std::ofstream outf(filename, std::ofstream::out | std::ofstream::trunc);
-    outf << mMusicPlayer.getVolume() << ' ' << mSoundPlayer.getVolume();
+    // outf << mMusicPlayer.getVolume() << ' ' << mSoundPlayer.getVolume();
+    outf << mMusicPlayer.isMuted() << ' ' << mSoundPlayer.isMuted();
     outf.close();
 }
