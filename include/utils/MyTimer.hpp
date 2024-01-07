@@ -18,6 +18,7 @@ private:
     bool timing;
 
 public:
+    MyTimer() = default;
     MyTimer(float invLef, float invRig);
     void restart();
     void resume();

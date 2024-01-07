@@ -40,6 +40,10 @@ void Animation::setDuration(sf::Time duration) {
 	mDuration = duration;
 }
 
+void Animation::setDuration(float duration) {
+	mDuration = sf::seconds(duration);
+}
+
 sf::Time Animation::getDuration() const {
 	return mDuration;
 }

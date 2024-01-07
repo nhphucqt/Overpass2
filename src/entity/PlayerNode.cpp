@@ -4,6 +4,9 @@
 #include <PlayerNode.hpp>
 #include <Vector2dUtils.hpp>
 
+const float PlayerNode::MOVE_DURATION = 0.2f;
+const float PlayerNode::SLOW_MOVE_DURATION = 0.3f;
+
 PlayerNode::PlayerNode(const TextureManager &textures,
                        std::list<Lane *> const &lanesVct,
                        MapRenderer::LaneList::const_iterator currentLane)
@@ -26,7 +29,7 @@ PlayerNode::PlayerNode(const TextureManager &textures,
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);
 
-    setMoveDuration(sf::seconds(0.2f));
+    setMoveDuration(MOVE_DURATION);
 
     sprite.setTextureRect(sf::IntRect(0, 0, 14, 16));
 
@@ -320,11 +323,30 @@ void PlayerNode::clearActionQueue()
 void PlayerNode::setMoveDuration(sf::Time duration)
 {
     moveDuration = duration;
+    moveUp.setDuration(duration);
+    moveDown.setDuration(duration);
+    moveLeft.setDuration(duration);
+    moveRight.setDuration(duration);
+}
+
+void PlayerNode::setMoveDuration(float duration)
+{
+    setMoveDuration(sf::seconds(duration));
 }
 
 sf::Time PlayerNode::getMoveDuration() const
 {
     return moveDuration;
+}
+
+void PlayerNode::slowDown()
+{
+    setMoveDuration(SLOW_MOVE_DURATION);
+}
+
+void PlayerNode::speedUp()
+{
+    setMoveDuration(MOVE_DURATION);
 }
 
 bool PlayerNode::isMoving()
