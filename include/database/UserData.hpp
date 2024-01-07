@@ -23,6 +23,7 @@ public:
 
     void setPassword(const std::string &newPassword);
     void setHighscore(int newHighscore, GameMode gameMode);
+    void updateHighscore(int newHighscore, GameMode gameMode);
     bool notAUser() const;
 
 private:

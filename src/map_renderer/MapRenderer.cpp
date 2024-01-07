@@ -27,19 +27,13 @@ MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
 {
     if (!isLoad) 
         initialize();
-    else
-        loadLanes("data/" + UserSession::getInstance().getCurrentUser().getUsername());
 }
 
-void MapRenderer::moveView()
+Lane* MapRenderer::createNewLane()
 {
-    if (m_lanes.size() < 10)
-    {
-        return;
-    }
-
     // popLane();
     pushLane(0);
+    return m_lanes.back();
 }
 
 MapRenderer::LaneList const &MapRenderer::getLanes() const
@@ -60,32 +54,33 @@ void MapRenderer::initialize()
 void MapRenderer::pushLane(bool initializing_p)
 {
     m_map_generator->moveView(initializing_p);
-    m_lanes.push_back(convertPropertiesToLane(m_map_generator->getCurrLane()));
+    Lane* newLane = convertPropertiesToLane(m_map_generator->getCurrLane());
+    if (!initializing_p) {
+        for (auto lane : m_lanes) {
+            lane->move(sf::Vector2f(0.f, newLane->getSize().y));
+        }
+    }
+    m_lanes.push_back(newLane);
 }
 
-void MapRenderer::saveLanes(const std::string &filepath)
-{
-    std::error_code err;
-    if (!CreateDirectoryRecursive(filepath, err))
-    {
-        std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
-    }
-    std::ofstream outf(filepath + "/save.data", std::ios::binary);
+void MapRenderer::saveLanes(std::ofstream& outf) {
+    outf.write(reinterpret_cast<const char *>(&m_level), sizeof(m_level));
+
     int laneSize = m_lanes.size();
     outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
-    if (m_lanes.size() > 0)
-    {
-        for (auto it = m_lanes.begin(); it != m_lanes.end(); ++it)
-        {
+    if (m_lanes.size() > 0) {
+        for (auto it = m_lanes.begin(); it != m_lanes.end(); ++it) {
             Lane *lane = *it;
             lane->saveLaneData(outf);
         }
     }
 }
 
-void MapRenderer::loadLanes(const std::string& filepath)
-{
-    std::ifstream inf(filepath + "/save.data", std::ios::binary);
+void MapRenderer::loadLanes(std::ifstream& inf) {
+    inf.read(reinterpret_cast<char *>(&m_level), sizeof(m_level));
+
+    m_map_generator =
+        std::make_unique<MapGenerator>(m_width, m_max_height, m_level);
 
     int laneSize;
     inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
@@ -95,20 +90,18 @@ void MapRenderer::loadLanes(const std::string& filepath)
         bool laneIsReverse;
         inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
         inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
-
         // std::unique_ptr<Lane> lane;
         Lane* lane;
         switch (static_cast<Lane::Type>(laneType))
         {
         case Lane::Type::Road:
-            unsigned int vehiclesCnt, animalsCnt, vehicleType, animalType;
-            float velocity;
-            inf.read(reinterpret_cast<char *>(&vehiclesCnt), sizeof(vehiclesCnt));
-            inf.read(reinterpret_cast<char *>(&animalsCnt), sizeof(animalsCnt));
-            inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
-            inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
-            inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
-            lane = new Road(&m_textures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true);
+            float animalVelocity, vehicleVelocity;
+            bool hasAnimal, hasVehicle;
+            inf.read(reinterpret_cast<char *>(&animalVelocity), sizeof(animalVelocity));
+            inf.read(reinterpret_cast<char *>(&vehicleVelocity), sizeof(vehicleVelocity));
+            inf.read(reinterpret_cast<char *>(&hasAnimal), sizeof(hasAnimal));
+            inf.read(reinterpret_cast<char *>(&hasVehicle), sizeof(hasVehicle));
+            lane = new Road(&m_textures, laneIsReverse, animalVelocity, vehicleVelocity, hasAnimal, hasVehicle, true);
             lane->loadLaneData(inf);
             break;
         case Lane::Type::River:
@@ -122,7 +115,11 @@ void MapRenderer::loadLanes(const std::string& filepath)
             lane->loadLaneData(inf);
             break;
         case Lane::Type::Railway:
-            lane = new Railway(&m_textures, &m_foreground, laneIsReverse, true);
+            float trainInterval, trainDelay, trainOffSet;
+            inf.read(reinterpret_cast<char*>(&trainInterval), sizeof(trainInterval));
+            inf.read(reinterpret_cast<char*>(&trainDelay), sizeof(trainDelay));
+            inf.read(reinterpret_cast<char*>(&trainOffSet), sizeof(trainOffSet));
+            lane = new Railway(&m_textures, laneIsReverse, trainInterval, trainDelay, trainOffSet, true);
             lane->loadLaneData(inf);
             break;
         default:
@@ -166,28 +163,24 @@ MapRenderer::convertPropertiesToLane(LaneProperties const &properties) const
 Field *
 MapRenderer::convertPropertiesToLane(FieldProperties const &properties) const
 {
-    auto field = new Field(&m_textures);
-    for (auto const &[index, green_type] : properties.getGreens())
-    {
-        auto green = std::make_unique<Green>(green_type, m_textures);
-        field->add(std::move(green), index);
-    }
-    return field;
+    return new Field(&m_textures, false, properties.getGreens());
 }
 
 Railway *
 MapRenderer::convertPropertiesToLane(RailwayProperties const &properties) const
 {
-    return new Railway(&m_textures, &m_foreground, properties.isReverse());
+    return new Railway(&m_textures, properties.isReverse(), 
+                       properties.getTrainInterval(), properties.getTrainDelay(), properties.getTrainOffSet());
 }
 
 Road *
 MapRenderer::convertPropertiesToLane(RoadProperties const &properties) const
 {
     auto road = new Road(
-        &m_textures, properties.isReverse(), properties.getVehiclesCnt(),
-        properties.getAnimalsCnt(), properties.getVehicleType(),
-        properties.getAnimalType(), properties.getVelocity());
+        &m_textures, properties.isReverse(), 
+        properties.getVehicleVelocity(), properties.getAnimalVelocity(),
+        properties.getHasVehicle(), properties.getHasAnimal()
+    );
     return road;
 }
 
@@ -198,4 +191,9 @@ MapRenderer::convertPropertiesToLane(RiverProperties const &properties) const
                            properties.getVelocity());
     river->setLogVelocity(properties.getVelocity());
     return river;
+}
+
+int MapRenderer::getLevel() const
+{
+    return m_level;
 }

@@ -25,7 +25,9 @@ public:
     Lane(const sf::Texture &texture, TextureManager* textures, bool reverse = false);
 	virtual sf::FloatRect getBoundingRect() const;
     virtual bool receivePlayer(ViewGroup* player);
+    virtual bool spawnPlayer(ViewGroup::Ptr player, int index);
     virtual bool spawnPlayer(ViewGroup::Ptr player);
+    virtual float getNearestDistance(ViewGroup* player) const;
     virtual Zone* getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
     virtual unsigned int getCategory() const;
 
@@ -40,6 +42,10 @@ private:
     virtual void updateCurrent(sf::Time dt) = 0;
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     virtual void buildLane() = 0;
+
+protected:
+    virtual bool isOutofView(Entity* entity, float laneLength) const;
+    virtual bool isIntoView(Entity* entity, float laneLength) const;
 
 public:
     Type getType() const { return type; }

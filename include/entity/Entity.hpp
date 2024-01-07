@@ -28,6 +28,9 @@ public:
 
 	sf::Vector2f getAbsoluteVelocity() const;
 
+	virtual void reverseSprite();
+	bool isReverseSprite() const;
+
 protected: 
     sf::Sprite sprite;
 	virtual void updateCurrent(sf::Time dt);
@@ -37,6 +40,7 @@ private:
 	sf::Vector2f mVelocity;
 	sf::Vector2f mSize;
 	sf::FloatRect mHitBox;
+	bool mIsReverseSprite;
 
 	virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 	friend bool collision(const ViewGroup& lhs, const ViewGroup& rhs);

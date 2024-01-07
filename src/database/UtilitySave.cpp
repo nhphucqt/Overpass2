@@ -1,6 +1,6 @@
 #include <UtilitySave.hpp>
 
-bool CreateDirectoryRecursive(const std::string &dirName, std::error_code &err)
+bool UtilitySave::CreateDirectoryRecursive(const std::string &dirName, std::error_code &err)
 {
     err.clear();
     if (!std::filesystem::create_directories(dirName, err))
@@ -16,14 +16,14 @@ bool CreateDirectoryRecursive(const std::string &dirName, std::error_code &err)
     return true;
 }
 
-bool sortDir(const std::string &filenameA, const std::string &filenameB)
+bool UtilitySave::sortDir(const std::string &filenameA, const std::string &filenameB)
 {
     int a = std::stoi(filenameA.substr(1, 2));
     int b = std::stoi(filenameB.substr(1, 2));
     return (a < b);
 }
 
-void DeleteDirContent(const std::string &dirPath)
+void UtilitySave::DeleteDirContent(const std::string &dirPath)
 {
     if (std::filesystem::exists(dirPath)) {
         for (const auto &entry : std::filesystem::directory_iterator(dirPath))
@@ -34,7 +34,7 @@ void DeleteDirContent(const std::string &dirPath)
     }
 }
 
-std::vector<std::string> getSortedFileNames(const std::string& filepath)
+std::vector<std::string> UtilitySave::getSortedFileNames(const std::string& filepath)
 {
     std::vector<std::string> loadFiles;
 	for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(filepath))

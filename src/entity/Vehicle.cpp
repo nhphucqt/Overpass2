@@ -40,6 +40,7 @@ Vehicle::VehicleData Vehicle::serialize() const
 	data.vy = getVelocity().y;
 	data.scaleX = getScale().x;
 	data.scaleY = getScale().y;
+	data.isReverse = isReverseSprite();
 
 	return data;
 }
@@ -50,4 +51,7 @@ void Vehicle::deserialize(VehicleData &data)
 	setPosition(data.posX, data.posY);
 	setVelocity(data.vx, data.vy);
 	setScale(data.scaleX, data.scaleY);
+	if (data.isReverse) {
+		reverseSprite();
+	}
 }

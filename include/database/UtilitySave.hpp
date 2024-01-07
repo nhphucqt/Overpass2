@@ -9,9 +9,12 @@
 #include <iostream>
 #include <filesystem>
 
-bool CreateDirectoryRecursive(const std::string &dirName, std::error_code &err);
-void DeleteDirContent(const std::string& dirPath);
-bool sortDir(const std::string& filenameA, const std::string& filenameB);
-std::vector<std::string> getSortedFileNames(const std::string& filepath);
+class UtilitySave {
+public:
+    static bool CreateDirectoryRecursive(const std::string &dirName, std::error_code &err);
+    static void DeleteDirContent(const std::string& dirPath);
+    static bool sortDir(const std::string& filenameA, const std::string& filenameB);
+    static std::vector<std::string> getSortedFileNames(const std::string& filepath);
+};
 
 #endif

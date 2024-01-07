@@ -62,6 +62,13 @@ void UserData::setHighscore(int newHighscore, GameMode gameMode)
     highscore.at(gameMode) = newHighscore;
 }
 
+void UserData::updateHighscore(int newHighscore, GameMode gameMode)
+{
+    if (newHighscore > highscore.at(gameMode)) {
+        highscore.at(gameMode) = newHighscore;
+    }
+}
+
 bool UserData::notAUser() const
 {
     return (username == "") || (password == "");

@@ -17,7 +17,10 @@ PlayerNode::PlayerNode(const TextureManager &textures,
       lanes(lanesVct),
       transitionLayer(nullptr),
       lastParent(nullptr),
-      __isDead(false)
+      __isDead(false),
+      currentScore(0),
+      currentDistance(0)
+      
 {
     sf::Vector2f cellSize =
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
@@ -63,6 +66,9 @@ PlayerNode::PlayerNode(const TextureManager &textures,
     setHitBox(sprite.getGlobalBounds());
 }
 
+PlayerNode::PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanesVct)
+: PlayerNode(textures, lanesVct, lanesVct.begin()) {}
+
 void PlayerNode::moveDestination(sf::Vector2f distance)
 {
     if (distance.x == 0)
@@ -83,7 +89,7 @@ void PlayerNode::moveDestination(sf::Vector2f distance)
     transitionHandler.setTransition((Entity *)getParent(),
                                     (Entity *)targetZone,
                                     sf::seconds(getMoveDuration().asSeconds()));
-    setLastParent(getParent());
+    setLastParent((Entity*)getParent());
     ViewGroup::Ptr thisPtr = getParent()->detachView(*this);
     transitionLayer->attachView(std::move(thisPtr));
 }
@@ -165,7 +171,7 @@ void PlayerNode::updateMove(sf::Time delta)
                 {
                     setDead();
                 }
-                popAction();
+                popActionAndUpdateScore();
                 state = State::Idle;
             }
         }
@@ -210,6 +216,11 @@ unsigned int PlayerNode::getCategory() const
     return Category::Player;
 }
 
+void PlayerNode::setCurrentLane(MapRenderer::LaneList::const_iterator lane)
+{
+    curLane = lane;
+}
+
 MapRenderer::LaneList::const_iterator PlayerNode::getCurrentLane() const
 {
     return curLane;
@@ -219,14 +230,15 @@ void PlayerNode::moveBack()
 {
     sf::Vector2i action = getCurrentAction();
     clearActionQueue();
+    action *= -1;
     pushAction(action);
     if (action.y < 0)
     { // go up
-        curLane--;
+        curLane++;
     }
     else if (action.y > 0)
     {
-        curLane++;
+        curLane--;
     }
     transitionHandler.setIsReversed(true);
 }
@@ -261,12 +273,12 @@ void PlayerNode::setTransitionLayer(ViewGroup *layer)
     transitionLayer = layer;
 }
 
-void PlayerNode::setLastParent(ViewGroup *parent)
+void PlayerNode::setLastParent(Entity* parent)
 {
     lastParent = parent;
 }
 
-ViewGroup *PlayerNode::getLastParent()
+Entity* PlayerNode::getLastParent()
 {
     return lastParent;
 }
@@ -276,8 +288,14 @@ void PlayerNode::pushAction(sf::Vector2i action)
     actionQueue.push(action);
 }
 
-void PlayerNode::popAction()
+void PlayerNode::popActionAndUpdateScore()
 {
+    sf::Vector2i action = getCurrentAction();
+    if (action.y < 0) {
+        updateScore(1);
+    } else if (action.y > 0) {
+        updateScore(-1);
+    }
     actionQueue.pop();
 }
 
@@ -309,6 +327,11 @@ sf::Time PlayerNode::getMoveDuration() const
     return moveDuration;
 }
 
+bool PlayerNode::isMoving()
+{
+    return getParent() == transitionLayer;
+}
+
 void PlayerNode::setDead()
 {
     __isDead = true;
@@ -323,13 +346,19 @@ void PlayerNode::savePlayerData(std::ofstream &outf)
 {
     if (outf.is_open())
     {
-        int currentLane = std::distance(lanes.begin(), curLane);
-        std::cout << "saved current lane: " << currentLane << std::endl;
-        outf.write(reinterpret_cast<const char *>(&currentLane), sizeof(currentLane));
         PlayerData data;
         data.state = static_cast<int>(state);
-        data.x = getWorldTransform().transformPoint(getOrigin()).x;
-        data.y = getWorldTransform().transformPoint(getOrigin()).y;
+        if (isMoving()) {
+            data.x = lastParent->getWorldCenter().x;
+            data.y = lastParent->getWorldCenter().y;
+        } else {
+            data.x = getWorldTransform().transformPoint(getOrigin()).x;
+            data.y = getWorldTransform().transformPoint(getOrigin()).y;
+        }
+        data.moveDuration = moveDuration.asSeconds();
+        data.currentScore = currentScore;
+        data.currentDistance = currentDistance;
+        data.isDead = __isDead;
 
         outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
     }
@@ -344,19 +373,29 @@ void PlayerNode::loadPlayerData(std::ifstream &inf)
     if (inf.is_open())
     {
         int currentLane = std::distance(lanes.begin(), curLane);
-        std::cout << "load current lane: " << currentLane << std::endl;
-        // Lane* currentLane = *curLane;
-        // std::cout << "type of lane: " << currentLane->getType() << std::endl;
         PlayerData data;
         inf.read(reinterpret_cast<char *>(&data), sizeof(data));
 
         state = static_cast<State>(data.state);
         setPosition(data.x, data.y);
-        std::cout << "player is fine\n";
-        // std::cout << "Player spawns at: " << data.x << ' ' << curLane << std::endl;
+
+        moveDuration = sf::seconds(data.moveDuration);
+        currentScore = data.currentScore;
+        currentDistance = data.currentDistance;
+        __isDead = data.isDead;
     }
     else
     {
         std::runtime_error("PLAYERDATA ERR: \"save.data\" not found.\n");
     }
+}
+void PlayerNode::updateScore(int offset)
+{
+    currentDistance += offset;
+    currentScore = std::max(currentScore, currentDistance);
+}
+
+int PlayerNode::getScore() const
+{
+    return currentScore;
 }

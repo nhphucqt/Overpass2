@@ -4,13 +4,22 @@
 #include <DemoActivity.hpp>
 #include <Field.hpp>
 #include <GameActivity.hpp>
+#include <SettingsActivity.hpp>
 #include <Railway.hpp>
 #include <River.hpp>
 #include <Road.hpp>
-#include <TextView.hpp>
 #include <iterator>
 #include <UserSession.hpp>
 #include <UtilitySave.hpp>
+
+#include <LayerView.hpp>
+#include <ButtonView.hpp>
+#include <SpriteButtonView.hpp>
+#include <TextView.hpp>
+#include <IconButtonFactory.hpp>
+
+const std::string GameActivity::GAME_STATE_FILENAME = "save.data";
+const std::string GameActivity::PLAYER_STATE_FILENAME = "player.data";
 
 void GameActivity::onLoadResources()
 {
@@ -26,6 +35,8 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Police, "res/textures/Vehicle/Police.png");
     // traffic light
     mTextures.load(TextureID::TrafficLight, "res/textures/TrafficLight.png");
+    mTextures.load(TextureID::RailwayLightOff, "res/textures/RailwayLightOff.png");
+    mTextures.load(TextureID::RailwayLightOn, "res/textures/RailwayLightOn.png");
     // animals
     mTextures.load(TextureID::Bear, "res/textures/Animal/Bear.png");
     mTextures.load(TextureID::Boar, "res/textures/Animal/Boar.png");
@@ -34,7 +45,8 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Fox, "res/textures/Animal/Fox.png");
     mTextures.load(TextureID::Wolf, "res/textures/Animal/Wolf.png");
     // log
-    mTextures.load(TextureID::Wood, "res/textures/Wood.png");
+    mTextures.load(TextureID::WoodL2, "res/textures/WoodL2.png");
+    mTextures.load(TextureID::WoodL3, "res/textures/WoodL3.png");
     // greens aka plants
     mTextures.load(TextureID::Tree, "res/textures/Green/Tree.png");
     mTextures.load(TextureID::Bush, "res/textures/Green/Bush.png");
@@ -52,29 +64,32 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::CharacterIdle,
                    "res/textures/Character/Cat-Idle.png");
     // game over banner
-    mTextures.load(TextureID::GameOver, "res/textures/Lane/GameOver.png");
+    mTextures.load(TextureID::homeButtonsTexture, "res/textures/ui/buttons/home_button.png");
+    mTextures.load(TextureID::pauseButtonsTexture, "res/textures/ui/buttons/pause_button.png");
+    mTextures.load(TextureID::continueButtonsTexture, "res/textures/ui/buttons/continue_button.png");
+    mTextures.load(TextureID::settingButtonsTexture, "res/textures/ui/buttons/setting_button.png");
+    mTextures.load(TextureID::replayButtonsTexture, "res/textures/ui/buttons/replay_button.png");
+    mTextures.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
 
-    mFontManager.load(FontID::defaultFont, "res/fonts/Consolas-Bold.ttf");
+    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
 }
 
-void GameActivity::onCreate() {}
+void GameActivity::onCreate() {
+}
 
 void GameActivity::onAttach()
 {
     sf::RenderWindow &window = getActivityManager()->getWindow();
     window.setKeyRepeatEnabled(false);
     mWorldView = window.getDefaultView();
-    mWorldBounds = sf::FloatRect(0.f, 0.f, mWorldView.getSize().x,
-                                 mWorldView.getSize().y * 10);
-    mSpawnPosition =
-        sf::Vector2f(mWorldView.getSize().x / 2.f,
-                     mWorldBounds.height - mWorldView.getSize().y / 2.f);
+
+    mIsGameOver = false;
     mScrollSpeed = -600.f;
-    clock = sf::Clock();
-    stop = false;
-    playerLaneIndex = 3;
-    scrollDistance = 0;
-    actualScrollDistance = 0;
+
+    effectLayer = std::make_unique<LayerView>();
+    statusLayer = std::make_unique<LayerView>();
+
+    createStatusLayer();
 
     // Initialize the different layers
     for (std::size_t i = 0; i < LayerCount; ++i)
@@ -86,15 +101,15 @@ void GameActivity::onAttach()
     }
     mSceneLayers[Background]->setReverse(true);
 
-    if (getIntent()->getAction() == ACTION_NEW_GAME)
-    {
+    if (getIntent()->getAction() == ACTION_NEW_GAME) {
         attachLanes();
         attachPlayer();
     }
-    else
-    {
-        // load game
-        loadGameState("data/" + UserSession::getInstance().getCurrentUser().getUsername());
+    else if (getIntent()->getAction() == ACTION_CONTINUE_GAME) {
+        loadGame();
+    }
+    else {
+        std::cerr << "Unknown action: " << getIntent()->getAction() << std::endl;
     }
 }
 
@@ -110,7 +125,18 @@ void GameActivity::onPause()
 
 void GameActivity::onDestroy()
 {
-    // ...
+    if (!isGameOver()) {
+        saveGame();
+    } else {
+        savePlayerScore();
+    }
+}
+
+void GameActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+    target.setView(target.getDefaultView());
+    target.draw(*effectLayer, states);
+    target.draw(*statusLayer, states);
 }
 
 void GameActivity::onEvent(const sf::Event &event)
@@ -127,9 +153,21 @@ void GameActivity::onEventProcessing()
 void GameActivity::updateCurrent(sf::Time dt)
 {
     // Scroll the world
-    std::cout << "scroll is fine1\n";
+    popOutOfViewLanes();
     scroll(dt);
-    std::cout << "scroll is fine2\n";
+
+    // generate new lanes when there are few lanes left
+    if (lanes->size() < DEFAULT_MAP_MAX_HEIGHT)
+    {
+        
+        Lane* newLane = mMapRenderer->createNewLane();
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(newLane));
+        mWorldView.move(0.f, newLane->getSize().y);
+        if (mPlayerNode->isMoving()) {
+            mPlayerNode->move(0.f, newLane->getSize().y);
+        }
+    }
+
     // Forward commands to scene graph, adapt velocity (scrolling, diagonal
     // correction)
     while (!mCommandQueue.isEmpty())
@@ -137,17 +175,11 @@ void GameActivity::updateCurrent(sf::Time dt)
         Command command = mCommandQueue.pop();
         onCommand(command, dt);
     }
-    // std::cout << "command is fine\n";
 
     handleCollisions();
-    // std::cout << "collision is fine\n";
     // Apply movements
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    {
-        std::cout << "Save data.\n";
-        saveGameState("data/" + UserSession::getInstance().getCurrentUser().getUsername());
-    }
+    // Update score
+    updateScore(scoreText, mPlayerNode);
 }
 
 void GameActivity::drawCurrent(sf::RenderTarget &target,
@@ -210,6 +242,14 @@ void GameActivity::handleCollisions()
         }
     }
 
+    sf::FloatRect viewBounds = getViewBounds();
+    sf::FloatRect playerBounds = mPlayerNode->getHitBox();
+    if (viewBounds.top + viewBounds.height < playerBounds.top + playerBounds.height ||
+        viewBounds.left + viewBounds.width < playerBounds.left ||
+        viewBounds.left > playerBounds.left + playerBounds.width) {
+        mPlayerNode->setDead();
+    }
+
     if (mPlayerNode->isDead())
     {
         gameOver();
@@ -221,48 +261,23 @@ void GameActivity::scroll(sf::Time dt)
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     int currentLaneIndex = std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
-    // std::cout << currentLaneIndex << ' ' << playerLaneIndex << std::endl;
-    if (currentLaneIndex > playerLaneIndex)
-    {
-        scrollDistance += 128.f;
-        ++playerLaneIndex;
-        std::cout << "scroll up\n";
-    }
-    else if (currentLaneIndex < playerLaneIndex)
-    {
-        scrollDistance -= 128.f;
-        --playerLaneIndex;
-    }
 
-    float scrollStep = mScrollSpeed * dt.asSeconds();
-
-    if (scrollDistance > 0)
-    {
-        std::cout << "scroll up1\n";
-        scrollDistance += scrollStep;
-        mWorldView.move(0.f, scrollStep);
-        std::cout << "scroll up2\n";
-        
-        // mMapRenderer->moveView();
-
-        mSceneLayers[Background]->attachView(
-            std::unique_ptr<ViewGroup>(lanes->back()));
-        std::cout << "scroll up3\n";
-        
+    if (mPlayerNode->getWorldPosition().y - getViewBounds().top < cellSize.y * 5) {
+        mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());
     }
 }
 
 void GameActivity::gameOver()
 {
-    std::unique_ptr<Entity> banner(
-        new Entity(mTextures.get(TextureID::GameOver)));
-    sf::FloatRect viewBounds(mWorldView.getCenter() - mWorldView.getSize() / 2.f,
-                             mWorldView.getSize());
-    banner->setPosition(viewBounds.getPosition().x,
-                        viewBounds.getPosition().y + 300);
-    mSceneLayers[Aboveground]->attachView(std::move(banner));
+    mIsGameOver = true;
+    createGameOverBanner();
     setUpdate(false);
-    DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
+    removeSavedGame();
+}
+
+bool GameActivity::isGameOver() const
+{
+    return mIsGameOver;
 }
 
 CommandQueue &GameActivity::getCommandQueue()
@@ -281,200 +296,361 @@ void GameActivity::attachLanes()
         DEFAULT_MAP_MAX_HEIGHT, level);
     lanes = &mMapRenderer->getLanes();
     unsigned int lane_index = 0;
+    float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+    float const TOTAL_HEIGHT = CELL_HEIGHT * lanes->size();
     for (auto it = lanes->begin(); it != lanes->end(); ++it)
     {
         Lane &lane = **it;
-        float const CELL_HEIGHT =
-            AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-        lane.setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * lane_index);
+        lane.setPosition(0, TOTAL_HEIGHT - CELL_HEIGHT * (lane_index + 1));
         mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
         ++lane_index;
     }
+
+    mWorldView.move(0.f, TOTAL_HEIGHT - CELL_HEIGHT * (DEFAULT_SPAWN_LANE_ID - 1) - mWorldView.getSize().y);
 }
 
 void GameActivity::attachPlayer()
 {
-    auto player = std::make_unique<PlayerNode>(
-        mTextures, *lanes,
-        std::next(lanes->begin(),
-                  1)); // last argument must be consistent with playerLaneIndex
+    MapRenderer::LaneList::const_iterator spawnLane = std::next(lanes->begin(), DEFAULT_SPAWN_LANE_ID);
+
+    auto player = std::make_unique<PlayerNode>(mTextures, *lanes, spawnLane);
     mPlayerNode = player.get();
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-    (*std::next(lanes->begin(), 1))->spawnPlayer(std::move(player));
-    Lane *spawnLane = *std::next(lanes->begin(), 1);
-    std::cout << "spawn lane type: " << spawnLane->getType() << std::endl;
-    // mSceneLayers[Aboveground]->attachView(std::move(player));
-    // createTitle();
 
-    mWorldView.setCenter(mSpawnPosition);
+    (*spawnLane)->spawnPlayer(std::move(player));
 }
 
-void GameActivity::saveGameState(const std::string& filepath)
+void GameActivity::saveGameState(const std::string& gameStateFilePath, const std::string& playerStateFilePath)
 {
-    DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
-    mMapRenderer->saveLanes(filepath);
-    std::ofstream outf(filepath + "/player.data", std::ios::binary);
+    std::ofstream outf(gameStateFilePath, std::ios::binary);
+
+    float viewCenterX = mWorldView.getCenter().x;
+    float viewCenterY = mWorldView.getCenter().y;
+
+    outf.write(reinterpret_cast<const char *>(&viewCenterX), sizeof(viewCenterX));
+    outf.write(reinterpret_cast<const char *>(&viewCenterY), sizeof(viewCenterY));
+
+    mMapRenderer->saveLanes(outf);
+    outf.close();
+
+    outf.open(playerStateFilePath, std::ios::binary);
     mPlayerNode->savePlayerData(outf); 
+    outf.close();
 }
 
-void GameActivity::loadGameState(const std::string& filepath)
+void GameActivity::loadGameState(const std::string& gameStateFilePath, const std::string& playerStateFilePath)
 {
-    if (!std::filesystem::exists(filepath)) 
-    {
-        std::cerr << filepath + " not found.\n";
-        // re-direct player to new game
-    }
+    std::ifstream inf(gameStateFilePath, std::ios::binary);
 
-    Intent *intent = getIntent();
-    unsigned int level = intent->getExtra<int>("level", -1);
+    float viewCenterX;
+    float viewCenterY;
+    inf.read(reinterpret_cast<char *>(&viewCenterX), sizeof(viewCenterX));
+    inf.read(reinterpret_cast<char *>(&viewCenterY), sizeof(viewCenterY));
+
+    mWorldView.setCenter(viewCenterX, viewCenterY);
 
     mMapRenderer = std::make_unique<MapRenderer>(
         mTextures, *mSceneLayers[Layer::Aboveground],
         AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells),
-        DEFAULT_MAP_MAX_HEIGHT, level, true);
+        DEFAULT_MAP_MAX_HEIGHT, 0, true);
+
+    mMapRenderer->loadLanes(inf);
+
+    inf.close();
+
     lanes = &mMapRenderer->getLanes();
-    std::cout << "lane size: " << lanes->size() << std::endl;
     unsigned int lane_index = 0;
+    float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+    float const TOTAL_HEIGHT = CELL_HEIGHT * lanes->size();
     for (auto it = lanes->begin(); it != lanes->end(); ++it)
     {
-        std::cout << "lane " << lane_index << std::endl;
         Lane &lane = **it;
-        std::cout << "lane1 " << lane_index << std::endl;
-        float const CELL_HEIGHT =
-            AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-        lane.setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * lane_index);
-        std::cout << "lane2 " << lane_index << std::endl;
+        lane.setPosition(0, TOTAL_HEIGHT - CELL_HEIGHT * (lane_index + 1));
         mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
-        std::cout << "lane3 " << lane_index << std::endl;
-
         ++lane_index;
     }
 
-    loadPlayer(filepath);
+    loadPlayer(playerStateFilePath);
 }
 
-void GameActivity::loadPlayer(const std::string& filepath)
+void GameActivity::loadPlayer(const std::string& playerStateFilePath)
 {
-    std::ifstream inf(filepath + "/player.data", std::ios::binary);
-    int playerCurrentLane;
-    inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
+    std::ifstream inf(playerStateFilePath, std::ios::binary);
 
-    auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
-    std::cout << "load player1\n";
+    auto player = std::make_unique<PlayerNode>(mTextures, *lanes);
     mPlayerNode = player.get();
-    // mPlayerNode = new PlayerNode(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
 
     mPlayerNode->loadPlayerData(inf);
-    std::cout << "load player2\n";
-    playerLaneIndex = playerCurrentLane;
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
     mSceneLayers[Aboveground]->attachView(std::move(player));
-    (*std::next(lanes->begin(), playerCurrentLane))->receivePlayer(mPlayerNode);
-    if (playerCurrentLane > 2)
-        mWorldView.setCenter(mWorldView.getSize().x / 2.f, (*std::next(lanes->begin(), playerCurrentLane))->getPosition().y);
-    else
-    {
-        mWorldView.setCenter(mSpawnPosition);
+
+    MapRenderer::LaneList::const_iterator spawnLane;
+    float minDistance = std::numeric_limits<float>::max();
+    for (auto it = lanes->begin(); it != lanes->end(); ++it) {
+        float distance = (*it)->getNearestDistance(mPlayerNode);
+        if (distance < minDistance) {
+            minDistance = distance;
+            spawnLane = it;
+        }
     }
-    std::cout << "load player5\n";
+
+    mPlayerNode->setCurrentLane(spawnLane);
+    (*spawnLane)->receivePlayer(mPlayerNode);
 }
 
-// void GameActivity::saveGameState(const std::string &filepath)
-// {
-//     DeleteDirContent("data/" + UserSession::getInstance().getCurrentUser().getUsername());
-//     std::error_code err;
-//     if (!CreateDirectoryRecursive(filepath, err))
-//     {
-//         std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
-//     }
-//     std::ofstream outf(filepath + "/save.data", std::ios::binary);
-//     int laneSize = lanes->size();
-//     outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
-//     if (lanes->size() > 0)
-//     {
-//         for (auto it = lanes->begin(); it != lanes->end(); ++it)
-//         {
-//             Lane *lane = *it;
-//             lane->saveLaneData(outf);
-//         }
-//     }
-//     if (mPlayerNode)
-//     {
-//         mPlayerNode->savePlayerData(outf);
-//     }
-// }
+void GameActivity::createStatusLayer() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
-// void GameActivity::loadGameState(const std::string &filepath)
-// {
-//     std::ifstream inf(filepath + "/save.data", std::ios::binary);
-//     if (!inf)
-//     {
-//         std::cerr << filepath + "/save.data not found.\n";
-//         // tell player to create new game instead
-//     }
+    TextView::Ptr pointView = std::make_unique<TextView>(
+        this,
+        "0",
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(10, 10),
+        64
+    );
+    pointView->setFillColor(sf::Color::White);
+    scoreText = pointView.get();
 
-//     int laneSize;
-//     inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
-//     // MapRenderer::LaneList moddedLane;
-//     for (int i = 0; i < laneSize; ++i)
-//     {
-//         int laneType;
-//         bool laneIsReverse;
-//         inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
-//         inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
+    SpriteView::Ptr menuView = std::make_unique<SpriteView>(
+        this,
+        mTextures.get(TextureID::mainMenuButtonTexture),
+        sf::Vector2f(0, 0),
+        sf::Vector2f(90, 25) * 5.f,
+        sf::IntRect(99, 4, 90, 25)
+    );
+    sf::Vector2f menuSize = menuView->get().getGlobalBounds().getSize();
+    menuView->setOrigin(menuSize / 2.f);
+    menuView->setPosition(windowSize / 2.f);
+    menuView->setVisibility(false);
+    pauseMenu = menuView.get();
 
-//         std::unique_ptr<Lane> lane;
-//         switch (static_cast<Lane::Type>(laneType))
-//         {
-//         case Lane::Type::Road:
-//             unsigned int vehiclesCnt, animalsCnt, vehicleType, animalType;
-//             float velocity;
-//             inf.read(reinterpret_cast<char *>(&vehiclesCnt), sizeof(vehiclesCnt));
-//             inf.read(reinterpret_cast<char *>(&animalsCnt), sizeof(animalsCnt));
-//             inf.read(reinterpret_cast<char *>(&vehicleType), sizeof(vehicleType));
-//             inf.read(reinterpret_cast<char *>(&animalType), sizeof(animalType));
-//             inf.read(reinterpret_cast<char *>(&velocity), sizeof(velocity));
+    SpriteButtonView::Ptr pauseButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::pauseButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->setUpdate(false);
+            this->pauseMenu->setVisibility(true);
+            this->pauseMenu->setIsListeningAll(true);
+        }
+    );
+    pauseButton->setOrigin(pauseButton->getGlobalBounds().getSize().x, 0);
+    pauseButton->setPosition(windowSize.x - 10.f, 10.f);
 
-//             lane.reset(new Road(&mTextures, laneIsReverse, vehiclesCnt, animalsCnt, static_cast<Vehicle::Type>(vehicleType), static_cast<Animal::Type>(animalType), velocity, true));
-//             lane->loadLaneData(inf);
-//             break;
-//         case Lane::Type::River:
-//             float logVelocity;
-//             inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
-//             lane.reset(new River(&mTextures, laneIsReverse, logVelocity, true));
-//             lane->loadLaneData(inf);
-//             break;
-//         case Lane::Type::Field:
-//             lane.reset(new Field(&mTextures, laneIsReverse, true));
-//             lane->loadLaneData(inf);
-//             break;
-//         case Lane::Type::Railway:
-//             lane.reset(new Railway(&mTextures, mSceneLayers[Aboveground], laneIsReverse, true));
-//             lane->loadLaneData(inf);
-//             break;
-//         default:
-//             throw std::runtime_error("LOAD ERR: Lane type not found");
-//         }
-//         moddedLane.push_back(lane.get());
-//         float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-//         lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - CELL_HEIGHT * i);
-//         // lane->setPosition(mWorldBounds.left, mWorldBounds.top + mWorldBounds.height - 128 * i);
-//         mSceneLayers[Background]->attachView(std::move(lane));
-//     }
-//     lanes = &moddedLane;
+    SpriteButtonView::Ptr continueButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::continueButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->setUpdate(true);
+            this->pauseMenu->setVisibility(false);
+            this->pauseMenu->setIsListeningAll(false);
+        }
+    );
 
-//     int playerCurrentLane;
-//     inf.read(reinterpret_cast<char *>(&playerCurrentLane), sizeof(playerCurrentLane));
-//     auto player = std::make_unique<PlayerNode>(mTextures, *lanes, std::next(lanes->begin(), playerCurrentLane));
-//     mPlayerNode = player.get();
-//     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+    SpriteButtonView::Ptr homeButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::homeButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->finish();
+        }
+    );
+    homeButton->setOrigin(homeButton->getGlobalBounds().getSize() / 2.f);
 
-//     mPlayerNode->loadPlayerData(inf);
-//     playerLaneIndex = playerCurrentLane;
-//     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-//     (*std::next(lanes->begin(), playerCurrentLane))->spawnPlayer(std::move(player));
-//     // mSceneLayers[Aboveground]->attachView(std::move(player));
-//     mWorldView.setCenter(mSpawnPosition);
-// }
+    SpriteButtonView::Ptr settingButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::settingButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            Intent::Ptr intent = Intent::Builder()
+                    .setAction(SettingsActivity::ACTION_INGAME)
+                    .build();
+            this->startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+        }
+    );
+
+    float padding = 125;
+    continueButton->setPosition(-padding, 0);
+    settingButton->setPosition(padding, 0);
+    homeButton->setPosition(menuSize / 2.f);
+
+    homeButton->attachView(std::move(continueButton));
+    homeButton->attachView(std::move(settingButton));
+    menuView->attachView(std::move(homeButton));
+
+    statusLayer->attachView(std::move(pointView));
+    statusLayer->attachView(std::move(pauseButton));
+    statusLayer->attachView(std::move(menuView));
+}
+
+void GameActivity::createGameOverBanner() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
+
+    ButtonView::Ptr bannerView = std::make_unique<ButtonView>(
+        this,
+        mTextures.get(TextureID::mainMenuButtonTexture),
+        mFontManager.get(FontID::defaultFont),
+        "Game Over",
+        64,
+        sf::Vector2f(0, 0),
+        sf::IntRect(99, 4, 90, 25),
+        sf::Vector2f(90, 25) * 5.f
+    );
+    sf::Vector2f bannerSize = bannerView->getGlobalBounds().getSize();
+    bannerView->setOrigin(bannerSize.x / 2.f, bannerSize.y / 2.f);
+    bannerView->setPosition(windowSize.x / 2.f, windowSize.y / 2.f);
+
+    SpriteButtonView::Ptr replayButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::replayButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            Intent* intent = this->getIntent();
+            Intent::Ptr resIntent = Intent::Builder()
+                .setAction(GameActivity::ACTION_NEW_GAME)
+                .putExtra("level", intent->getExtra<int>("level", -1))
+                .build();
+            this->setResult(RESULT_OK, std::move(resIntent));
+            this->finish();
+        }
+    );
+    replayButton->setOrigin(replayButton->getGlobalBounds().getSize().x, 0);
+
+    SpriteButtonView::Ptr homeButton = IconButtonFactory::create(
+        this,
+        mTextures.get(TextureID::homeButtonsTexture),
+        mFontManager.get(FontID::defaultFont),
+        sf::Vector2f(0, 0),
+        [this](EventListener* listener, const sf::Event& event) {
+            this->finish();
+        }
+    );
+    homeButton->setOrigin(homeButton->getGlobalBounds().getSize().x / 2.f, 0);
+
+    float paddingX = 100;
+    float paddingY = 10;
+    replayButton->setPosition(bannerSize.x / 2.f - paddingX, bannerSize.y + paddingY);
+    homeButton->setPosition(bannerSize.x / 2.f + paddingX, bannerSize.y + paddingY);
+
+    bannerView->attachView(std::move(replayButton));
+    bannerView->attachView(std::move(homeButton));
+    statusLayer->attachView(std::move(bannerView));
+}
+
+void GameActivity::updateScore(TextView* scoreText, PlayerNode* playerNode) {
+    scoreText->setText(std::to_string(playerNode->getScore()));
+}
+
+void GameActivity::pushNewLane() {
+
+}
+
+void GameActivity::popOutOfViewLanes() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
+    float threshold = cellSize.y * 5;
+
+    sf::FloatRect worldBounds = getViewBounds();
+    while (!lanes->empty() && lanes->front()->getPosition().y > worldBounds.top + worldBounds.height + threshold) {
+        mMapRenderer->popLane();
+    }
+}
+
+sf::FloatRect GameActivity::getViewBounds() const {
+    sf::FloatRect rt;
+    rt.left = mWorldView.getCenter().x - mWorldView.getSize().x/2.f;
+    rt.top  = mWorldView.getCenter().y - mWorldView.getSize().y/2.f;
+    rt.width  = mWorldView.getSize().x;
+    rt.height = mWorldView.getSize().y;
+    return rt;
+}
+
+void GameActivity::saveGame() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = userSession.getCurrentUser().getUsername();
+    std::string dirPath = dataPath + username;
+
+    UtilitySave::DeleteDirContent(dirPath);
+    std::error_code err;
+    if (!UtilitySave::CreateDirectoryRecursive(dirPath, err)) {
+        std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
+    }
+
+    std::string gameStateFilePath = dirPath + "/" + GAME_STATE_FILENAME;
+    std::string playerStateFilePath = dirPath + "/" + PLAYER_STATE_FILENAME;
+    saveGameState(gameStateFilePath, playerStateFilePath);
+}
+
+void GameActivity::loadGame() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = userSession.getCurrentUser().getUsername();
+    std::string gameStateFilePath = dataPath + username + "/" + GAME_STATE_FILENAME;
+    std::string playerStateFilePath = dataPath + username + "/" + PLAYER_STATE_FILENAME;
+    loadGameState(gameStateFilePath, playerStateFilePath);
+}
+
+void GameActivity::removeSavedGame() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = userSession.getCurrentUser().getUsername();
+    std::string dirPath = dataPath + username;
+
+    UtilitySave::DeleteDirContent(dirPath);
+}
+
+void GameActivity::savePlayerScore() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    UserData& user = userSession.getCurrentUser();
+    GameLevel level = (GameLevel)mMapRenderer->getLevel();
+    UserData::GameMode mode;
+
+    switch(level) {
+        case GameLevel::Easy:
+            mode = UserData::GameMode::easy;
+        break;
+        case GameLevel::Medium:
+            mode = UserData::GameMode::medium;
+        break;
+        case GameLevel::Hard:
+            mode = UserData::GameMode::hard;
+        break;
+        case GameLevel::Endless:
+            mode = UserData::GameMode::endless;
+        break;
+    }
+    user.updateHighscore(mPlayerNode->getScore(), mode);
+
+    UserRepo& userRepo = UserRepo::getInstance();
+    userRepo.updateUser(user);
+}

@@ -54,6 +54,7 @@ Animal::Animal(Type mType, const TextureManager& textures)
     }
     animation.setDuration(sf::seconds(1));
     animation.scale(5, 5);
+    animation.setRepeating(true);
 
     sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);
@@ -74,7 +75,6 @@ void Animal::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) cons
 void Animal::updateCurrent(sf::Time dt) {
     Entity::updateCurrent(dt);
     animation.update(dt);
-    animation.setRepeating(true);
 }
 
 unsigned int Animal::getCategory() const {
@@ -90,6 +90,7 @@ Animal::AnimalData Animal::serialize() const {
 	data.vy = getVelocity().y;
 	data.scaleX = getScale().x;
 	data.scaleY = getScale().y;
+    data.isReverse = isReverseSprite();
 
     return data;
 }
@@ -99,4 +100,11 @@ void Animal::deserialize(Animal::AnimalData& data) {
     setPosition(data.posX, data.posY);
 	setVelocity(data.vx, data.vy);
 	setScale(data.scaleX, data.scaleY);
+    if (data.isReverse) {
+        reverseSprite();
+    }
+}
+void Animal::reverseSprite() {
+    animation.reverseSprite();
+    Entity::reverseSprite();
 }

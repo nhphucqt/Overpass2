@@ -26,6 +26,7 @@ public:
 
     virtual int getNearestZoneIndex(ViewGroup* player) const;
     virtual Zone* getNearestZone(ViewGroup* player) const;
+    virtual float getNearestZoneDistance(ViewGroup* player) const;
     virtual int getTargetZoneIndex(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
     virtual Zone* getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
 
@@ -34,7 +35,9 @@ public:
     ViewGroup::Ptr detachPlayer(ViewGroup* player);
     bool attachPlayer(ViewGroup::Ptr player, Zone* zone);
     bool receivePlayer(ViewGroup* player);
-    bool spawnPlayer(ViewGroup::Ptr player);
+
+    virtual bool spawnPlayer(ViewGroup::Ptr player, int index);
+    virtual bool spawnPlayer(ViewGroup::Ptr player);
 };
 
 #endif

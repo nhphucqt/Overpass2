@@ -11,6 +11,8 @@
 class Animal : public Entity
 {
 public:
+    typedef std::unique_ptr<Animal> Ptr;
+
     enum Type
     {
         Bear,
@@ -26,6 +28,8 @@ public:
     void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     unsigned int getCategory() const;
 
+    void reverseSprite() override;
+
 private:
     Type type;
     Animation animation;
@@ -40,6 +44,7 @@ public:
         float vy;
         float scaleX;
         float scaleY;
+        bool isReverse;
     };
     
     AnimalData serialize() const;

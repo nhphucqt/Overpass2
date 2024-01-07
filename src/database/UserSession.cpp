@@ -101,3 +101,8 @@ UserData &UserSession::getCurrentUser()
 {
     return currentUser;
 }
+
+const UserData &UserSession::getCurrentUser() const
+{
+    return currentUser;
+}

@@ -48,6 +48,7 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/gui/*.cpp
     ${CMAKE_SOURCE_DIR}/src/gui/factory/*.cpp
     ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/entity/factory/*.cpp
     ${CMAKE_SOURCE_DIR}/src/map_generator/*.cpp
     ${CMAKE_SOURCE_DIR}/src/database/*.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/*.cpp
@@ -71,6 +72,7 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/gui
     ${CMAKE_SOURCE_DIR}/include/gui/factory
     ${CMAKE_SOURCE_DIR}/include/entity
+    ${CMAKE_SOURCE_DIR}/include/entity/factory
     ${CMAKE_SOURCE_DIR}/include/map_generator
     ${CMAKE_SOURCE_DIR}/include/database
     ${CMAKE_SOURCE_DIR}/include/utils
