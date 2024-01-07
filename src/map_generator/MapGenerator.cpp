@@ -58,9 +58,10 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
     }
 
     if (m_cons_nonfields_cnt
-        == LEVEL_MAX_CONS_NONFIELDS_CNTS[static_cast<unsigned int>(m_level)])
+        == LEVEL_MAX_CONS_NONFIELDS_CNTS[getRealLevel()])
     {
-        return static_cast<Lane::Type>(MyRandom::random_range(2) + 1);
+        Lane::Type laneType = static_cast<Lane::Type>(MyRandom::random_range(2) + 1);
+        return laneType;
     }
 
     if (m_river_width == MAX_RIVER_WIDTH)
@@ -74,8 +75,11 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
         return static_cast<Lane::Type>(lane_type);
     }
 
-    return static_cast<Lane::Type>(MyRandom::random_range(
+
+    Lane::Type laneType = static_cast<Lane::Type>(MyRandom::random_range(
         0, static_cast<unsigned int>(Lane::Type::Count) - 1));
+
+    return laneType;
 }
 
 std::unique_ptr<LaneProperties>
