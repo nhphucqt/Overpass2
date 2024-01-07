@@ -30,6 +30,7 @@ public:
 	std::size_t getNumFrames() const;
 
 	void setDuration(sf::Time duration);
+	void setDuration(float duration);
 	sf::Time getDuration() const;
 
 	void setRepeating(bool flag);

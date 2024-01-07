@@ -22,6 +22,8 @@ const std::string GameActivity::GAME_STATE_FILENAME = "save.data";
 const std::string GameActivity::PLAYER_STATE_FILENAME = "player.data";
 
 #include <LayerView.hpp>
+#include <RainLayer.hpp>
+
 #include <ButtonView.hpp>
 #include <SpriteButtonView.hpp>
 #include <TextView.hpp>
@@ -96,11 +98,7 @@ void GameActivity::onAttach()
     statusLayer = std::make_unique<LayerView>();
 
     createStatusLayer();
-
-    effectLayer = std::make_unique<LayerView>();
-    statusLayer = std::make_unique<LayerView>();
-
-    createStatusLayer();
+    createEffectLayer();
 
     // Initialize the different layers
     for (std::size_t i = 0; i < LayerCount; ++i)
@@ -163,34 +161,23 @@ void GameActivity::onEventProcessing()
 
 void GameActivity::updateCurrent(sf::Time dt)
 {
-    // Scroll the world
-    popOutOfViewLanes();
     scroll(dt);
+    popOutOfViewLanes();
+    ensureEnoughLanes();
 
-    // generate new lanes when there are few lanes left
-    if (lanes->size() < DEFAULT_MAP_MAX_HEIGHT)
-    {
-        
-        Lane* newLane = mMapRenderer->createNewLane();
-        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(newLane));
-        mWorldView.move(0.f, newLane->getSize().y);
-        if (mPlayerNode->isMoving()) {
-            mPlayerNode->move(0.f, newLane->getSize().y);
-        }
-    }
-
-    // Forward commands to scene graph, adapt velocity (scrolling, diagonal
-    // correction)
-    while (!mCommandQueue.isEmpty())
-    {
+    while (!mCommandQueue.isEmpty()) {
         Command command = mCommandQueue.pop();
         onCommand(command, dt);
     }
-
     handleCollisions();
-    // Apply movements
-    // Update score
     updateScore(scoreText, mPlayerNode);
+
+    mEffectTimer[isEffectShown()].update(dt);
+    if (mEffectTimer[isEffectShown()].isTimeout()) {
+        toggleEffect();
+        mEffectTimer[isEffectShown()].restart();
+    }
+    effectLayer->update(dt);
 }
 
 void GameActivity::drawCurrent(sf::RenderTarget &target,
@@ -558,12 +545,57 @@ void GameActivity::createGameOverBanner() {
     statusLayer->attachView(std::move(bannerView));
 }
 
+void GameActivity::createEffectLayer() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
+    LayerView::Ptr rainLayer = std::make_unique<RainLayer>(windowSize);
+    effectLayer->attachView(std::move(rainLayer));
+    effectLayer->setVisibility(false);
+
+    mEffectTimer[0] = MyTimer(15, 25.f);
+    mEffectTimer[1] = MyTimer(5, 10.f);
+    mEffectTimer[0].restart();
+}
+
+void GameActivity::showEffect() {
+    effectLayer->setVisibility(true);
+    mPlayerNode->slowDown();
+}
+
+void GameActivity::hideEffect() {
+    effectLayer->setVisibility(false);
+    mPlayerNode->speedUp();
+}
+
+void GameActivity::toggleEffect() {
+    if (isEffectShown()) {
+        hideEffect();
+    } else {
+        showEffect();
+    }
+
+}
+
+bool GameActivity::isEffectShown() const {
+    return effectLayer->isVisible();
+}
+
 void GameActivity::updateScore(TextView* scoreText, PlayerNode* playerNode) {
     scoreText->setText(std::to_string(playerNode->getScore()));
 }
 
-void GameActivity::pushNewLane() {
-
+void GameActivity::ensureEnoughLanes() {
+    // generate new lanes when there are few lanes left
+    if (lanes->size() < DEFAULT_MAP_MAX_HEIGHT)
+    {
+        
+        Lane* newLane = mMapRenderer->createNewLane();
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(newLane));
+        mWorldView.move(0.f, newLane->getSize().y);
+        if (mPlayerNode->isMoving()) {
+            mPlayerNode->move(0.f, newLane->getSize().y);
+        }
+    }
 }
 
 void GameActivity::popOutOfViewLanes() {

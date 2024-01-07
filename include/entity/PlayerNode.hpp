@@ -59,7 +59,10 @@ public:
     void clearActionQueue();
 
     void setMoveDuration(sf::Time duration);
+    void setMoveDuration(float duration);
     sf::Time getMoveDuration() const;
+    void slowDown();
+    void speedUp();
 
     bool isMoving();
 
@@ -77,6 +80,9 @@ private:
     void updateScore(int offset);
 
 private:
+    static const float MOVE_DURATION;
+    static const float SLOW_MOVE_DURATION;
+
     struct PlayerData
     {
         int state;

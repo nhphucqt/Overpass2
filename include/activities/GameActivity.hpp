@@ -74,6 +74,8 @@ private:
     sf::View mWorldView;
     float mScrollSpeed;
 
+    MyTimer mEffectTimer[2];
+
 public:
     CommandQueue &getCommandQueue();
 
@@ -119,10 +121,16 @@ private:
 
     void createGameOverBanner();
     void createStatusLayer();
+    void createEffectLayer();
+
+    void showEffect();
+    void hideEffect();
+    void toggleEffect();
+    bool isEffectShown() const;
 
     void updateScore(TextView* scoreText, PlayerNode* playerNode);
 
-    void pushNewLane();
+    void ensureEnoughLanes();
     void popOutOfViewLanes();
 
     sf::FloatRect getViewBounds() const;
