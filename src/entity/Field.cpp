@@ -2,13 +2,15 @@
 
 #include <AppConfig.hpp>
 #include <Field.hpp>
-#include <RectangleView.hpp>
 #include <MyRandom.hpp>
+#include <RectangleView.hpp>
 
-Field::Field(TextureManager *textures, bool isReverse, const Greens& greenSlots, bool isLoad) 
-    : Lane(textures->get(TextureID::Field), textures, isReverse), greenSlots(greenSlots)
+Field::Field(TextureManager *textures, bool isReverse, const Greens &greenSlots,
+             bool isLoad)
+    : Lane(textures->get(TextureID::Field), textures, isReverse),
+      greenSlots(greenSlots)
 {
-    AppConfig& config = AppConfig::getInstance();
+    AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     float laneLength = cellSize.x * greenSlots.size();
     setSize(sf::Vector2f(laneLength, cellSize.y));
@@ -24,7 +26,9 @@ Field::Field(TextureManager *textures, bool isReverse, const Greens& greenSlots,
 }
 
 Field::Field(TextureManager *textures, bool isReverse, bool isLoad)
-    : Field(textures, isReverse, {}, isLoad) {}
+    : Field(textures, isReverse, {}, isLoad)
+{
+}
 
 // buildLane is for initialization (it is called in constructor)
 // add is for later processes
@@ -39,12 +43,15 @@ void Field::add(std::unique_ptr<Green> green, unsigned int index)
 bool Field::spawnPlayer(ViewGroup::Ptr player)
 {
     std::vector<bool> markSlots(seqZone->getNumZone(), false);
-    for (const auto& slot : greenSlots) {
+    for (const auto &slot : greenSlots)
+    {
         markSlots[slot.first] = true;
     }
     std::vector<int> emptySlots;
-    for (int i = 0; i < markSlots.size(); i++) {
-        if (!markSlots[i]) {
+    for (int i = 0; i < markSlots.size(); i++)
+    {
+        if (!markSlots[i])
+        {
             emptySlots.push_back(i);
         }
     }
@@ -57,8 +64,10 @@ void Field::updateCurrent(sf::Time dt)
     // currently update nothing because bushes don't move
 }
 
-void Field::buildLane() {
-    for (auto const &[index, green_type] : greenSlots) {
+void Field::buildLane()
+{
+    for (auto const &[index, green_type] : greenSlots)
+    {
         auto green = std::make_unique<Green>(green_type, *laneTextures);
         add(std::move(green), index);
     }
@@ -81,17 +90,21 @@ void Field::saveLaneData(std::ofstream &outf)
     if (outf.is_open())
     {
         int castedType = static_cast<int>(type);
-        outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
-        outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
-        
+        outf.write(reinterpret_cast<const char *>(&castedType),
+                   sizeof(castedType));
+        outf.write(reinterpret_cast<const char *>(&isReverse),
+                   sizeof(isReverse));
+
         int numGreen = greenSlots.size();
         outf.write(reinterpret_cast<const char *>(&numGreen), sizeof(numGreen));
 
-        for (const auto &green : greenSlots) {
+        for (const auto &green : greenSlots)
+        {
             int index = green.first;
             int greenType = static_cast<int>(green.second);
             outf.write(reinterpret_cast<const char *>(&index), sizeof(index));
-            outf.write(reinterpret_cast<const char *>(&greenType), sizeof(greenType));
+            outf.write(reinterpret_cast<const char *>(&greenType),
+                       sizeof(greenType));
         }
     }
     else
@@ -106,7 +119,8 @@ void Field::loadLaneData(std::ifstream &inf)
     {
         int numGreen;
         inf.read(reinterpret_cast<char *>(&numGreen), sizeof(numGreen));
-        for (int i = 0; i < numGreen; i++) {
+        for (int i = 0; i < numGreen; i++)
+        {
             int index;
             int greenType;
             inf.read(reinterpret_cast<char *>(&index), sizeof(index));

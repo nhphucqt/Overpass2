@@ -15,7 +15,8 @@ public:
     typedef std::vector<std::pair<unsigned int, Green::Type>> Greens;
 
     FieldProperties(unsigned int map_width, unsigned int level,
-                    LaneProperties const *prev_lane, bool initializing_p);
+                    LaneProperties const *prev_lane, bool initializing_p,
+                    bool spawn_lane_p);
 
     virtual Lane::Type getType() const override;
     Greens const &getGreens() const;
@@ -29,6 +30,7 @@ private:
 
     LaneProperties const *m_prev_lane;
     bool const m_initialing_p;
+    bool const m_spawn_lane_p;
     Greens m_greens;
 };
 

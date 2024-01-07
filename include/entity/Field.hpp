@@ -3,10 +3,7 @@
 
 #include "SFML/System/Vector2.hpp"
 
-#include "SFML/System/Vector2.hpp"
-
-#include <fstream>
-#include <iostream>
+#include <FieldProperties.hpp>
 #include <Green.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
@@ -14,14 +11,17 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <FieldProperties.hpp>
+#include <fstream>
+#include <iostream>
 
-class Field : public Lane {
+class Field : public Lane
+{
 public:
     typedef std::vector<std::pair<unsigned int, Green::Type>> Greens;
 
 public:
-    Field(TextureManager *textures, bool isReverse, const Greens& greenSlots, bool isLoad = false);
+    Field(TextureManager *textures, bool isReverse, const Greens &greenSlots,
+          bool isLoad = false);
     Field(TextureManager *textures, bool isReverse, bool isLoad = false);
 
     void add(std::unique_ptr<Green> green, unsigned int index);

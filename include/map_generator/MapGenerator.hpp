@@ -14,7 +14,7 @@ public:
     MapGenerator(unsigned int map_width, unsigned int map_max_height,
                  unsigned int level);
 
-    void moveView(bool initializing_p);
+    void moveView(bool initializing_p, bool spawn_lane_p);
     LaneProperties const &getPrevLane() const;
     LaneProperties const &getCurrLane() const;
 
@@ -28,12 +28,13 @@ private:
     void updateContext(bool initializing_p);
 
     std::unique_ptr<LaneProperties>
-    generateLaneProperties(bool initializing_p) const;
+    generateLaneProperties(bool initializing_p, bool spawn_lane_p) const;
 
     Lane::Type generateLaneType(bool initializing_p) const;
 
     std::unique_ptr<LaneProperties>
-    createLanePropertiesWithType(Lane::Type type, bool initializing_p) const;
+    createLanePropertiesWithType(Lane::Type type, bool initializing_p,
+                                 bool spawn_lane_p) const;
 
     unsigned int getRealLevel() const;
 
