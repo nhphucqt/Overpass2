@@ -66,6 +66,9 @@ PlayerNode::PlayerNode(const TextureManager &textures,
     setHitBox(sprite.getGlobalBounds());
 }
 
+PlayerNode::PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanesVct)
+: PlayerNode(textures, lanesVct, lanesVct.begin()) {}
+
 void PlayerNode::moveDestination(sf::Vector2f distance)
 {
     if (distance.x == 0)
@@ -80,14 +83,13 @@ void PlayerNode::moveDestination(sf::Vector2f distance)
         }
     }
     sf::Vector2f playerPos = getWorldTransform().transformPoint(getOrigin());
-    sf::Vector2f dest = playerPos + distance
-                        + getAbsoluteVelocity() * getMoveDuration().asSeconds();
+    sf::Vector2f dest = playerPos + distance + getAbsoluteVelocity() * getMoveDuration().asSeconds();
     Zone *targetZone =
         (*curLane)->getTargetZone(this, dest, getMoveDuration().asSeconds());
-    transitionHandler.setTransition((Entity *) getParent(),
-                                    (Entity *) targetZone,
+    transitionHandler.setTransition((Entity *)getParent(),
+                                    (Entity *)targetZone,
                                     sf::seconds(getMoveDuration().asSeconds()));
-    setLastParent(getParent());
+    setLastParent((Entity*)getParent());
     ViewGroup::Ptr thisPtr = getParent()->detachView(*this);
     transitionLayer->attachView(std::move(thisPtr));
 }
@@ -161,7 +163,7 @@ void PlayerNode::updateMove(sf::Time delta)
         if (!transitionHandler.isFinished())
         {
             sf::Vector2f velo =
-                ((Entity *) getLastParent())->getAbsoluteVelocity();
+                ((Entity *)getLastParent())->getAbsoluteVelocity();
             setPosition(transitionHandler.update(delta));
             if (transitionHandler.isFinished())
             {
@@ -212,6 +214,11 @@ void PlayerNode::updateCurrent(sf::Time delta)
 unsigned int PlayerNode::getCategory() const
 {
     return Category::Player;
+}
+
+void PlayerNode::setCurrentLane(MapRenderer::LaneList::const_iterator lane)
+{
+    curLane = lane;
 }
 
 MapRenderer::LaneList::const_iterator PlayerNode::getCurrentLane() const
@@ -266,12 +273,12 @@ void PlayerNode::setTransitionLayer(ViewGroup *layer)
     transitionLayer = layer;
 }
 
-void PlayerNode::setLastParent(ViewGroup *parent)
+void PlayerNode::setLastParent(Entity* parent)
 {
     lastParent = parent;
 }
 
-ViewGroup *PlayerNode::getLastParent()
+Entity* PlayerNode::getLastParent()
 {
     return lastParent;
 }
@@ -320,6 +327,11 @@ sf::Time PlayerNode::getMoveDuration() const
     return moveDuration;
 }
 
+bool PlayerNode::isMoving()
+{
+    return getParent() == transitionLayer;
+}
+
 void PlayerNode::setDead()
 {
     __isDead = true;
@@ -330,6 +342,53 @@ bool PlayerNode::isDead() const
     return __isDead;
 }
 
+void PlayerNode::savePlayerData(std::ofstream &outf)
+{
+    if (outf.is_open())
+    {
+        PlayerData data;
+        data.state = static_cast<int>(state);
+        if (isMoving()) {
+            data.x = lastParent->getWorldCenter().x;
+            data.y = lastParent->getWorldCenter().y;
+        } else {
+            data.x = getWorldTransform().transformPoint(getOrigin()).x;
+            data.y = getWorldTransform().transformPoint(getOrigin()).y;
+        }
+        data.moveDuration = moveDuration.asSeconds();
+        data.currentScore = currentScore;
+        data.currentDistance = currentDistance;
+        data.isDead = __isDead;
+
+        outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
+    }
+    else
+    {
+        std::runtime_error("PLAYERDATA ERR: \"save.data\" cannot be openned.\n");
+    }
+}
+
+void PlayerNode::loadPlayerData(std::ifstream &inf)
+{
+    if (inf.is_open())
+    {
+        int currentLane = std::distance(lanes.begin(), curLane);
+        PlayerData data;
+        inf.read(reinterpret_cast<char *>(&data), sizeof(data));
+
+        state = static_cast<State>(data.state);
+        setPosition(data.x, data.y);
+
+        moveDuration = sf::seconds(data.moveDuration);
+        currentScore = data.currentScore;
+        currentDistance = data.currentDistance;
+        __isDead = data.isDead;
+    }
+    else
+    {
+        std::runtime_error("PLAYERDATA ERR: \"save.data\" not found.\n");
+    }
+}
 void PlayerNode::updateScore(int offset)
 {
     currentDistance += offset;

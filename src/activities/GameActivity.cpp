@@ -9,6 +9,17 @@
 #include <River.hpp>
 #include <Road.hpp>
 #include <iterator>
+#include <UserSession.hpp>
+#include <UtilitySave.hpp>
+
+#include <LayerView.hpp>
+#include <ButtonView.hpp>
+#include <SpriteButtonView.hpp>
+#include <TextView.hpp>
+#include <IconButtonFactory.hpp>
+
+const std::string GameActivity::GAME_STATE_FILENAME = "save.data";
+const std::string GameActivity::PLAYER_STATE_FILENAME = "player.data";
 
 #include <LayerView.hpp>
 #include <ButtonView.hpp>
@@ -69,24 +80,22 @@ void GameActivity::onLoadResources()
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
 }
 
-void GameActivity::onCreate() {}
+void GameActivity::onCreate() {
+}
 
 void GameActivity::onAttach()
 {
     sf::RenderWindow &window = getActivityManager()->getWindow();
     window.setKeyRepeatEnabled(false);
     mWorldView = window.getDefaultView();
-    mWorldBounds = sf::FloatRect(0.f, 0.f, mWorldView.getSize().x,
-                                 mWorldView.getSize().y * 10);
-    mSpawnPosition =
-        sf::Vector2f(mWorldView.getSize().x / 2.f,
-                     mWorldBounds.height - mWorldView.getSize().y / 2.f);
+
+    mIsGameOver = false;
     mScrollSpeed = -600.f;
-    clock = sf::Clock();
-    stop = false;
-    playerLaneIndex = 3;
-    scrollDistance = 0;
-    actualScrollDistance = 0;
+
+    effectLayer = std::make_unique<LayerView>();
+    statusLayer = std::make_unique<LayerView>();
+
+    createStatusLayer();
 
     effectLayer = std::make_unique<LayerView>();
     statusLayer = std::make_unique<LayerView>();
@@ -106,8 +115,12 @@ void GameActivity::onAttach()
     if (getIntent()->getAction() == ACTION_NEW_GAME) {
         attachLanes();
         attachPlayer();
-    } else {
-        // load game
+    }
+    else if (getIntent()->getAction() == ACTION_CONTINUE_GAME) {
+        loadGame();
+    }
+    else {
+        std::cerr << "Unknown action: " << getIntent()->getAction() << std::endl;
     }
 }
 
@@ -123,7 +136,11 @@ void GameActivity::onPause()
 
 void GameActivity::onDestroy()
 {
-    // ...
+    if (!isGameOver()) {
+        saveGame();
+    } else {
+        savePlayerScore();
+    }
 }
 
 void GameActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -147,16 +164,18 @@ void GameActivity::onEventProcessing()
 void GameActivity::updateCurrent(sf::Time dt)
 {
     // Scroll the world
+    popOutOfViewLanes();
     scroll(dt);
 
     // generate new lanes when there are few lanes left
-    if (lanes->size() - playerLaneIndex < 25)
+    if (lanes->size() < DEFAULT_MAP_MAX_HEIGHT)
     {
-        for (int i = 1; i <= 50; ++i)
-        {
-            mMapRenderer->moveView();
-            mSceneLayers[Background]->attachView(
-                std::unique_ptr<ViewGroup>(lanes->back()));
+        
+        Lane* newLane = mMapRenderer->createNewLane();
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(newLane));
+        mWorldView.move(0.f, newLane->getSize().y);
+        if (mPlayerNode->isMoving()) {
+            mPlayerNode->move(0.f, newLane->getSize().y);
         }
     }
 
@@ -170,7 +189,6 @@ void GameActivity::updateCurrent(sf::Time dt)
 
     handleCollisions();
     // Apply movements
-
     // Update score
     updateScore(scoreText, mPlayerNode);
 }
@@ -225,9 +243,7 @@ void GameActivity::handleCollisions()
     bool onRiver = false;
     for (ViewGroup::Pair pair : collisionPairs)
     {
-        if (matchesCategories(pair, Category::Player, Category::Vehicle)
-            || matchesCategories(pair, Category::Player, Category::Animal)
-            || matchesCategories(pair, Category::Player, Category::Train))
+        if (matchesCategories(pair, Category::Player, Category::Vehicle) || matchesCategories(pair, Category::Player, Category::Animal) || matchesCategories(pair, Category::Player, Category::Train))
         {
             mPlayerNode->setDead();
         }
@@ -235,6 +251,14 @@ void GameActivity::handleCollisions()
         {
             mPlayerNode->moveBack();
         }
+    }
+
+    sf::FloatRect viewBounds = getViewBounds();
+    sf::FloatRect playerBounds = mPlayerNode->getHitBox();
+    if (viewBounds.top + viewBounds.height < playerBounds.top + playerBounds.height ||
+        viewBounds.left + viewBounds.width < playerBounds.left ||
+        viewBounds.left > playerBounds.left + playerBounds.width) {
+        mPlayerNode->setDead();
     }
 
     if (mPlayerNode->isDead())
@@ -247,32 +271,24 @@ void GameActivity::scroll(sf::Time dt)
 {
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
-    int currentLaneIndex =
-        std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
-    if (currentLaneIndex > playerLaneIndex)
-    {
-        scrollDistance += 128.f;
-        ++playerLaneIndex;
-    }
-    else if (currentLaneIndex < playerLaneIndex)
-    {
-        scrollDistance -= 128.f;
-        --playerLaneIndex;
-    }
+    int currentLaneIndex = std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
 
-    float scrollStep = mScrollSpeed * dt.asSeconds();
-
-    if (scrollDistance > 0)
-    {
-        scrollDistance += scrollStep;
-        mWorldView.move(0.f, scrollStep);
+    if (mPlayerNode->getWorldPosition().y - getViewBounds().top < cellSize.y * 5) {
+        mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());
     }
 }
 
 void GameActivity::gameOver()
 {
+    mIsGameOver = true;
     createGameOverBanner();
     setUpdate(false);
+    removeSavedGame();
+}
+
+bool GameActivity::isGameOver() const
+{
+    return mIsGameOver;
 }
 
 CommandQueue &GameActivity::getCommandQueue()
@@ -291,33 +307,108 @@ void GameActivity::attachLanes()
         DEFAULT_MAP_MAX_HEIGHT, level);
     lanes = &mMapRenderer->getLanes();
     unsigned int lane_index = 0;
+    float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+    float const TOTAL_HEIGHT = CELL_HEIGHT * lanes->size();
     for (auto it = lanes->begin(); it != lanes->end(); ++it)
     {
         Lane &lane = **it;
-        float const CELL_HEIGHT =
-            AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
-        lane.setPosition(mWorldBounds.left, mWorldBounds.top
-                                                + mWorldBounds.height
-                                                - CELL_HEIGHT * lane_index);
+        lane.setPosition(0, TOTAL_HEIGHT - CELL_HEIGHT * (lane_index + 1));
         mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
         ++lane_index;
     }
+
+    mWorldView.move(0.f, TOTAL_HEIGHT - CELL_HEIGHT * (DEFAULT_SPAWN_LANE_ID - 1) - mWorldView.getSize().y);
 }
 
 void GameActivity::attachPlayer()
 {
-    auto player = std::make_unique<PlayerNode>(
-        mTextures, *lanes,
-        std::next(lanes->begin(),
-                  1)); // last argument must be consistent with playerLaneIndex
+    MapRenderer::LaneList::const_iterator spawnLane = std::next(lanes->begin(), DEFAULT_SPAWN_LANE_ID);
+
+    auto player = std::make_unique<PlayerNode>(mTextures, *lanes, spawnLane);
     mPlayerNode = player.get();
     mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
     mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
-    (*std::next(lanes->begin(), 1))->spawnPlayer(std::move(player));
-    // mSceneLayers[Aboveground]->attachView(std::move(player));
-    // createTitle();
 
-    mWorldView.setCenter(mSpawnPosition);
+    (*spawnLane)->spawnPlayer(std::move(player));
+}
+
+void GameActivity::saveGameState(const std::string& gameStateFilePath, const std::string& playerStateFilePath)
+{
+    std::ofstream outf(gameStateFilePath, std::ios::binary);
+
+    float viewCenterX = mWorldView.getCenter().x;
+    float viewCenterY = mWorldView.getCenter().y;
+
+    outf.write(reinterpret_cast<const char *>(&viewCenterX), sizeof(viewCenterX));
+    outf.write(reinterpret_cast<const char *>(&viewCenterY), sizeof(viewCenterY));
+
+    mMapRenderer->saveLanes(outf);
+    outf.close();
+
+    outf.open(playerStateFilePath, std::ios::binary);
+    mPlayerNode->savePlayerData(outf); 
+    outf.close();
+}
+
+void GameActivity::loadGameState(const std::string& gameStateFilePath, const std::string& playerStateFilePath)
+{
+    std::ifstream inf(gameStateFilePath, std::ios::binary);
+
+    float viewCenterX;
+    float viewCenterY;
+    inf.read(reinterpret_cast<char *>(&viewCenterX), sizeof(viewCenterX));
+    inf.read(reinterpret_cast<char *>(&viewCenterY), sizeof(viewCenterY));
+
+    mWorldView.setCenter(viewCenterX, viewCenterY);
+
+    mMapRenderer = std::make_unique<MapRenderer>(
+        mTextures, *mSceneLayers[Layer::Aboveground],
+        AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells),
+        DEFAULT_MAP_MAX_HEIGHT, 0, true);
+
+    mMapRenderer->loadLanes(inf);
+
+    inf.close();
+
+    lanes = &mMapRenderer->getLanes();
+    unsigned int lane_index = 0;
+    float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
+    float const TOTAL_HEIGHT = CELL_HEIGHT * lanes->size();
+    for (auto it = lanes->begin(); it != lanes->end(); ++it)
+    {
+        Lane &lane = **it;
+        lane.setPosition(0, TOTAL_HEIGHT - CELL_HEIGHT * (lane_index + 1));
+        mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(*it));
+        ++lane_index;
+    }
+
+    loadPlayer(playerStateFilePath);
+}
+
+void GameActivity::loadPlayer(const std::string& playerStateFilePath)
+{
+    std::ifstream inf(playerStateFilePath, std::ios::binary);
+
+    auto player = std::make_unique<PlayerNode>(mTextures, *lanes);
+    mPlayerNode = player.get();
+    mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+
+    mPlayerNode->loadPlayerData(inf);
+    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+    mSceneLayers[Aboveground]->attachView(std::move(player));
+
+    MapRenderer::LaneList::const_iterator spawnLane;
+    float minDistance = std::numeric_limits<float>::max();
+    for (auto it = lanes->begin(); it != lanes->end(); ++it) {
+        float distance = (*it)->getNearestDistance(mPlayerNode);
+        if (distance < minDistance) {
+            minDistance = distance;
+            spawnLane = it;
+        }
+    }
+
+    mPlayerNode->setCurrentLane(spawnLane);
+    (*spawnLane)->receivePlayer(mPlayerNode);
 }
 
 void GameActivity::createStatusLayer() {
@@ -469,4 +560,108 @@ void GameActivity::createGameOverBanner() {
 
 void GameActivity::updateScore(TextView* scoreText, PlayerNode* playerNode) {
     scoreText->setText(std::to_string(playerNode->getScore()));
+}
+
+void GameActivity::pushNewLane() {
+
+}
+
+void GameActivity::popOutOfViewLanes() {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
+    float threshold = cellSize.y * 5;
+
+    sf::FloatRect worldBounds = getViewBounds();
+    while (!lanes->empty() && lanes->front()->getPosition().y > worldBounds.top + worldBounds.height + threshold) {
+        mMapRenderer->popLane();
+    }
+}
+
+sf::FloatRect GameActivity::getViewBounds() const {
+    sf::FloatRect rt;
+    rt.left = mWorldView.getCenter().x - mWorldView.getSize().x/2.f;
+    rt.top  = mWorldView.getCenter().y - mWorldView.getSize().y/2.f;
+    rt.width  = mWorldView.getSize().x;
+    rt.height = mWorldView.getSize().y;
+    return rt;
+}
+
+void GameActivity::saveGame() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = userSession.getCurrentUser().getUsername();
+    std::string dirPath = dataPath + username;
+
+    UtilitySave::DeleteDirContent(dirPath);
+    std::error_code err;
+    if (!UtilitySave::CreateDirectoryRecursive(dirPath, err)) {
+        std::cerr << "SAVE FAILURE, ERR: " << err << std::endl;
+    }
+
+    std::string gameStateFilePath = dirPath + "/" + GAME_STATE_FILENAME;
+    std::string playerStateFilePath = dirPath + "/" + PLAYER_STATE_FILENAME;
+    saveGameState(gameStateFilePath, playerStateFilePath);
+}
+
+void GameActivity::loadGame() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = userSession.getCurrentUser().getUsername();
+    std::string gameStateFilePath = dataPath + username + "/" + GAME_STATE_FILENAME;
+    std::string playerStateFilePath = dataPath + username + "/" + PLAYER_STATE_FILENAME;
+    loadGameState(gameStateFilePath, playerStateFilePath);
+}
+
+void GameActivity::removeSavedGame() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = userSession.getCurrentUser().getUsername();
+    std::string dirPath = dataPath + username;
+
+    UtilitySave::DeleteDirContent(dirPath);
+}
+
+void GameActivity::savePlayerScore() {
+    UserSession& userSession = UserSession::getInstance();
+    if (!userSession.isLoggedin()) {
+        std::cerr << "User not logged in.\n";
+        return;
+    }
+    UserData& user = userSession.getCurrentUser();
+    GameLevel level = (GameLevel)mMapRenderer->getLevel();
+    UserData::GameMode mode;
+
+    switch(level) {
+        case GameLevel::Easy:
+            mode = UserData::GameMode::easy;
+        break;
+        case GameLevel::Medium:
+            mode = UserData::GameMode::medium;
+        break;
+        case GameLevel::Hard:
+            mode = UserData::GameMode::hard;
+        break;
+        case GameLevel::Endless:
+            mode = UserData::GameMode::endless;
+        break;
+    }
+    user.updateHighscore(mPlayerNode->getScore(), mode);
+
+    UserRepo& userRepo = UserRepo::getInstance();
+    userRepo.updateUser(user);
 }

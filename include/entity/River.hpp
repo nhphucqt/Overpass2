@@ -1,6 +1,9 @@
 #ifndef RIVER_HPP
 #define RIVER_HPP
 
+#include <iostream>
+#include <fstream>
+#include <Log.hpp>
 #include <Lane.hpp>
 #include <Log.hpp>
 #include <ResourceID.hpp>
@@ -17,9 +20,10 @@ class River : public Lane
 public:
     static const float LOG_TIMER_LOW;
     static const float LOG_TIMER_HIG;
+    static const float OUT_OF_VIEW_PADDING;
 
 
-    River(TextureManager *textures, bool isReverse, float velocity);
+    River(TextureManager *textures, bool isReverse, float velocity, bool isLoad = false);
     void setLogVelocity(float v);
 
 private:
@@ -27,7 +31,7 @@ private:
     float logVelocity;
     
     LogFactory::Ptr logFactory;
-    std::queue<Log*> logs;
+    std::list<Log*> logs;
     MyTimer timer;
 
     void updateCurrent(sf::Time dt);
@@ -39,6 +43,13 @@ private:
 
     void pushLogZones(Log *log);
     void removeLogZones(Log *log);
+
+public:
+    void saveLaneData(std::ofstream &outf) override;
+    void loadLaneData(std::ifstream &inf) override;
+
+protected:
+    virtual bool isOutofView(Entity* entity, float laneLength) const override;
 };
 
 #endif

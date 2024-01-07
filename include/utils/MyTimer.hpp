@@ -5,6 +5,13 @@
 #include <MyRandom.hpp>
 
 class MyTimer {
+public:
+    struct MyTimerData {
+        float invLef, invRig;
+        float time, inv;
+        bool timing;
+    };
+
 private:
     float invLef, invRig;
     sf::Time time, inv;
@@ -18,6 +25,9 @@ public:
     void update(sf::Time dt);
     bool isTimeout();
     bool isTiming();
+
+    MyTimerData serialize();
+    void deserialize(MyTimerData data);
 
 private:
     void nextInv();

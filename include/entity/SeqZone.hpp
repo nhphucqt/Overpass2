@@ -26,6 +26,7 @@ public:
 
     virtual int getNearestZoneIndex(ViewGroup* player) const;
     virtual Zone* getNearestZone(ViewGroup* player) const;
+    virtual float getNearestZoneDistance(ViewGroup* player) const;
     virtual int getTargetZoneIndex(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
     virtual Zone* getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
 

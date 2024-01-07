@@ -66,6 +66,12 @@ Zone* SeqZone::getNearestZone(ViewGroup* player) const {
     return zones[getNearestZoneIndex(player)];
 }
 
+float SeqZone::getNearestZoneDistance(ViewGroup* player) const {
+    PlayerNode* playerNode = (PlayerNode*)player;
+    sf::Vector2f playerPos = playerNode->getWorldTransform().transformPoint(playerNode->getOrigin());
+    return Vector2dUtils::distance(getNearestZone(player)->getCenter(), playerPos);
+}
+
 int SeqZone::getTargetZoneIndex(ViewGroup* player, const sf::Vector2f& dest, float dt) const {
     PlayerNode* playerNode = (PlayerNode*)player;
     int idx = -1;

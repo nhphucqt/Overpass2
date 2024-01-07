@@ -40,6 +40,9 @@ public:
     };
 
 private:
+    static const std::string GAME_STATE_FILENAME;
+    static const std::string PLAYER_STATE_FILENAME;
+
     static const int REQUEST_TITLEBAR_BUTTONS = -1;
 
     enum Layer
@@ -52,14 +55,16 @@ private:
 private:
     Player mPlayer;
 
+    bool mIsGameOver;
+
     LayerView::Ptr effectLayer, statusLayer;
     TextView* scoreText;
     SpriteView* pauseMenu;
 
     FontManager mFontManager;
     TextureManager mTextures;
-    bool stop;
     MapRenderer::LaneList const *lanes;
+
     std::unique_ptr<MapRenderer> mMapRenderer;
 
     std::array<ViewGroup *, LayerCount> mSceneLayers;
@@ -67,13 +72,7 @@ private:
     PlayerNode *mPlayerNode;
 
     sf::View mWorldView;
-    sf::FloatRect mWorldBounds;
-    sf::Vector2f mSpawnPosition;
     float mScrollSpeed;
-    sf::Clock clock;
-    int playerLaneIndex;
-    int scrollDistance;
-    int actualScrollDistance;
 
 public:
     CommandQueue &getCommandQueue();
@@ -96,21 +95,37 @@ protected:
                              sf::RenderStates states) const override;
 
 private:
-    static constexpr unsigned int DEFAULT_MAP_MAX_HEIGHT = 50;
+    static constexpr unsigned int DEFAULT_MAP_MAX_HEIGHT = 20;
+    static constexpr unsigned int DEFAULT_SPAWN_LANE_ID = 3;
 
     bool matchesCategories(ViewGroup::Pair &colliders, Category::Type type1,
                            Category::Type type2);
     void handleCollisions();
     void scroll(sf::Time dt);
+
     void gameOver();
+    bool isGameOver() const;
 
     void attachLanes();
     void attachPlayer();
+
+    void saveGame();
+    void loadGame();
+    void removeSavedGame();
+    void saveGameState(const std::string &gameStateFilePath, const std::string &playerStateFilePath);
+    void loadGameState(const std::string &gameStateFilePath, const std::string &playerStateFilePath);
+    void loadPlayer(const std::string& playerStateFilePath);
+    void savePlayerScore();
 
     void createGameOverBanner();
     void createStatusLayer();
 
     void updateScore(TextView* scoreText, PlayerNode* playerNode);
+
+    void pushNewLane();
+    void popOutOfViewLanes();
+
+    sf::FloatRect getViewBounds() const;
 };
 
 #endif

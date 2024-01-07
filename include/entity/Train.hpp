@@ -16,9 +16,22 @@ public:
     Train(const TextureManager &textures);
     unsigned int getCategory() const;
 
-    void reverseSprite() override;
+public:
+    struct TrainData
+    {
+        float posX;
+        float posY;
+        float vx;
+        float vy;
+        float scaleX;
+        float scaleY;
+        bool isReversed;
+    };
 
-private:
+    TrainData serialize() const;
+    void deserialize(TrainData &data);
+
+    void reverseSprite() override;
 };
 
 #endif

@@ -33,6 +33,10 @@ bool Lane::spawnPlayer(ViewGroup::Ptr player) {
     return seqZone->spawnPlayer(std::move(player));
 }
 
+float Lane::getNearestDistance(ViewGroup* player) const {
+    return seqZone->getNearestZoneDistance(player);
+}   
+
 Zone* Lane::getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const {
     return seqZone->getTargetZone(player, dest, dt);
 }

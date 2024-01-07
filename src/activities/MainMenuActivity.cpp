@@ -130,6 +130,9 @@ void MainMenuActivity::createPlayButtons() {
     });
 
     SpriteButtonView::Ptr continueButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Continue", spacing, [this](EventListener* listener, const sf::Event& event) {
+        if (!this->savedGameExists()) {
+            return;
+        }
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode(REQUEST_CODE_CONTINUE_GAME)
             .setAction(GameActivity::ACTION_CONTINUE_GAME)
@@ -150,4 +153,16 @@ void MainMenuActivity::createPlayButtons() {
     continueButton->attachView(std::move(rankingsButton));
     playButton->attachView(std::move(continueButton));
     attachView(std::move(playButton));
+}
+
+bool MainMenuActivity::savedGameExists() {
+    UserSession& session = UserSession::getInstance();
+    if (!session.isLoggedin()) {
+        return false;
+    }
+    AppConfig& config = AppConfig::getInstance();
+    std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+    std::string username = session.getCurrentUser().getUsername();
+    std::string dirPath = dataPath + username;
+    return std::filesystem::exists(dirPath);
 }

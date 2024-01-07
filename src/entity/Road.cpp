@@ -10,7 +10,7 @@ const float Road::ANIMAL_TIMER_HIG = 5.f;
 const float Road::VEHICLE_TIMER_LOW = 1.f;
 const float Road::VEHICLE_TIMER_HIG = 2.f;
 
-Road::Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle)
+Road::Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle, bool isLoad)
     : Lane(textures->get(TextureID::Road), textures, isReverse),
       laneLength(AppConfig::getInstance().get<float>(ConfigKey::LANE_LENGTH)),
       vehicleVelocity(vehicleVelo),
@@ -24,13 +24,19 @@ Road::Road(TextureManager *textures, bool isReverse, float animalVelo, float veh
       hasAnimal(hasAnimal),
       hasVehicle(hasVehicle)
 {
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
+    setSize(sf::Vector2f(laneLength, cellSize.y));
     setReverse(true);
     type = Lane::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
     sf::IntRect textureRect(0, 0, laneLength, 16);
     sprite.setTextureRect(textureRect);
-    buildLane();
+    if (!isLoad)
+    {
+        buildLane();
+    }
 }
 
 void Road::setVehicleVelocity(float v)
@@ -113,11 +119,111 @@ void Road::updateAnimal(sf::Time dt)
 
 void Road::buildLane()
 {
+    buildTrafficLight();
+
+    if (checkHasVehicle()) {
+        createVehicle();
+    }
+    if (checkHasAnimal()) {
+        createAnimal();
+    }
+}
+
+void Road::saveLaneData(std::ofstream &outf)
+{
+    if (outf.is_open())
+    {
+        int castedType = static_cast<int>(type);
+        outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
+        outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
+
+        outf.write(reinterpret_cast<const char *>(&animalVelocity), sizeof(animalVelocity));
+        outf.write(reinterpret_cast<const char *>(&vehicleVelocity), sizeof(vehicleVelocity));
+        outf.write(reinterpret_cast<const char *>(&hasAnimal), sizeof(hasAnimal));
+        outf.write(reinterpret_cast<const char *>(&hasVehicle), sizeof(hasVehicle));
+
+        int numOfVehicle = vehicles.size();
+        int numOfAnimal = animals.size();
+        outf.write(reinterpret_cast<const char *>(&numOfVehicle), sizeof(numOfVehicle));
+        outf.write(reinterpret_cast<const char *>(&numOfAnimal), sizeof(numOfAnimal));
+
+        for (auto &vehicle : vehicles)
+        {
+            Vehicle::VehicleData data = vehicle->serialize();
+            outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
+        }
+
+        for (auto &animal : animals)
+        {
+            Animal::AnimalData data = animal->serialize();
+            outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
+        }
+
+        MyTimer::MyTimerData vehicleTimerData = vehicleTimer.serialize();
+        outf.write(reinterpret_cast<const char *>(&vehicleTimerData), sizeof(vehicleTimerData));
+
+        MyTimer::MyTimerData animalTimerData = animalTimer.serialize();
+        outf.write(reinterpret_cast<const char *>(&animalTimerData), sizeof(animalTimerData));
+    }
+    else
+    {
+        std::runtime_error("ROADDATA ERR: \"save.data\" cannot be openned.\n");
+    }
+}
+
+void Road::loadLaneData(std::ifstream &inf) {
+    if (inf.is_open()) {
+        // inf.read(reinterpret_cast<char *>(&animalVelocity), sizeof(animalVelocity));
+        // inf.read(reinterpret_cast<char *>(&vehicleVelocity), sizeof(vehicleVelocity));
+        // inf.read(reinterpret_cast<char *>(&hasAnimal), sizeof(hasAnimal));
+        // inf.read(reinterpret_cast<char *>(&hasVehicle), sizeof(hasVehicle));
+
+        int numOfVehicle, numOfAnimal;
+        inf.read(reinterpret_cast<char *>(&numOfVehicle), sizeof(numOfVehicle));
+        inf.read(reinterpret_cast<char *>(&numOfAnimal), sizeof(numOfAnimal));
+
+        for (int i = 0; i < numOfVehicle; ++i)
+        {
+            Vehicle::VehicleData data;
+            inf.read(reinterpret_cast<char *>(&data), sizeof(data));
+            std::unique_ptr<Vehicle> vehiclePtr(new Vehicle(static_cast<Vehicle::Type>(data.type), *laneTextures));
+            vehiclePtr->deserialize(data);
+            vehicles.push_back(vehiclePtr.get());
+            this->attachView(std::move(vehiclePtr));
+        }
+        for (int i = 0; i < numOfAnimal; ++i)
+        {
+            Animal::AnimalData data;
+            inf.read(reinterpret_cast<char *>(&data), sizeof(data));
+            std::unique_ptr<Animal> animalPtr(new Animal(static_cast<Animal::Type>(data.type), *laneTextures));
+            animalPtr->deserialize(data);
+            animals.push_back(animalPtr.get());
+            this->attachView(std::move(animalPtr));
+        }
+
+        MyTimer::MyTimerData vehicleTimerData;
+        inf.read(reinterpret_cast<char *>(&vehicleTimerData), sizeof(vehicleTimerData));
+        vehicleTimer.deserialize(vehicleTimerData);
+
+        MyTimer::MyTimerData animalTimerData;
+        inf.read(reinterpret_cast<char *>(&animalTimerData), sizeof(animalTimerData));
+        animalTimer.deserialize(animalTimerData);
+
+        animalFactory.reset(new AnimalFactory(laneTextures, isReverse, animalVelocity, laneLength));
+        vehicleFactory.reset(new VehicleFactory(laneTextures, isReverse, vehicleVelocity, laneLength));
+
+        buildTrafficLight();
+    }
+    else
+    {
+        std::runtime_error("ROADDATA ERR: \"save.data\" not found.\n");
+    }
+}
+
+void Road::buildTrafficLight() {
     float reverseScale = (isReverse) ? -1 : 1;
-    // create traffic light
     std::unique_ptr<TrafficLight> light(new TrafficLight(*laneTextures));
     light->setPosition(laneLength * isReverse + trafficLightPosition * reverseScale, 0);
-    // light->scale(reverseScale, 1);
     trafficlight = light.get();
     this->attachView(std::move(light));
 
@@ -144,13 +250,13 @@ void Road::popVehicle() {
 void Road::createAnimal()
 {
     Animal::Ptr animal = animalFactory->createAnimal();
-    animals.push(animal.get());
+    animals.push_back(animal.get());
     attachView(std::move(animal));
 }
 
 void Road::popAnimal() {
     detachView(*animals.front());
-    animals.pop();
+    animals.pop_front();
 }
 
 bool Road::checkHasVehicle()

@@ -11,7 +11,8 @@ class FieldProperties : public LaneProperties
 {
 public:
     // {pos, type}
-    using Greens = std::vector<std::pair<unsigned int, Green::Type>>;
+    // using Greens = std::vector<std::pair<unsigned int, Green::Type>>;
+    typedef std::vector<std::pair<unsigned int, Green::Type>> Greens;
 
     FieldProperties(unsigned int map_width, unsigned int level,
                     LaneProperties const *prev_lane, bool initializing_p);

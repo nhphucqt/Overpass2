@@ -12,7 +12,8 @@
 #include <AppConfig.hpp>
 #include <LoginActivity.hpp>
 
-void ProfileActivity::onLoadResources() {
+void ProfileActivity::onLoadResources()
+{
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
     mTextureManager.load(TextureID::mainMenuButtonTexture, "res/textures/ui/UI_Big_Play_Button.png");
     mTextureManager.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
@@ -23,75 +24,86 @@ void ProfileActivity::onLoadResources() {
     mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
 }
 
-void ProfileActivity::onCreate() {
+void ProfileActivity::onCreate()
+{
     createBackground();
     createTitle();
     createBackButton();
     createProfile();
 }
 
-void ProfileActivity::onAttach() {
+void ProfileActivity::onAttach()
+{
     // ...
 }
 
-void ProfileActivity::onResume() {
+void ProfileActivity::onResume()
+{
     // ...
 }
 
-void ProfileActivity::onPause() {
+void ProfileActivity::onPause()
+{
     // ...
 }
 
-void ProfileActivity::onDestroy() {
+void ProfileActivity::onDestroy()
+{
     // ...
 }
 
-void ProfileActivity::onEvent(const sf::Event& event) {
+void ProfileActivity::onEvent(const sf::Event &event)
+{
     // ...
 }
 
-void ProfileActivity::updateCurrent(sf::Time dt) {
+void ProfileActivity::updateCurrent(sf::Time dt)
+{
     // ...
 }
 
-void ProfileActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
-    if (requestCode == REQUEST_LOG_IN) {
-        if (resultCode == Activity::RESULT_OK) {
+void ProfileActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data)
+{
+    if (requestCode == REQUEST_LOG_IN)
+    {
+        if (resultCode == Activity::RESULT_OK)
+        {
             std::string username = data->getExtra<std::string>("username");
-            std::string password = data->getExtra<std::string>("password"); 
-            UserSession& userSession = UserSession::getInstance();
+            std::string password = data->getExtra<std::string>("password");
+            UserSession &userSession = UserSession::getInstance();
             userSession.loginUser(username, password);
             Intent::Ptr intent = Intent::Builder()
-                .putExtra("titleType", TitlebarFactory::TitlebarType::PROFILE)
-                .build();
+                                     .putExtra("titleType", TitlebarFactory::TitlebarType::PROFILE)
+                                     .build();
             setResult((int)Activity::RESULT_OK, std::move(intent));
             finish();
-        } else if (resultCode == Activity::RESULT_CANCELED) {
+        }
+        else if (resultCode == Activity::RESULT_CANCELED)
+        {
             // ...
         }
     }
 }
 
-void ProfileActivity::createBackButton() {
+void ProfileActivity::createBackButton()
+{
     attachView(
         BackButtonFactory::create(
             this,
             mTextureManager.get(TextureID::squareButtonsTexture),
-            mFontManager.get(FontID::defaultFont)
-        )
-    );
+            mFontManager.get(FontID::defaultFont)));
 }
 
-void ProfileActivity::createBackground() {
+void ProfileActivity::createBackground()
+{
     attachView(
         BackgroundFactory::create(
             this,
-            mTextureManager.get(TextureID::mainMenuBackgroundTexture)
-        )
-    );
+            mTextureManager.get(TextureID::mainMenuBackgroundTexture)));
 }
 
-void ProfileActivity::createTitle() {
+void ProfileActivity::createTitle()
+{
     attachView(
         TitlebarFactory::create(
             this,
@@ -99,13 +111,12 @@ void ProfileActivity::createTitle() {
             mFontManager.get(FontID::defaultFont),
             "Profile",
             TitlebarFactory::TitlebarType::PROFILE,
-            REQUEST_TITLEBAR_BUTTONS
-        )
-    );
+            REQUEST_TITLEBAR_BUTTONS));
 }
 
-void ProfileActivity::createProfile() {
-    AppConfig& config = AppConfig::getInstance();
+void ProfileActivity::createProfile()
+{
+    AppConfig &config = AppConfig::getInstance();
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
     SpriteView::Ptr menu = std::make_unique<SpriteView>(
@@ -113,45 +124,48 @@ void ProfileActivity::createProfile() {
         mTextureManager.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(106, 122) * 5.f,
-        sf::IntRect(139, 12, 106, 122)
-    );
+        sf::IntRect(139, 12, 106, 122));
     menu->setPosition((windowSize - menu->get().getGlobalBounds().getSize()) / 2.f + sf::Vector2f(0, 100));
 
-    UserSession& userSession = UserSession::getInstance();
+    UserSession &userSession = UserSession::getInstance();
 
-    if (userSession.isLoggedin()) {
+    if (userSession.isLoggedin())
+    {
         createUserProfile(menu.get());
-    } else {
+    }
+    else
+    {
         createGuessProfile(menu.get());
     }
-    
+
     attachView(std::move(menu));
 }
 
-void ProfileActivity::createGuessProfile(SpriteView* dialog) {
+void ProfileActivity::createGuessProfile(SpriteView *dialog)
+{
     SpriteButtonView::Ptr loginButton = MenuButtonFactory::create(
         this,
         mTextureManager.get(TextureID::mainMenuButtonTexture),
         mFontManager.get(FontID::defaultFont),
         "Sign in",
         sf::Vector2f(),
-        [&](EventListener* listener, const sf::Event& event) {
+        [&](EventListener *listener, const sf::Event &event)
+        {
             Intent::Ptr intent = Intent::Builder()
-                .setRequestCode(REQUEST_LOG_IN)
-                .build();
+                                     .setRequestCode(REQUEST_LOG_IN)
+                                     .build();
             this->startActivity(ActivityFactory<LoginActivity>::createInstance(), std::move(intent));
-        }
-    );
+        });
     loginButton->setPosition((dialog->get().getGlobalBounds().getSize() - loginButton->getGlobalBounds().getSize()) / 2.f);
 
     dialog->attachView(std::move(loginButton));
 }
 
-void ProfileActivity::createUserProfile(SpriteView* dialog) {
-    UserRepo& userRepo = UserRepo::getInstance();
-    UserSession& userSession = UserSession::getInstance();
-    UserData& userData = userSession.getCurrentUser();
-
+void ProfileActivity::createUserProfile(SpriteView *dialog)
+{
+    UserRepo &userRepo = UserRepo::getInstance();
+    UserSession &userSession = UserSession::getInstance();
+    UserData &userData = userSession.getCurrentUser();
 
     TextView::Ptr usernameView = std::make_unique<TextView>(
         this,
@@ -159,15 +173,13 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
         mFontManager.get(FontID::defaultFont),
         sf::Vector2f(50, 50),
         64,
-        sf::Color::White
-    );
+        sf::Color::White);
 
     RectangleView::Ptr underlineView = std::make_unique<RectangleView>(
         this,
         sf::Vector2f(usernameView->getGlobalBounds().getSize().x + 20, 4),
         sf::Vector2f(0, usernameView->getGlobalBounds().getSize().y + 10),
-        sf::Color::White
-    );
+        sf::Color::White);
 
     usernameView->attachView(std::move(underlineView));
 
@@ -177,10 +189,9 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
     //     sf::Vector2f(),
     //     64,
     //     sf::Color::White
-    // ); 
+    // );
     // highScoreView->move(0, usernameView->getGlobalBounds().getSize().y + 50);
     // usernameView->attachView(std::move(highScoreView));
-
 
     SpriteButtonView::Ptr logoutButton = MenuButtonFactory::create(
         this,
@@ -188,12 +199,12 @@ void ProfileActivity::createUserProfile(SpriteView* dialog) {
         mFontManager.get(FontID::defaultFont),
         "Sign out",
         sf::Vector2f(),
-        [this](EventListener* listener, const sf::Event& event) {
-            UserSession& userSession = UserSession::getInstance();
+        [this](EventListener *listener, const sf::Event &event)
+        {
+            UserSession &userSession = UserSession::getInstance();
             userSession.logoutUser();
             this->finish();
-        }
-    );
+        });
     logoutButton->setPosition((dialog->get().getGlobalBounds().getSize() - logoutButton->getGlobalBounds().getSize()) / 2.f);
     logoutButton->move(0, 150);
 

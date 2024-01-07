@@ -10,7 +10,8 @@
 
 #include <SeqZone.hpp>
 
-class Log: public Entity {
+class Log : public Entity
+{
 public:
     typedef std::unique_ptr<Log> Ptr;
 
@@ -25,11 +26,26 @@ public:
     Log(Type mType, const TextureManager &textures);
     unsigned int getCategory() const;
 
-    SeqZone* getSeqZone();
+    SeqZone *getSeqZone();
 
 private:
     Type type;
     SeqZone* seqZone;
+
+public:
+    struct LogData
+    {
+        int type;
+        float posX;
+        float posY;
+        float vx;
+        float vy;
+        float scaleX;
+        float scaleY;
+    };
+
+    LogData serialize() const;
+    void deserialize(LogData &data);
 };
 
 #endif

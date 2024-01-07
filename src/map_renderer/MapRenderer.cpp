@@ -10,12 +10,14 @@
 #include "RiverProperties.hpp"
 #include "Road.hpp"
 #include "RoadProperties.hpp"
+#include "UserSession.hpp"
+#include "UtilitySave.hpp"
 
 #include <memory>
 
 MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
                          unsigned int map_width, unsigned int map_max_height,
-                         unsigned int level)
+                         unsigned int level, bool isLoad)
     : m_textures(textures),
       m_foreground(foreground),
       m_sizes(map_width, map_max_height),
@@ -23,13 +25,15 @@ MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
       m_max_height(m_sizes.y),
       m_level(level)
 {
-    initialize();
+    if (!isLoad) 
+        initialize();
 }
 
-void MapRenderer::moveView()
+Lane* MapRenderer::createNewLane()
 {
     // popLane();
     pushLane(0);
+    return m_lanes.back();
 }
 
 MapRenderer::LaneList const &MapRenderer::getLanes() const
@@ -50,8 +54,81 @@ void MapRenderer::initialize()
 void MapRenderer::pushLane(bool initializing_p)
 {
     m_map_generator->moveView(initializing_p);
-    m_lanes.push_back(convertPropertiesToLane(m_map_generator->getCurrLane()));
+    Lane* newLane = convertPropertiesToLane(m_map_generator->getCurrLane());
+    if (!initializing_p) {
+        for (auto lane : m_lanes) {
+            lane->move(sf::Vector2f(0.f, newLane->getSize().y));
+        }
+    }
+    m_lanes.push_back(newLane);
 }
+
+void MapRenderer::saveLanes(std::ofstream& outf) {
+    outf.write(reinterpret_cast<const char *>(&m_level), sizeof(m_level));
+
+    int laneSize = m_lanes.size();
+    outf.write(reinterpret_cast<const char *>(&laneSize), sizeof(laneSize));
+    if (m_lanes.size() > 0) {
+        for (auto it = m_lanes.begin(); it != m_lanes.end(); ++it) {
+            Lane *lane = *it;
+            lane->saveLaneData(outf);
+        }
+    }
+}
+
+void MapRenderer::loadLanes(std::ifstream& inf) {
+    inf.read(reinterpret_cast<char *>(&m_level), sizeof(m_level));
+
+    m_map_generator =
+        std::make_unique<MapGenerator>(m_width, m_max_height, m_level);
+
+    int laneSize;
+    inf.read(reinterpret_cast<char *>(&laneSize), sizeof(laneSize));
+    for (int i = 0; i < laneSize; ++i)
+    {
+        int laneType;
+        bool laneIsReverse;
+        inf.read(reinterpret_cast<char *>(&laneType), sizeof(laneType));
+        inf.read(reinterpret_cast<char *>(&laneIsReverse), sizeof(laneIsReverse));
+        // std::unique_ptr<Lane> lane;
+        Lane* lane;
+        switch (static_cast<Lane::Type>(laneType))
+        {
+        case Lane::Type::Road:
+            float animalVelocity, vehicleVelocity;
+            bool hasAnimal, hasVehicle;
+            inf.read(reinterpret_cast<char *>(&animalVelocity), sizeof(animalVelocity));
+            inf.read(reinterpret_cast<char *>(&vehicleVelocity), sizeof(vehicleVelocity));
+            inf.read(reinterpret_cast<char *>(&hasAnimal), sizeof(hasAnimal));
+            inf.read(reinterpret_cast<char *>(&hasVehicle), sizeof(hasVehicle));
+            lane = new Road(&m_textures, laneIsReverse, animalVelocity, vehicleVelocity, hasAnimal, hasVehicle, true);
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::River:
+            float logVelocity;
+            inf.read(reinterpret_cast<char *>(&logVelocity), sizeof(logVelocity));
+            lane = new River(&m_textures, laneIsReverse, logVelocity, true);
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::Field:
+            lane = new Field(&m_textures, laneIsReverse, true);
+            lane->loadLaneData(inf);
+            break;
+        case Lane::Type::Railway:
+            float trainInterval, trainDelay, trainOffSet;
+            inf.read(reinterpret_cast<char*>(&trainInterval), sizeof(trainInterval));
+            inf.read(reinterpret_cast<char*>(&trainDelay), sizeof(trainDelay));
+            inf.read(reinterpret_cast<char*>(&trainOffSet), sizeof(trainOffSet));
+            lane = new Railway(&m_textures, laneIsReverse, trainInterval, trainDelay, trainOffSet, true);
+            lane->loadLaneData(inf);
+            break;
+        default:
+            throw std::runtime_error("LOAD ERR: Lane type not found");
+        }
+        m_lanes.push_back(lane);
+    }
+}
+
 void MapRenderer::popLane()
 {
     m_lanes.pop_front();
@@ -86,13 +163,7 @@ MapRenderer::convertPropertiesToLane(LaneProperties const &properties) const
 Field *
 MapRenderer::convertPropertiesToLane(FieldProperties const &properties) const
 {
-    auto field = new Field(&m_textures);
-    for (auto const &[index, green_type] : properties.getGreens())
-    {
-        auto green = std::make_unique<Green>(green_type, m_textures);
-        field->add(std::move(green), index);
-    }
-    return field;
+    return new Field(&m_textures, false, properties.getGreens());
 }
 
 Railway *
@@ -120,4 +191,9 @@ MapRenderer::convertPropertiesToLane(RiverProperties const &properties) const
                            properties.getVelocity());
     river->setLogVelocity(properties.getVelocity());
     return river;
+}
+
+int MapRenderer::getLevel() const
+{
+    return m_level;
 }

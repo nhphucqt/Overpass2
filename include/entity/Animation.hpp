@@ -6,6 +6,17 @@
 
 class Animation : public sf::Drawable, public sf::Transformable {
 public:
+	struct AnimationData {
+		int frameSizeX;
+		int frameSizeY;
+		std::size_t numFrames;
+		std::size_t currentFrame;
+		float duration;
+		float elapsedTime;
+		bool repeat;
+	};
+
+public:
 	Animation();
 	explicit Animation(const sf::Texture &texture);
 
@@ -33,6 +44,9 @@ public:
 	void update(sf::Time dt);
 
 	void reverseSprite();
+
+	AnimationData serialize() const;
+	void deserialize(const AnimationData &data);
 
 private:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;

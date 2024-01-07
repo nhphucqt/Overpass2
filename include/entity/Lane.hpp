@@ -15,7 +15,7 @@ class SeqZone;
 class Lane: public Entity {
 public:
     enum Type {
-        Road,
+        Road = 0,
         Field,
         River,
         Railway,
@@ -27,6 +27,7 @@ public:
     virtual bool receivePlayer(ViewGroup* player);
     virtual bool spawnPlayer(ViewGroup::Ptr player, int index);
     virtual bool spawnPlayer(ViewGroup::Ptr player);
+    virtual float getNearestDistance(ViewGroup* player) const;
     virtual Zone* getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt) const;
     virtual unsigned int getCategory() const;
 
@@ -45,6 +46,12 @@ private:
 protected:
     virtual bool isOutofView(Entity* entity, float laneLength) const;
     virtual bool isIntoView(Entity* entity, float laneLength) const;
+
+public:
+    Type getType() const { return type; }
+    bool getIsReverse() const { return isReverse; }
+    virtual void saveLaneData(std::ofstream& outf) = 0;
+    virtual void loadLaneData(std::ifstream& inf) = 0;
 };
 
 #endif

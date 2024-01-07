@@ -32,6 +32,8 @@ private:
     void createBackground();
     void createTitle();
     void createPlayButtons();
+
+    bool savedGameExists();
 };
 
 #endif

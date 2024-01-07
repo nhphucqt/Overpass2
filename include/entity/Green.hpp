@@ -28,6 +28,16 @@ public:
 
 private:
     Type type;
+
+public:
+    struct GreenData {
+        int type;
+        float x;
+        float y;
+    };
+
+    GreenData serialize() const;
+    void deserialize(GreenData& data);
 };
 
 #endif

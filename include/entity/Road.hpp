@@ -1,6 +1,10 @@
 #ifndef ROAD_HPP
 #define ROAD_HPP
 
+#include <fstream>
+#include <iostream>
+#include <Lane.hpp>
+#include <TrafficLight.hpp>
 #include <Animal.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
@@ -25,7 +29,7 @@ public:
     static const float VEHICLE_TIMER_LOW;
     static const float VEHICLE_TIMER_HIG;
 
-    Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle);
+    Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle, bool isLoad = false);
 
     void setVehicleVelocity(float v);
     void setVehicleSlowVelocity(float v);
@@ -43,7 +47,7 @@ private:
     bool hasAnimal;
 
     std::list<Vehicle*> vehicles;
-    std::queue<Animal*> animals;
+    std::list<Animal*> animals;
 
     VehicleFactory::Ptr vehicleFactory;
     AnimalFactory::Ptr animalFactory;
@@ -57,6 +61,8 @@ private:
     void updateTraffic(sf::Time dt);
     void buildLane();
 
+    void buildTrafficLight();
+
     void updateVehicle(sf::Time dt);
     void updateAnimal(sf::Time dt);
 
@@ -67,6 +73,10 @@ private:
 
     bool checkHasVehicle();
     bool checkHasAnimal();
+
+public:
+    void saveLaneData(std::ofstream &outf) override;
+    void loadLaneData(std::ifstream &inf) override;
 };
 
 #endif

@@ -25,15 +25,19 @@ public:
 
     MapRenderer(TextureManager &textures, ViewGroup &foreground,
                 unsigned int map_width, unsigned int map_max_height,
-                unsigned int level);
+                unsigned int level, bool isLoad = false);
 
-    void moveView();
+    Lane* createNewLane();
+    void popLane();
     LaneList const &getLanes() const;
+    void loadLanes(std::ifstream& outf);
+    void saveLanes(std::ofstream& inf);
+
+    int getLevel() const;
 
 private:
     void initialize();
     void pushLane(bool initializing_p);
-    void popLane();
 
     Lane *convertPropertiesToLane(LaneProperties const &properties) const;
 
@@ -53,7 +57,7 @@ private:
     sf::Vector2u const m_sizes;
     unsigned int const &m_width;
     unsigned int const &m_max_height;
-    unsigned int const m_level;
+    unsigned int m_level;
 };
 
 #endif

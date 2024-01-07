@@ -1,5 +1,8 @@
 #ifndef RAILWAY_HPP
 #define RAILWAY_HPP
+
+#include <iostream>
+#include <fstream>
 #include <Train.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
@@ -17,7 +20,7 @@ class Railway: public Lane {
 public:
     static const float TRAIN_VELOCITY;
 
-    Railway(TextureManager* textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet);
+    Railway(TextureManager* textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet, bool isLoad = false);
     void setTrainVelocity(float v);
 
 private:
@@ -38,11 +41,17 @@ private:
     void updateCurrent(sf::Time dt);
     void buildLane();
 
+    void buildRailwayLight();
+
     void createTrain();
     void popTrain();
 
 protected:
     virtual bool isIntoView(Entity* entity, float laneLength) const override;
+
+public:
+    void saveLaneData(std::ofstream &outf) override;
+    void loadLaneData(std::ifstream &inf) override;
 };
 
 #endif

@@ -47,6 +47,7 @@ inline AppConfig::~AppConfig()
 
 inline AppConfig::AppConfig()
 {
+    set(ConfigKey::DATA_PATH, std::string("data/"));
     set(ConfigKey::AppName, std::string("Overpass"));
     set(ConfigKey::WindowSize, sf::Vector2f(1400, 900));
     set(ConfigKey::FPS, int(60));

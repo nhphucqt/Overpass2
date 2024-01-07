@@ -2,12 +2,12 @@
 #include <AppConfig.hpp>
 
 TrafficLight::TrafficLight(const TextureManager& textures)
-: Entity(textures.get(TextureID::TrafficLight)),
-red(Duration::Red),
-yellow(Duration::Yellow),
-green(Duration::Green),
-current(Color::Green),
-rect(sprite.getLocalBounds())
+    : Entity(textures.get(TextureID::TrafficLight))
+    , red(Duration::Red)
+    , yellow(Duration::Yellow)
+    , green(Duration::Green)
+    , current(Color::Green)
+    , rect(sprite.getLocalBounds())
 {
     sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);

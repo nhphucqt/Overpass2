@@ -13,9 +13,9 @@ TextureID toTextureID(Log::Type type) {
 	return TextureID::WoodL2;
 }
 
-Log::Log(Type mType, const TextureManager& textures):
-type(mType),
-Entity(textures.get(toTextureID(mType)))
+Log::Log(Type mType, const TextureManager &textures) 
+	: type(mType) 
+	, Entity(textures.get(toTextureID(mType)))
 {
 	int woodLen = 0;
 	if (type == Log::WoodL2) {
@@ -52,6 +52,26 @@ unsigned int Log::getCategory() const {
 	}
 }
 
-SeqZone* Log::getSeqZone() {
+SeqZone *Log::getSeqZone()
+{
 	return seqZone;
+}
+
+Log::LogData Log::serialize() const {
+	LogData data;
+	data.type = static_cast<int>(type);
+	data.posX = getPosition().x;
+	data.posY = getPosition().y;
+	data.vx = getVelocity().x;
+	data.vy = getVelocity().y;
+	data.scaleX = getScale().x;
+	data.scaleY = getScale().y;
+	return data;
+}
+
+void Log::deserialize(Log::LogData& data) {
+	type = static_cast<Type>(data.type);
+	setPosition(data.posX, data.posY);
+	setVelocity(data.vx, data.vy);
+	setScale(data.scaleX, data.scaleY);
 }

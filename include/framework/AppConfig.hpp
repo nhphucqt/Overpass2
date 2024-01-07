@@ -9,6 +9,7 @@
 
 enum class ConfigKey
 {
+    DATA_PATH,
     AppName,
     WindowSize,
     FPS,

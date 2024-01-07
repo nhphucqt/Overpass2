@@ -24,9 +24,9 @@ TextureID toTextureID(Animal::Type type) {
 	return TextureID::Fox;
 }
 
-Animal::Animal(Type mType, const TextureManager& textures): 
-type(mType),
-animation(textures.get(toTextureID(mType)))
+Animal::Animal(Type mType, const TextureManager& textures)
+    :  type(mType)
+    , animation(textures.get(toTextureID(mType)))
 {
     if (type == Bear) {
         animation.setFrameSize(sf::Vector2i(26, 12));
@@ -81,6 +81,30 @@ unsigned int Animal::getCategory() const {
     return Category::Animal;
 }
 
+Animal::AnimalData Animal::serialize() const {
+    AnimalData data;
+    data.type = static_cast<int>(type);
+	data.posX = getPosition().x;
+	data.posY = getPosition().y;
+	data.vx = getVelocity().x;
+	data.vy = getVelocity().y;
+	data.scaleX = getScale().x;
+	data.scaleY = getScale().y;
+    data.isReverse = isReverseSprite();
+
+    return data;
+}
+
+void Animal::deserialize(Animal::AnimalData& data) {
+    type = static_cast<Type>(data.type);
+    setPosition(data.posX, data.posY);
+	setVelocity(data.vx, data.vy);
+	setScale(data.scaleX, data.scaleY);
+    if (data.isReverse) {
+        reverseSprite();
+    }
+}
 void Animal::reverseSprite() {
     animation.reverseSprite();
+    Entity::reverseSprite();
 }

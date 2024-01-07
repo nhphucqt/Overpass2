@@ -10,7 +10,6 @@ public:
 public:
     LayerView();
     LayerView(EventPublisher* publisher);
-    virtual ~LayerView() = default;
 
 protected:
     virtual void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const override;

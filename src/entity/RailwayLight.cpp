@@ -24,14 +24,33 @@ void RailwayLight::drawCurrent(sf::RenderTarget& target, sf::RenderStates states
 }
 
 void RailwayLight::turnOn() {
+    isOn = true;
     animation.setTexture(onTexture);
 }
 
 void RailwayLight::turnOff() {
+    isOn = false;
     animation.setTexture(offTexture);
 }
 
 void RailwayLight::updateCurrent(sf::Time dt) {
     Entity::updateCurrent(dt);
     animation.update(dt);
+}
+
+RailwayLight::RailwayLightData RailwayLight::serialize() const {
+    RailwayLightData data;
+    data.animationData = animation.serialize();
+    data.isOn = isOn;
+    return data;
+}
+
+void RailwayLight::deserialize(const RailwayLightData& data) {
+    animation.deserialize(data.animationData);
+    isOn = data.isOn;
+    if (isOn) {
+        turnOn();
+    } else {
+        turnOff();
+    }
 }

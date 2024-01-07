@@ -119,9 +119,7 @@ unsigned int MapGenerator::getRealLevel() const
 {
     GameActivity::GameLevel real_level =
         static_cast<GameActivity::GameLevel>(m_level);
-    if (static_cast<GameActivity::GameLevel>(m_level)
-        == GameActivity::GameLevel::Endless)
-    {
+    if (static_cast<GameActivity::GameLevel>(m_level) == GameActivity::GameLevel::Endless) {
         real_level = (m_level_lanes_cnts[0] < ENDLESS_LEVEL_LANES_CNT[0]
                           ? GameActivity::GameLevel::Easy
                           : (m_level_lanes_cnts[1] < ENDLESS_LEVEL_LANES_CNT[1]
