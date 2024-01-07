@@ -11,6 +11,8 @@
 class Vehicle : public Entity
 {
 public:
+    typedef std::unique_ptr<Vehicle> Ptr;
+
     enum Type
     {
         Car,
@@ -35,6 +37,7 @@ public:
         float vy;
         float scaleX;
         float scaleY;
+        bool isReverse;
     };
     
     VehicleData serialize() const;

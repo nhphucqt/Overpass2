@@ -33,6 +33,11 @@ void Activity::startActivity(Ptr activity) {
     startActivity(std::move(activity), Intent::Builder().build());
 }
 
+void Activity::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    ViewGroup::draw(target, states);
+    onDraw(target, states);
+}
+
 void Activity::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
     // Do nothing
 }
@@ -58,6 +63,10 @@ void Activity::onPause() {
 }
 
 void Activity::onDestroy() {
+    // Do nothing
+}
+
+void Activity::onDraw(sf::RenderTarget& target, sf::RenderStates states) const {
     // Do nothing
 }
 

@@ -5,6 +5,9 @@
 #include <ResourceID.hpp>
 
 class SettingsActivity : public Activity {
+public:
+    static const int ACTION_INGAME = 1;
+
 private:
     static const int REQUEST_TITLEBAR_BUTTONS = 126;
 

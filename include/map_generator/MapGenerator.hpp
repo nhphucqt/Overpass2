@@ -23,7 +23,7 @@ private:
     static constexpr unsigned int LEVEL_MAX_CONS_NONFIELDS_CNTS[] = {5, 9, 13};
     static constexpr unsigned int ENDLESS_LEVEL_LANES_CNT[] = {40, 80,
                                                                UINT_MAX};
-    static constexpr unsigned int INITIAL_FIELDS_CNT = 2;
+    static constexpr unsigned int INITIAL_FIELDS_CNT = 5;
 
     void updateContext(bool initializing_p);
 

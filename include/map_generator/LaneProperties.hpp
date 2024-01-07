@@ -3,11 +3,6 @@
 
 #include "Lane.hpp"
 
-namespace LaneUtils
-{
-unsigned int random_range(int l, int r);
-}
-
 class LaneProperties
 {
 public:

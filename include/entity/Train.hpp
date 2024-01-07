@@ -11,6 +11,8 @@
 class Train : public Entity
 {
 public:
+    typedef std::unique_ptr<Train> Ptr;
+
     Train(const TextureManager &textures);
     unsigned int getCategory() const;
 
@@ -23,10 +25,13 @@ public:
         float vy;
         float scaleX;
         float scaleY;
+        bool isReversed;
     };
 
     TrainData serialize() const;
     void deserialize(TrainData &data);
+
+    void reverseSprite() override;
 };
 
 #endif

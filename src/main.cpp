@@ -4,16 +4,22 @@
 #include <AppConfig.hpp>
 #include <GameSetting.hpp>
 #include <UserSession.hpp>
+#include <UtilitySave.hpp>
 
 int main()
 {
-	// UserRepo::getInstance().addUser(UserData("pikachu", "123"));
-	UserSession& userSession = UserSession::getInstance();
-	// userSession.loginUser("pikachu", "123");
+	unsigned int seed = std::time(nullptr);
+	std::cerr << "Seed: " << seed << std::endl;
+	std::srand(seed);
 
 	AppConfig &config = AppConfig::getInstance();
 	sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 	std::string windowTitle = config.get<std::string>(ConfigKey::AppName);
+
+
+	std::string dataPath = config.get<std::string>(ConfigKey::DATA_PATH);
+	std::error_code err;
+    UtilitySave::CreateDirectoryRecursive(dataPath, err);
 
 	Application app(windowSize.x, windowSize.y, windowTitle);
 	Activity::Ptr launcher = std::make_unique<MainMenuActivity>();

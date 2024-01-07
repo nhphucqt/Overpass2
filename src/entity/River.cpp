@@ -1,20 +1,53 @@
 #include <AppConfig.hpp>
 #include <River.hpp>
+#include <LogFactory.hpp>
 
-namespace DEFAULT
-{
-    const float LANELENGTH = 1400.f;
-    const float PADDING = 100.f;
-    const int NUMOFLOG = 3;
-    const float LOGVELOCITY = 200.f;
-}; // namespace DEFAULT
+const float River::LOG_TIMER_LOW = 0.5f;
+const float River::LOG_TIMER_HIG = 1.5f;
+const float River::OUT_OF_VIEW_PADDING = 300.f;
 
 River::River(TextureManager *textures, bool isReverse, float velocity, bool isLoad)
     : Lane(textures->get(TextureID::River), textures, isReverse),
-      laneLength(DEFAULT::LANELENGTH),
-      padding(DEFAULT::PADDING),
-      numOfLog(DEFAULT::NUMOFLOG),
-      logVelocity(velocity)
+      laneLength(AppConfig::getInstance().get<float>(ConfigKey::LANE_LENGTH)),
+      logVelocity(velocity),
+      logFactory(std::make_unique<LogFactory>(textures, isReverse, velocity, laneLength)),
+      timer(LOG_TIMER_LOW, LOG_TIMER_HIG)
+{
+    AppConfig& config = AppConfig::getInstance();
+    sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
+    setSize(sf::Vector2f(laneLength, cellSize.y));
+    buildZone();
+    type = Lane::Type::River;
+    textures->get(TextureID::River).setRepeated(true);
+    if (!isLoad) buildLane();
+}
+
+void River::setLogVelocity(float v)
+{
+    logVelocity = v;
+}
+
+void River::updateCurrent(sf::Time dt)
+{
+    while (!logs.empty() && isOutofView(logs.front(), laneLength)) {
+        popLog();
+    }
+    timer.update(dt);
+    if (!timer.isTiming() && !logs.empty() && isIntoView(logs.back(), laneLength)) {
+        timer.restart();
+    }
+    if (timer.isTimeout()) {
+        timer.stop();
+        createLog();
+    }
+}
+
+void River::buildLane()
+{
+    createLog();
+}
+
+void River::buildZone()
 {
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
@@ -37,67 +70,22 @@ River::River(TextureManager *textures, bool isReverse, float velocity, bool isLo
         }
     }
     attachView(std::move(seqZoneRiver));
-
-    type = Lane::Type::River;
-    textures->get(TextureID::River).setRepeated(true);
-    if (!isLoad)
-    {
-        buildLane();
-    }
 }
 
-void River::setNumOfLog(int n)
-{
-    numOfLog = n;
+void River::createLog() {
+    Log::Ptr log = logFactory->createLog();
+
+    logs.push_back(log.get());
+    pushLogZones(log.get());
+    this->attachView(std::move(log));
 }
 
-void River::setLogVelocity(float v)
+void River::popLog()
 {
-    logVelocity = v;
-}
-
-void River::updateCurrent(sf::Time dt)
-{
-    // set up variables for reverse
-    int reverseScale;
-    (isReverse) ? reverseScale = -1 : reverseScale = 1;
-
-    // log circling when out of view
-    Log *lastLog = logs.back();
-    Log *firstLog = logs.front();
-    int distance = laneLength / logs.size();
-    if ((isReverse && lastLog->getPosition().x < -padding) || (!isReverse && lastLog->getPosition().x > laneLength + padding))
-    {
-        logs[logs.size() - 1]->setPosition(firstLog->getPosition().x - padding * reverseScale - distance * reverseScale,
-                                           lastLog->getPosition().y);
-    }
-    // make the last car becomes the first car in the next iteration
-    // logs.erase(logs.end());
-    std::rotate(logs.rbegin(), logs.rbegin() + 1, logs.rend());
-}
-
-void River::buildLane()
-{
-    // set up variables for reverse
-    int reverseScale;
-    (isReverse) ? reverseScale = -1 : reverseScale = 1;
-
-    // creating vehicles, vehicles should have the same type for consisteny
-    for (int i = 0; i < numOfLog; ++i)
-    {
-        std::unique_ptr<Log> log(new Log(Log::Wood, *laneTextures));
-        logs.push_back(log.get());
-        log->setVelocity(logVelocity * reverseScale, 0.f);
-        // log->scale(reverseScale, 1);
-        pushLogZones(log.get());
-        this->attachView(std::move(log));
-    }
-
-    // reverse log vector for updateCurrent
-    if (isReverse)
-    {
-        std::reverse(logs.begin(), logs.end());
-    }
+    Log *lastLog = logs.front();
+    logs.pop_front();
+    removeLogZones(lastLog);
+    detachView(*lastLog);
 }
 
 void River::pushLogZones(Log *log)
@@ -118,26 +106,25 @@ void River::removeLogZones(Log *log)
     }
 }
 
-void River::saveLaneData(std::ofstream& outf)
-{
-    if (outf.is_open())
-    {
+void River::saveLaneData(std::ofstream& outf) {
+    if (outf.is_open()) {
         int castedType = static_cast<int>(type);
         outf.write(reinterpret_cast<const char *>(&castedType), sizeof(castedType));
         outf.write(reinterpret_cast<const char *>(&isReverse), sizeof(isReverse));
+        
         outf.write(reinterpret_cast<const char *>(&logVelocity), sizeof(logVelocity));
 
-        int dataSize = logs.size();
-        outf.write(reinterpret_cast<const char *>(&dataSize), sizeof(dataSize));
+        int logsSize = logs.size();
+        outf.write(reinterpret_cast<const char *>(&logsSize), sizeof(logsSize));
 
-        for (const auto &log : logs)
-        {
+        for (const auto &log : logs) {
             Log::LogData data = log->serialize();
             outf.write(reinterpret_cast<const char *>(&data), sizeof(data));
         }
-    }
-    else
-    {
+
+        MyTimer::MyTimerData timerData = timer.serialize();
+        outf.write(reinterpret_cast<const char *>(&timerData), sizeof(timerData));
+    } else {
         std::runtime_error("RIVERDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
@@ -146,17 +133,9 @@ void River::loadLaneData(std::ifstream &inf)
 {
     if (inf.is_open())
     {
-        // int nType;
-        // bool nIsReverse;
-        // inf.read(reinterpret_cast<char *>(&nType), sizeof(nType));
-        // inf.read(reinterpret_cast<char *>(&nIsReverse), sizeof(nIsReverse));
-
         int dataSize;
         inf.read(reinterpret_cast<char *>(&dataSize), sizeof(dataSize));
-        std::cout << "log size: " << dataSize << std::endl;
-
-        for (int i = 0; i < dataSize; ++i)
-        {
+        for (int i = 0; i < dataSize; ++i) {
             Log::LogData data;
             inf.read(reinterpret_cast<char *>(&data), sizeof(data));
             std::unique_ptr<Log> logPtr(new Log(static_cast<Log::Type>(data.type), *laneTextures));
@@ -166,10 +145,18 @@ void River::loadLaneData(std::ifstream &inf)
             this->attachView(std::move(logPtr));
         }
 
-        std::cout << "River is fine\n";
+        MyTimer::MyTimerData timerData;
+        inf.read(reinterpret_cast<char *>(&timerData), sizeof(timerData));
+        timer.deserialize(timerData);
     }
     else
     {
         std::runtime_error("RIVERDATA ERR: \"save.data\" not found.\n");
     }
+}
+
+bool River::isOutofView(Entity* entity, float laneLength) const 
+{
+    return (isReverse && entity->getPosition().x + entity->getSize().x < -OUT_OF_VIEW_PADDING)
+        || (!isReverse && entity->getPosition().x > laneLength + OUT_OF_VIEW_PADDING);
 }

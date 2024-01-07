@@ -31,24 +31,29 @@ public:
         Mounted,
         Free
     };
-    PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes,
-               MapRenderer::LaneList::const_iterator currentLane);
+    PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
+    PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes);
+
     void moveDestination(sf::Vector2f distance);
     void moveDestination(float vx, float vy);
     State getState();
     unsigned int getCategory() const;
+
+    void setCurrentLane(MapRenderer::LaneList::const_iterator lane);
     MapRenderer::LaneList::const_iterator getCurrentLane() const;
+
     void moveBack();
 
     void runAction(const sf::Vector2i &direction);
 
     void setTransitionLayer(ViewGroup *layer);
 
-    void setLastParent(ViewGroup *parent);
-    ViewGroup *getLastParent();
+    void setLastParent(Entity* parent);
+    Entity* getLastParent();
+
 
     void pushAction(sf::Vector2i action);
-    void popAction();
+    void popActionAndUpdateScore();
     sf::Vector2i getCurrentAction();
     bool isActionQueueEmpty() const;
     void clearActionQueue();
@@ -56,8 +61,12 @@ public:
     void setMoveDuration(sf::Time duration);
     sf::Time getMoveDuration() const;
 
+    bool isMoving();
+
     void setDead();
     bool isDead() const;
+
+    int getScore() const;
 
 private:
     virtual void drawCurrent(sf::RenderTarget &target,
@@ -65,7 +74,20 @@ private:
     void updateCurrent(sf::Time delta);
     void updateMove(sf::Time delta);
 
+    void updateScore(int offset);
+
 private:
+    struct PlayerData
+    {
+        int state;
+        float x;
+        float y;
+        float moveDuration;
+        int currentScore;
+        int currentDistance;
+        bool isDead;
+    };
+
     State state;
     MapRenderer::LaneList::const_iterator curLane;
     MapRenderer::LaneList const &lanes;
@@ -75,19 +97,14 @@ private:
     Animation moveLeft;
     Animation moveRight;
     TransitionHandler transitionHandler;
-    ViewGroup *transitionLayer;
-    ViewGroup *lastParent;
+    ViewGroup* transitionLayer;
+    Entity* lastParent;
     std::queue<sf::Vector2i> actionQueue;
     sf::Time moveDuration;
     bool __isDead;
 
-private:
-    struct PlayerData
-    {
-        int state;
-        float x;
-        float y;
-    };
+    int currentScore;
+    int currentDistance;
 
 public:
     void savePlayerData(std::ofstream &outf);

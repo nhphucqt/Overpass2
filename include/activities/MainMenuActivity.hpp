@@ -6,10 +6,13 @@
 
 class MainMenuActivity : public Activity {
 private:
-    int REQUEST_CODE_GAME_LEVEL = 123;
-    int REQUEST_CODE_CONTINUE_GAME = 124;
-    int REQUEST_LOGIN = 125;
-    int REQUEST_TITLEBAR_BUTTONS = 126;
+    enum Request {
+        REQUEST_CODE_GAME_LEVEL,
+        REQUEST_CODE_CONTINUE_GAME,
+        REQUEST_CODE_NEW_GAME,
+        REQUEST_LOGIN,
+        REQUEST_TITLEBAR_BUTTONS
+    };
 
     FontManager mFontManager;
     TextureManager mTextureManager;
@@ -29,6 +32,8 @@ private:
     void createBackground();
     void createTitle();
     void createPlayButtons();
+
+    bool savedGameExists();
 };
 
 #endif

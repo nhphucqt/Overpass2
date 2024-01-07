@@ -1,6 +1,7 @@
 #include <SeqZone.hpp>
 #include <PlayerNode.hpp>
 #include <Vector2dUtils.hpp>
+#include <MyRandom.hpp>
 
 SeqZone::SeqZone(Zone::Type type, const sf::Vector2f& size, int numZone) {
     for (int i = 0; i < numZone; i++) {
@@ -65,6 +66,12 @@ Zone* SeqZone::getNearestZone(ViewGroup* player) const {
     return zones[getNearestZoneIndex(player)];
 }
 
+float SeqZone::getNearestZoneDistance(ViewGroup* player) const {
+    PlayerNode* playerNode = (PlayerNode*)player;
+    sf::Vector2f playerPos = playerNode->getWorldTransform().transformPoint(playerNode->getOrigin());
+    return Vector2dUtils::distance(getNearestZone(player)->getCenter(), playerPos);
+}
+
 int SeqZone::getTargetZoneIndex(ViewGroup* player, const sf::Vector2f& dest, float dt) const {
     PlayerNode* playerNode = (PlayerNode*)player;
     int idx = -1;
@@ -107,8 +114,13 @@ bool SeqZone::receivePlayer(ViewGroup* player) {
     return attachPlayer(std::move(res), desZone);
 }
 
-bool SeqZone::spawnPlayer(ViewGroup::Ptr player) {
-    Zone* desZone = zones[0];
+bool SeqZone::spawnPlayer(ViewGroup::Ptr player, int index) {
+    Zone* desZone = zones[index];
     player->setPosition(desZone->getSize() / 2.f);
     return attachPlayer(std::move(player), desZone);
+}
+
+bool SeqZone::spawnPlayer(ViewGroup::Ptr player) {
+    int index = MyRandom::random_range(zones.size());
+    return spawnPlayer(std::move(player), index);   
 }

@@ -9,11 +9,13 @@
 
 enum class ConfigKey
 {
+    DATA_PATH,
     AppName,
     WindowSize,
     FPS,
     CellSize,
     NumLaneCells,
+    LANE_LENGTH,
     ConfigCount
 };
 

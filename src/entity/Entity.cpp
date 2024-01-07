@@ -2,7 +2,7 @@
 #include <Vector2dUtils.hpp>
 #include <iostream>
 
-Entity::Entity(const sf::Texture &texture) : sprite(texture) {}
+Entity::Entity(const sf::Texture &texture) : sprite(texture), mIsReverseSprite(false) {}
 
 void Entity::setSize(sf::Vector2f size)
 {
@@ -156,4 +156,13 @@ void Entity::drawBoundingRect(sf::RenderTarget &target, sf::RenderStates) const
 
 	target.draw(shape);
 	target.draw(hitBoxShape);
+}
+
+void Entity::reverseSprite() {
+	sprite.scale(-1, 1);
+	mIsReverseSprite = !mIsReverseSprite;
+}
+
+bool Entity::isReverseSprite() const {
+	return mIsReverseSprite;
 }

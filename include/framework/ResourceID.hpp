@@ -11,6 +11,11 @@ enum class TextureID
     titleBackgroundTexture,
     characterTitleBarTexture,
     squareButtonsTexture,
+    homeButtonsTexture,
+    continueButtonsTexture,
+    pauseButtonsTexture,
+    settingButtonsTexture,
+    replayButtonsTexture,
     toggleButtonsTexture,
     settingMenuTexture,
     iconsTexture,
@@ -23,7 +28,8 @@ enum class TextureID
     Field,
 
     // logs
-    Wood,
+    WoodL2,
+    WoodL3,
     Crocodile,
 
     // vehicles
@@ -45,6 +51,8 @@ enum class TextureID
 
     // traffic light
     TrafficLight,
+    RailwayLightOff,
+    RailwayLightOn,
 
     // greens aka plants
     Tree,

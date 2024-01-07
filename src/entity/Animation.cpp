@@ -73,7 +73,6 @@ void Animation::update(sf::Time dt) {
 	sf::Time timePerFrame = mDuration / static_cast<float>(mNumFrames);
 	mElapsedTime += dt;
 
-	sf::Vector2i textureBounds(mSprite.getTexture()->getSize());
 
 	if (mElapsedTime >= timePerFrame) {
 		mElapsedTime -= timePerFrame;
@@ -84,6 +83,7 @@ void Animation::update(sf::Time dt) {
 		}
 	}
 
+	sf::Vector2i textureBounds(mSprite.getTexture()->getSize());
 	int numCol = textureBounds.x / mFrameSize.x;
 	int x = mCurrentFrame % numCol;
 	int y = mCurrentFrame / numCol;
@@ -92,7 +92,42 @@ void Animation::update(sf::Time dt) {
 	mSprite.setTextureRect(textureRect);
 }
 
+void Animation::reverseSprite() {
+	mSprite.setScale(-1.f, 1.f);
+	mSprite.setOrigin(mFrameSize.x, 0.f);
+}
+
 void Animation::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 	states.transform *= getTransform();
 	target.draw(mSprite, states);
+}
+
+Animation::AnimationData Animation::serialize() const {
+	AnimationData data;
+	data.frameSizeX = mFrameSize.x;
+	data.frameSizeY = mFrameSize.y;
+	data.numFrames = mNumFrames;
+	data.currentFrame = mCurrentFrame;
+	data.duration = mDuration.asSeconds();
+	data.elapsedTime = mElapsedTime.asSeconds();
+	data.repeat = mRepeat;
+	return data;
+}
+
+void Animation::deserialize(const AnimationData &data) {
+	mFrameSize.x = data.frameSizeX;
+	mFrameSize.y = data.frameSizeY;
+	mNumFrames = data.numFrames;
+	mCurrentFrame = data.currentFrame;
+	mDuration = sf::seconds(data.duration);
+	mElapsedTime = sf::seconds(data.elapsedTime);
+	mRepeat = data.repeat;
+
+	sf::Vector2i textureBounds(mSprite.getTexture()->getSize());
+	int numCol = textureBounds.x / mFrameSize.x;
+	int x = mCurrentFrame % numCol;
+	int y = mCurrentFrame / numCol;
+	sf::IntRect textureRect(x * mFrameSize.x, y * mFrameSize.y, mFrameSize.x, mFrameSize.y);
+
+	mSprite.setTextureRect(textureRect);
 }

@@ -1,12 +1,5 @@
 #include "LaneProperties.hpp"
 
-#include <cstdlib>
-
-unsigned int LaneUtils::random_range(int l, int r)
-{
-    return std::rand() % (r - l + 1) + l;
-}
-
 LaneProperties::LaneProperties(unsigned int map_width, unsigned int level)
     : m_width(map_width),
       m_level(level)

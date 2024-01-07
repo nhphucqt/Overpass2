@@ -17,6 +17,7 @@ public:
     ~UserSession();
 
     UserData &getCurrentUser();
+    const UserData &getCurrentUser() const;
 
     bool isLoggedin() const;
 
