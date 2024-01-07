@@ -57,7 +57,7 @@ protected:
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data);
 
-    Intent* getIntent();
+    Intent* getIntent(); 
 
 
 private:
