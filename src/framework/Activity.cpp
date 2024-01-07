@@ -83,7 +83,7 @@ void Activity::finish() {
     mManager->finishActivity(mIntent->getRequestCode(), mResultCode, std::move(mResult));
 }
 
-Intent* Activity::getIntent() {
+Intent* Activity::getIntent() const {
     return mIntent.get();
 }
 

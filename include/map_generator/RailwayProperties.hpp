@@ -23,17 +23,23 @@ private:
     static constexpr float LEVEL_DELAY[][2] = {
         {1.f, 3.f},
         {1.f, 3.f},
+        {1.f, 3.f},
+        {1.f, 3.f},
         {1.f, 3.f}
     };
     static constexpr float LEVEL_INV[][2] = {
+        {5.f, 7.f},
+        {5.f, 7.f},
         {5.f, 7.f},
         {5.f, 7.f},
         {5.f, 7.f}
     };
     static constexpr float LEVEL_TRAIN_OFFSET[][2] = {
         {4000.f, 4000.f},
+        {4000.f, 4000.f},
         {3000.f, 3000.f},
-        {2000.f, 2000.f}
+        {2000.f, 2000.f},
+        {4000.f, 4000.f}
     };
 
     bool m_reverse_p;

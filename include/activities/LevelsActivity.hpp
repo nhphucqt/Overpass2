@@ -5,6 +5,7 @@
 #include <ResourceID.hpp>
 
 #include <GameActivity.hpp>
+#include <ButtonView.hpp>
 
 class LevelsActivity : public Activity {
 private:
@@ -12,6 +13,9 @@ private:
 
     TextureManager mTextureManager;
     FontManager mFontManager;
+
+    ButtonView* numPlayersText;
+    int numPlayers;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;
@@ -31,6 +35,8 @@ private:
     void createLevelButtons();
 
     void enterGame(GameActivity::GameLevel level);
+    void setOnePlayer();
+    void setTwoPlayers();
 };
 
 #endif

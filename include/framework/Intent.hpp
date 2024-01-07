@@ -57,7 +57,7 @@ public:
         }
 
         template<typename T>
-        Builder& putExtra(std::string key, T value) {
+        Builder& putExtra(const std::string& key, T value) {
             intent->putExtra(key, value);
             return *this;
         }
@@ -94,25 +94,29 @@ public:
     }
 
     template<typename T>
-    void putExtra(std::string key, T value) {
+    void putExtra(const std::string& key, T value) {
         extras[key] = std::make_unique<TypedIntentExtra<T>>(value);
     }
 
-    bool hasExtra(std::string key) {
+    bool hasExtra(const std::string& key) {
         return extras.find(key) != extras.end();
     }
 
     template<typename T>
-    T getExtra(std::string key) {
-        return static_cast<TypedIntentExtra<T>*>(extras[key].get())->getValue();
-    }
-
-    template<typename T>
-    T getExtra(std::string key, T defaultValue) {
+    T getExtra(const std::string& key, T defaultValue) {
         if (hasExtra(key)) {
             return getExtra<T>(key);
         } else {
             return defaultValue;
+        }
+    }
+
+    template<typename T>
+    T getExtra(const std::string& key) {
+        if (hasExtra(key)) {
+            return static_cast<TypedIntentExtra<T>*>(extras[key].get())->getValue();
+        } else {
+            throw std::runtime_error("No extra with key " + key);
         }
     }
 };

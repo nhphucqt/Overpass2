@@ -16,6 +16,7 @@
 #include <BackgroundFactory.hpp>
 #include <BackButtonFactory.hpp>
 #include <MenuButtonFactory.hpp>
+#include <SquareButtonFactory.hpp>
 
 void LevelsActivity::onLoadResources() {
     mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
@@ -114,38 +115,114 @@ void LevelsActivity::createLevelButtons() {
 
     float width = 320;
     float height = 128;
-    sf::Vector2f position((windowSize.x-width)/2, 300);
-    sf::Vector2f spacing(0, height + 2);
+    sf::Vector2f position((windowSize.x-(2*width+30))/2, 300);
+    sf::Vector2f spacingX(width + 30, 0);
+    sf::Vector2f spacingY(0, height + 5);
 
     sf::Texture& buttonTexture = mTextureManager.get(TextureID::mainMenuButtonTexture);
+
+    ButtonView::Ptr bannerView = std::make_unique<ButtonView>(
+        this,
+        buttonTexture,
+        mFontManager.get(FontID::defaultFont),
+        "",
+        64,
+        sf::Vector2f(0, 0),
+        sf::IntRect(99, 4, 90, 25),
+        sf::Vector2f(90, 25) * 4.f
+    );
+    numPlayersText = bannerView.get();
+
+    SpriteButtonView::Ptr onePlayerButton = SquareButtonFactory::create(
+        this, 
+        mTextureManager.get(TextureID::squareButtonsTexture), 
+        mFontManager.get(FontID::defaultFont), 
+        "1", 
+        sf::Vector2f(0, 0), 
+        [this](EventListener* listener, const sf::Event& event) {
+            this->setOnePlayer();
+        }
+    );
+    SpriteButtonView::Ptr twoPlayersButton = SquareButtonFactory::create(
+        this, 
+        mTextureManager.get(TextureID::squareButtonsTexture), 
+        mFontManager.get(FontID::defaultFont), 
+        "2", 
+        sf::Vector2f(0, 0), 
+        [this](EventListener* listener, const sf::Event& event) {
+            this->setTwoPlayers();
+        }
+    );
+
+
+    sf::Vector2f bannerSize = bannerView->getGlobalBounds().getSize();
+    sf::Vector2f buttonSize = onePlayerButton->getGlobalBounds().getSize();
+    float paddingX = 0;
+    float paddingY = 0;
+    float buttonHeight = buttonSize.y + buttonSize.y + paddingY;
+
+    bannerView->setPosition(200, 50);
+
+    onePlayerButton->setPosition(bannerSize.x + paddingX, (bannerSize.y - buttonHeight) / 2);
+    twoPlayersButton->setPosition(0, buttonSize.y + paddingY);
+
+    onePlayerButton->attachView(std::move(twoPlayersButton));
+    bannerView->attachView(std::move(onePlayerButton));
 
     SpriteButtonView::Ptr easyButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Easy", position, [this](EventListener* listener, const sf::Event& event) {
         this->enterGame(GameActivity::GameLevel::Easy);
     });
 
-    SpriteButtonView::Ptr mediumButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Medium", spacing, [this](EventListener* listener, const sf::Event& event) {
+    SpriteButtonView::Ptr mediumButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Medium", spacingX, [this](EventListener* listener, const sf::Event& event) {
         this->enterGame(GameActivity::GameLevel::Medium);
     });
 
-    SpriteButtonView::Ptr hardButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Hard", spacing, [this](EventListener* listener, const sf::Event& event) {
+    SpriteButtonView::Ptr hardButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Hard", spacingY, [this](EventListener* listener, const sf::Event& event) {
         this->enterGame(GameActivity::GameLevel::Hard);
     });
 
-    SpriteButtonView::Ptr endlessButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Endless", spacing, [this](EventListener* listener, const sf::Event& event) {
+    SpriteButtonView::Ptr insaneButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Insane", spacingX, [this](EventListener* listener, const sf::Event& event) {
+        this->enterGame(GameActivity::GameLevel::Insane);
+    });
+
+    SpriteButtonView::Ptr rainButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Rain Day", spacingY, [this](EventListener* listener, const sf::Event& event) {
+        this->enterGame(GameActivity::GameLevel::RainDay);
+    });
+
+    SpriteButtonView::Ptr endlessButton = MenuButtonFactory::create(this, buttonTexture, mFontManager.get(FontID::defaultFont), "Endless", spacingX, [this](EventListener* listener, const sf::Event& event) {
         this->enterGame(GameActivity::GameLevel::Endless);
     });
 
-    hardButton->attachView(std::move(endlessButton));
-    mediumButton->attachView(std::move(hardButton));
+    rainButton->attachView(std::move(endlessButton));
+
+    hardButton->attachView(std::move(rainButton));
+    hardButton->attachView(std::move(insaneButton));
+
+    easyButton->attachView(std::move(hardButton));
     easyButton->attachView(std::move(mediumButton));
+
     attachView(std::move(easyButton));
+    attachView(std::move(bannerView));
+
+    setOnePlayer();
 }
 
 void LevelsActivity::enterGame(GameActivity::GameLevel level) {
     Intent::Ptr intent = Intent::Builder()
-        .putExtra("level", level)
+        .putExtra(GameActivity::EXTRA_GAME_LEVEL, level)
+        .putExtra(GameActivity::EXTRA_NUM_PLAYERS, numPlayers)
         .setAction(GameActivity::ACTION_NEW_GAME)
         .build();
     setResult(ResultCode::RESULT_OK, std::move(intent));
     finish();
+}
+
+void LevelsActivity::setOnePlayer() {
+    numPlayersText->setText("1 Player");
+    numPlayers = 1;
+}
+
+void LevelsActivity::setTwoPlayers() {
+    numPlayersText->setText("2 Players");
+    numPlayers = 2;
 }

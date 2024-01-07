@@ -46,11 +46,11 @@ unsigned int Lane::getCategory() const {
 }
 
 bool Lane::isOutofView(Entity *entity, float laneLength) const {
-    return (isReverse && entity->getPosition().x + entity->getSize().x < 0)
+    return (isReverse && entity->getPosition().x + entity->getHitBox().getSize().x < 0)
         || (!isReverse && entity->getPosition().x > laneLength);
 }   
 
 bool Lane::isIntoView(Entity *entity, float laneLength) const {
     return (!isReverse && entity->getPosition().x > 0)
-        || (isReverse && entity->getPosition().x + entity->getSize().x < laneLength);
+        || (isReverse && entity->getPosition().x + entity->getHitBox().getSize().x < laneLength);
 }

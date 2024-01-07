@@ -1,5 +1,7 @@
 #include "MapRenderer.hpp"
 
+#include <TextView.hpp>
+
 #include <AppConfig.hpp>
 #include <PlayerNode.hpp>
 #include <Vector2dUtils.hpp>
@@ -7,7 +9,7 @@
 const float PlayerNode::MOVE_DURATION = 0.2f;
 const float PlayerNode::SLOW_MOVE_DURATION = 0.3f;
 
-PlayerNode::PlayerNode(const TextureManager &textures,
+PlayerNode::PlayerNode(Category::Type type, const TextureManager &textures,
                        std::list<Lane *> const &lanesVct,
                        MapRenderer::LaneList::const_iterator currentLane)
     : sprite(textures.get(TextureID::CharacterIdle)),
@@ -22,7 +24,8 @@ PlayerNode::PlayerNode(const TextureManager &textures,
       lastParent(nullptr),
       __isDead(false),
       currentScore(0),
-      currentDistance(0)
+      currentDistance(0),
+      mCategory(type)
       
 {
     sf::Vector2f cellSize =
@@ -68,6 +71,14 @@ PlayerNode::PlayerNode(const TextureManager &textures,
     sprite.setPosition(getBoundingRect().getSize() / 2.f);
     setHitBox(sprite.getGlobalBounds());
 }
+
+PlayerNode::PlayerNode(Category::Type type, const TextureManager &textures, std::list<Lane *> const &lanesVct)
+: PlayerNode(type, textures, lanesVct, lanesVct.begin()) {}
+
+PlayerNode::PlayerNode(const TextureManager &textures,
+                       std::list<Lane *> const &lanesVct,
+                       MapRenderer::LaneList::const_iterator currentLane)
+    : PlayerNode(Category::Player_1, textures, lanesVct, currentLane) {}
 
 PlayerNode::PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanesVct)
 : PlayerNode(textures, lanesVct, lanesVct.begin()) {}
@@ -216,7 +227,7 @@ void PlayerNode::updateCurrent(sf::Time delta)
 
 unsigned int PlayerNode::getCategory() const
 {
-    return Category::Player;
+    return mCategory;
 }
 
 void PlayerNode::setCurrentLane(MapRenderer::LaneList::const_iterator lane)
@@ -420,4 +431,12 @@ void PlayerNode::updateScore(int offset)
 int PlayerNode::getScore() const
 {
     return currentScore;
+}
+
+void PlayerNode::setPlayerName(std::string name, sf::Font &font) {
+    TextView::Ptr playerName = std::make_unique<TextView>(nullptr, name, font, sf::Vector2f(0, 0), 30, sf::Color::White);
+    sf::FloatRect playerRect = playerName->getGlobalBounds();
+    playerName->setOrigin(playerRect.left + playerRect.width / 2.f, playerRect.top + playerRect.height);
+    playerName->setPosition(getBoundingRect().getSize().x / 2.f, 10);
+    attachView(std::move(playerName));
 }

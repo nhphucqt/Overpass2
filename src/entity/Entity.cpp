@@ -156,8 +156,8 @@ void Entity::drawBoundingRect(sf::RenderTarget &target, sf::RenderStates) const
 	hitBoxShape.setOutlineColor(sf::Color::Blue);
 	hitBoxShape.setOutlineThickness(1.f);
 
-	target.draw(shape);
-	target.draw(hitBoxShape);
+	// target.draw(shape);
+	// target.draw(hitBoxShape);
 }
 
 void Entity::reverseSprite() {

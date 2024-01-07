@@ -140,7 +140,7 @@ void RankingActivity::createBoard() {
         this,
         mTextureManager.get(TextureID::rankingTitleTexture),
         mFontManager.get(FontID::defaultFont),
-        "Medium",
+        "",
         48,
         sf::Vector2f(0, 0),
         rankingTitleSize

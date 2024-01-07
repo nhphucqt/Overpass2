@@ -124,16 +124,14 @@ void MapGenerator::updateContext(bool initializing_p)
 
 unsigned int MapGenerator::getRealLevel() const
 {
-    GameActivity::GameLevel real_level =
-        static_cast<GameActivity::GameLevel>(m_level);
-    if (static_cast<GameActivity::GameLevel>(m_level)
-        == GameActivity::GameLevel::Endless)
-    {
-        real_level = (m_level_lanes_cnts[0] < ENDLESS_LEVEL_LANES_CNT[0]
-                          ? GameActivity::GameLevel::Easy
-                          : (m_level_lanes_cnts[1] < ENDLESS_LEVEL_LANES_CNT[1]
-                                 ? GameActivity::GameLevel::Medium
-                                 : GameActivity::GameLevel::Hard));
+    GameActivity::GameLevel real_level = static_cast<GameActivity::GameLevel>(m_level);
+    if (static_cast<GameActivity::GameLevel>(m_level) == GameActivity::GameLevel::Endless) {
+        for (int i = 0; i < NUM_LEVELS; ++i) {
+            if (m_level_lanes_cnts[i] < ENDLESS_LEVEL_LANES_CNT[i]) {
+                real_level = static_cast<GameActivity::GameLevel>(i);
+                break;
+            }
+        }
     }
     return static_cast<unsigned int>(real_level);
 }

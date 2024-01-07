@@ -5,7 +5,7 @@ UserRepo::UserRepo()
 {
     // db.exec("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, highscore INTEGER);");
     db.exec("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT);");
-    db.exec("CREATE TABLE IF NOT EXISTS highscores (username TEXT PRIMARY KEY, easy INTEGER, medium INTEGER, hard INTEGER, endless INTEGER);");
+    db.exec("CREATE TABLE IF NOT EXISTS highscores (username TEXT PRIMARY KEY, easy INTEGER, medium INTEGER, hard INTEGER, insane INTEGER, rainday INTEGER, endless INTEGER);");
 }
 
 UserRepo &UserRepo::getInstance()
@@ -29,7 +29,7 @@ UserData UserRepo::getUserByLogin(const std::string &username, const std::string
     scoreQuery.bind(1, username);
 
     if (userQuery.executeStep() && scoreQuery.executeStep())
-        return UserData(userQuery.getColumn(0), userQuery.getColumn(1), scoreQuery.getColumn(1), scoreQuery.getColumn(2), scoreQuery.getColumn(3), scoreQuery.getColumn(4));
+        return UserData(userQuery.getColumn(0), userQuery.getColumn(1), scoreQuery.getColumn(1), scoreQuery.getColumn(2), scoreQuery.getColumn(3), scoreQuery.getColumn(4), scoreQuery.getColumn(5), scoreQuery.getColumn(6));
 
     return UserData("", "");
 }
@@ -53,6 +53,12 @@ UserRepo::Leaderboard UserRepo::getLeaderboard(UserData::GameMode gameMode) cons
         break;
     case UserData::GameMode::hard:
         GameModeQuery = "hard";
+        break;
+    case UserData::GameMode::insane:
+        GameModeQuery = "insane";
+        break;
+    case UserData::GameMode::rainday:
+        GameModeQuery = "rainday";
         break;
     case UserData::GameMode::endless:
         GameModeQuery = "endless";
@@ -80,12 +86,14 @@ void UserRepo::addUser(const UserData &user)
     userQuery.bind(1, user.getUsername());
     userQuery.bind(2, user.getPassword());
 
-    SQLite::Statement scoreQuery(db, "INSERT INTO highscores (username, easy, medium, hard, endless) VALUES (?, ?, ?, ?, ?);");
+    SQLite::Statement scoreQuery(db, "INSERT INTO highscores (username, easy, medium, hard, insane, rainday, endless) VALUES (?, ?, ?, ?, ?, ?, ?);");
     scoreQuery.bind(1, user.getUsername());
     scoreQuery.bind(2, user.getHighscore().at(UserData::GameMode::easy));
     scoreQuery.bind(3, user.getHighscore().at(UserData::GameMode::medium));
     scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::hard));
-    scoreQuery.bind(5, user.getHighscore().at(UserData::GameMode::endless));
+    scoreQuery.bind(5, user.getHighscore().at(UserData::GameMode::insane));
+    scoreQuery.bind(6, user.getHighscore().at(UserData::GameMode::rainday));
+    scoreQuery.bind(7, user.getHighscore().at(UserData::GameMode::endless));
 
     userQuery.exec();
     scoreQuery.exec();
@@ -103,12 +111,14 @@ void UserRepo::updateUser(const UserData &user)
     userQuery.bind(1, user.getPassword());
     userQuery.bind(2, user.getUsername());
 
-    SQLite::Statement scoreQuery(db, "UPDATE highscores SET easy = ?, medium = ?, hard = ?, endless = ? WHERE username = ?;");
+    SQLite::Statement scoreQuery(db, "UPDATE highscores SET easy = ?, medium = ?, hard = ?, insane = ?, rainday = ?, endless = ? WHERE username = ?;");
     scoreQuery.bind(1, user.getHighscore().at(UserData::GameMode::easy));
     scoreQuery.bind(2, user.getHighscore().at(UserData::GameMode::medium));
     scoreQuery.bind(3, user.getHighscore().at(UserData::GameMode::hard));
-    scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::endless));
-    scoreQuery.bind(5, user.getUsername());
+    scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::insane));
+    scoreQuery.bind(5, user.getHighscore().at(UserData::GameMode::rainday));
+    scoreQuery.bind(6, user.getHighscore().at(UserData::GameMode::endless));
+    scoreQuery.bind(7, user.getUsername());
 
     userQuery.exec();
     scoreQuery.exec();

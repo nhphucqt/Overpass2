@@ -19,6 +19,7 @@ public:
         Taxi,
         Police,
         Ambulance,
+        Supercar,
         Count
     };
 

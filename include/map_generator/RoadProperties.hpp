@@ -27,8 +27,10 @@ protected:
 private:
     static constexpr float LEVEL_VELOCITIES[][2] = {
         {250.f, 300.f},
+        {250.f, 300.f},
         {350.f, 400.f},
-        {450.f, 500.f}
+        {450.f, 500.f},
+        {250.f, 300.f}
     };
 
     float const mVehicleVelocity, mAnimalVelocity;

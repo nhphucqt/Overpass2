@@ -11,7 +11,7 @@ void PlayerMover::operator() (PlayerNode& player, sf::Time) const {
 	player.pushAction(direction);
 }
 
-Player::Player() {
+Player::Player(Category::Type category): mTargetCategory(category) {
 	// Set initial key bindings
 	mKeyBinding[sf::Keyboard::Left] = MoveLeft;
 	mKeyBinding[sf::Keyboard::Right] = MoveRight;
@@ -23,7 +23,25 @@ Player::Player() {
 
 	// Assign all categories to player's aircraft
 	for(auto& pair : mActionBinding)
-		pair.second.category = Category::Player;
+		pair.second.category = getTargetCategory();
+}
+
+void Player::setActionKeys(sf::Keyboard::Key left, 
+							sf::Keyboard::Key right, 
+							sf::Keyboard::Key up, 
+							sf::Keyboard::Key down) {
+	assignKey(MoveLeft, left);
+	assignKey(MoveRight, right);
+	assignKey(MoveUp, up);
+	assignKey(MoveDown, down);
+}
+
+void Player::setTargetCategory(Category::Type category) {
+	mTargetCategory = category;
+}
+
+Category::Type Player::getTargetCategory() const {
+	return mTargetCategory;
 }
 
 void Player::handleEvent(const sf::Event& event, CommandQueue& commands) {

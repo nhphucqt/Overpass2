@@ -37,6 +37,7 @@ enum class TextureID
     Ambulance,
     Taxi,
     Police,
+    Supercar,
 
     // train
     Train,

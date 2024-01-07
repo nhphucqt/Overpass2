@@ -136,6 +136,7 @@ void MainMenuActivity::createPlayButtons() {
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode(REQUEST_CODE_CONTINUE_GAME)
             .setAction(GameActivity::ACTION_CONTINUE_GAME)
+            .putExtra(GameActivity::EXTRA_NUM_PLAYERS, 1)
             .build();
         this->startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(intent));
     });

@@ -36,8 +36,13 @@ public:
         Easy,
         Medium,
         Hard,
+        Insane,
+        RainDay,
         Endless
     };
+
+    static const std::string EXTRA_GAME_LEVEL;
+    static const std::string EXTRA_NUM_PLAYERS;
 
 private:
     static const std::string GAME_STATE_FILENAME;
@@ -53,12 +58,13 @@ private:
     };
 
 private:
-    Player mPlayer;
+    std::vector<Player> mPlayers;
+    std::vector<PlayerNode*> mPlayerNodes;
+    std::vector<TextView*> mScoreTexts;
 
     bool mIsGameOver;
 
     LayerView::Ptr effectLayer, statusLayer;
-    TextView* scoreText;
     SpriteView* pauseMenu;
 
     FontManager mFontManager;
@@ -69,7 +75,6 @@ private:
 
     std::array<ViewGroup *, LayerCount> mSceneLayers;
     CommandQueue mCommandQueue;
-    PlayerNode *mPlayerNode;
 
     sf::View mWorldView;
     float mScrollSpeed;
@@ -100,9 +105,22 @@ private:
     static constexpr unsigned int DEFAULT_MAP_MAX_HEIGHT = 20;
     static constexpr unsigned int DEFAULT_SPAWN_LANE_ID = 3;
 
-    bool matchesCategories(ViewGroup::Pair &colliders, Category::Type type1,
-                           Category::Type type2);
-    void handleCollisions();
+    static constexpr sf::Keyboard::Key ACTION_KEYS[2][4] = {
+        {sf::Keyboard::A, sf::Keyboard::D, sf::Keyboard::W, sf::Keyboard::S},
+        {sf::Keyboard::Left, sf::Keyboard::Right, sf::Keyboard::Up, sf::Keyboard::Down}
+    };
+
+    static constexpr float RAIN_EFFECT_DURATION[6][2][2] = {
+        {{1e5f, 1e6f}, { 0.f,  0.f}}, // Easy
+        {{15.f, 25.f}, { 5.f, 10.f}}, // Medium
+        {{15.f, 20.f}, { 5.f, 10.f}}, // Hard
+        {{15.f, 25.f}, {15.f, 25.f}}, // Insane
+        {{ 0.f,  0.f}, {1e5f, 1e6f}}, // RainDay
+        {{15.f, 25.f}, { 5.f, 10.f}}  // Endless
+    };
+
+    bool matchesCategories(ViewGroup::Pair &colliders, unsigned int type1, unsigned int type2);
+    void handleCollisions(PlayerNode* playerNode);
     void scroll(sf::Time dt);
 
     void gameOver();
@@ -119,6 +137,8 @@ private:
     void loadPlayer(const std::string& playerStateFilePath);
     void savePlayerScore();
 
+    void initEffectTimer();
+
     void createGameOverBanner();
     void createStatusLayer();
     void createEffectLayer();
@@ -128,10 +148,13 @@ private:
     void toggleEffect();
     bool isEffectShown() const;
 
-    void updateScore(TextView* scoreText, PlayerNode* playerNode);
+    void updateScore();
 
     void ensureEnoughLanes();
     void popOutOfViewLanes();
+
+    int getLevel() const;
+    int getNumPlayers() const;
 
     sf::FloatRect getViewBounds() const;
 };

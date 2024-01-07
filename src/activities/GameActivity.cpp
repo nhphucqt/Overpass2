@@ -18,6 +18,9 @@
 #include <TextView.hpp>
 #include <IconButtonFactory.hpp>
 
+const std::string GameActivity::EXTRA_GAME_LEVEL = "level";
+const std::string GameActivity::EXTRA_NUM_PLAYERS = "num_players";
+
 const std::string GameActivity::GAME_STATE_FILENAME = "save.data";
 const std::string GameActivity::PLAYER_STATE_FILENAME = "player.data";
 
@@ -41,6 +44,7 @@ void GameActivity::onLoadResources()
     mTextures.load(TextureID::Ambulance, "res/textures/Vehicle/Ambulance.png");
     mTextures.load(TextureID::Taxi, "res/textures/Vehicle/Taxi.png");
     mTextures.load(TextureID::Police, "res/textures/Vehicle/Police.png");
+    mTextures.load(TextureID::Supercar, "res/textures/Vehicle/Supercar.png");
     // traffic light
     mTextures.load(TextureID::TrafficLight, "res/textures/TrafficLight.png");
     mTextures.load(TextureID::RailwayLightOff, "res/textures/RailwayLightOff.png");
@@ -83,6 +87,8 @@ void GameActivity::onLoadResources()
 }
 
 void GameActivity::onCreate() {
+    Intent* intent = getIntent();
+    assert(intent->hasExtra(EXTRA_NUM_PLAYERS));
 }
 
 void GameActivity::onAttach()
@@ -113,6 +119,7 @@ void GameActivity::onAttach()
     if (getIntent()->getAction() == ACTION_NEW_GAME) {
         attachLanes();
         attachPlayer();
+        initEffectTimer();
     }
     else if (getIntent()->getAction() == ACTION_CONTINUE_GAME) {
         loadGame();
@@ -151,7 +158,9 @@ void GameActivity::onDraw(sf::RenderTarget &target, sf::RenderStates states) con
 void GameActivity::onEvent(const sf::Event &event)
 {
     CommandQueue &commands = getCommandQueue();
-    mPlayer.handleEvent(event, commands);
+    for (Player& mPlayer : mPlayers) {
+        mPlayer.handleEvent(event, commands);
+    }
 }
 
 void GameActivity::onEventProcessing()
@@ -169,8 +178,12 @@ void GameActivity::updateCurrent(sf::Time dt)
         Command command = mCommandQueue.pop();
         onCommand(command, dt);
     }
-    handleCollisions();
-    updateScore(scoreText, mPlayerNode);
+
+    for (PlayerNode* playerNode : mPlayerNodes) {
+        handleCollisions(playerNode);
+    }
+
+    updateScore();
 
     mEffectTimer[isEffectShown()].update(dt);
     if (mEffectTimer[isEffectShown()].isTimeout()) {
@@ -193,17 +206,17 @@ void GameActivity::onActivityResult(int requestCode, int resultCode,
 }
 
 bool GameActivity::matchesCategories(ViewGroup::Pair &colliders,
-                                     Category::Type type1, Category::Type type2)
+                                     unsigned int type1, unsigned int type2)
 {
     unsigned int category1 = colliders.first->getCategory();
     unsigned int category2 = colliders.second->getCategory();
 
     // Make sure first pair entry has category type1 and second has type2
-    if (type1 & category1 && type2 & category2)
+    if ((type1 & category1) && (type2 & category2))
     {
         return true;
     }
-    else if (type1 & category2 && type2 & category1)
+    else if ((type1 & category2) && (type2 & category1))
     {
         std::swap(colliders.first, colliders.second);
         return true;
@@ -214,41 +227,41 @@ bool GameActivity::matchesCategories(ViewGroup::Pair &colliders,
     }
 }
 
-void GameActivity::handleCollisions()
+void GameActivity::handleCollisions(PlayerNode* playerNode)
 {
     std::set<ViewGroup::Pair> collisionPairs;
-    mPlayerNode->checkSceneCollision(**mPlayerNode->getCurrentLane(),
+    playerNode->checkSceneCollision(**playerNode->getCurrentLane(),
                                      collisionPairs);
-    if (lanes->end() != std::next(mPlayerNode->getCurrentLane()))
+    if (lanes->end() != std::next(playerNode->getCurrentLane()))
     {
-        mPlayerNode->checkSceneCollision(
-            **std::next(mPlayerNode->getCurrentLane()), collisionPairs);
+        playerNode->checkSceneCollision(
+            **std::next(playerNode->getCurrentLane()), collisionPairs);
     }
-    mPlayerNode->checkSceneCollision(**std::prev(mPlayerNode->getCurrentLane()),
+    playerNode->checkSceneCollision(**std::prev(playerNode->getCurrentLane()),
                                      collisionPairs);
 
     bool onRiver = false;
     for (ViewGroup::Pair pair : collisionPairs)
     {
-        if (matchesCategories(pair, Category::Player, Category::Vehicle) || matchesCategories(pair, Category::Player, Category::Animal) || matchesCategories(pair, Category::Player, Category::Train))
+        if (matchesCategories(pair, (unsigned int)(Category::Player_1) | Category::Player_2, (unsigned int)(Category::Vehicle) | Category::Animal | Category::Train))
         {
-            mPlayerNode->setDead();
+            playerNode->setDead();
         }
-        else if (matchesCategories(pair, Category::Player, Category::Green))
+        else if (matchesCategories(pair, (unsigned int)(Category::Player_1) | Category::Player_2, (unsigned int)Category::Green))
         {
-            mPlayerNode->moveBack();
+            playerNode->moveBack();
         }
     }
 
     sf::FloatRect viewBounds = getViewBounds();
-    sf::FloatRect playerBounds = mPlayerNode->getHitBox();
+    sf::FloatRect playerBounds = playerNode->getHitBox();
     if (viewBounds.top + viewBounds.height < playerBounds.top + playerBounds.height ||
         viewBounds.left + viewBounds.width < playerBounds.left ||
         viewBounds.left > playerBounds.left + playerBounds.width) {
-        mPlayerNode->setDead();
+        playerNode->setDead();
     }
 
-    if (mPlayerNode->isDead())
+    if (playerNode->isDead())
     {
         gameOver();
     }
@@ -258,11 +271,23 @@ void GameActivity::scroll(sf::Time dt)
 {
     AppConfig &config = AppConfig::getInstance();
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
-    int currentLaneIndex = std::distance(lanes->begin(), mPlayerNode->getCurrentLane());
 
-    if (mPlayerNode->getWorldPosition().y - getViewBounds().top < cellSize.y * 5) {
-        mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());
+    float highestY = 0.f;
+    bool flag = false;
+    for (PlayerNode* playerNode : mPlayerNodes) {
+        float playerY = playerNode->getWorldPosition().y;
+        if (!flag || playerY < highestY) {
+            highestY = playerY;
+            flag = true;
+        }
     }
+
+    float different = highestY - getViewBounds().top;
+    if (different < cellSize.y * 4) {
+        float speed = mScrollSpeed * (1 - different / (cellSize.y * 5));
+        mWorldView.move(0.f, speed * dt.asSeconds());
+    }
+    mWorldView.move(0.f, -50 * dt.asSeconds());
 }
 
 void GameActivity::gameOver()
@@ -286,12 +311,11 @@ CommandQueue &GameActivity::getCommandQueue()
 void GameActivity::attachLanes()
 {
     Intent *intent = getIntent();
-    unsigned int level = intent->getExtra<int>("level", -1);
 
     mMapRenderer = std::make_unique<MapRenderer>(
         mTextures, *mSceneLayers[Layer::Aboveground],
         AppConfig::getInstance().get<int>(ConfigKey::NumLaneCells),
-        DEFAULT_MAP_MAX_HEIGHT, level);
+        DEFAULT_MAP_MAX_HEIGHT, getLevel());
     lanes = &mMapRenderer->getLanes();
     unsigned int lane_index = 0;
     float const CELL_HEIGHT = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize).y;
@@ -311,16 +335,41 @@ void GameActivity::attachPlayer()
 {
     MapRenderer::LaneList::const_iterator spawnLane = std::next(lanes->begin(), DEFAULT_SPAWN_LANE_ID);
 
-    auto player = std::make_unique<PlayerNode>(mTextures, *lanes, spawnLane);
-    mPlayerNode = player.get();
-    mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
-    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+    int numPlayers = getNumPlayers();
+    assert(numPlayers > 0);
+    mPlayerNodes.assign(numPlayers, nullptr);
+    if (numPlayers == 1) {
+        mPlayers.emplace_back(Category::Player_1);
+        mPlayerNodes[0] = new PlayerNode(Category::Player_1, mTextures, *lanes, spawnLane);
+    } else {
+        mPlayers.emplace_back(Category::Player_1);
+        mPlayers.emplace_back(Category::Player_2);
 
-    (*spawnLane)->spawnPlayer(std::move(player));
+        mPlayerNodes[0] = new PlayerNode(Category::Player_1, mTextures, *lanes, spawnLane);
+        mPlayerNodes[1] = new PlayerNode(Category::Player_2, mTextures, *lanes, spawnLane);
+
+        mPlayerNodes[0]->setPlayerName("P1", mFontManager.get(FontID::defaultFont));
+        mPlayerNodes[1]->setPlayerName("P2", mFontManager.get(FontID::defaultFont));
+    }
+
+    for (int i = 0; i < numPlayers; ++i) {
+        mPlayers[i].setActionKeys(ACTION_KEYS[i][0], ACTION_KEYS[i][1], ACTION_KEYS[i][2], ACTION_KEYS[i][3]);
+    }
+
+    for (PlayerNode* playerNode : mPlayerNodes) {
+        playerNode->setOrigin(playerNode->getBoundingRect().getSize() / 2.f);
+        playerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+        (*spawnLane)->spawnPlayer(std::unique_ptr<PlayerNode>(playerNode));
+    }
 }
 
 void GameActivity::saveGameState(const std::string& gameStateFilePath, const std::string& playerStateFilePath)
 {
+    if (getNumPlayers() != 1) {
+        std::cerr << "Cannot save game with more than 1 player" << std::endl;
+        return;
+    }
+
     std::ofstream outf(gameStateFilePath, std::ios::binary);
 
     float viewCenterX = mWorldView.getCenter().x;
@@ -329,11 +378,19 @@ void GameActivity::saveGameState(const std::string& gameStateFilePath, const std
     outf.write(reinterpret_cast<const char *>(&viewCenterX), sizeof(viewCenterX));
     outf.write(reinterpret_cast<const char *>(&viewCenterY), sizeof(viewCenterY));
 
+    bool isEffect = isEffectShown();
+    outf.write(reinterpret_cast<const char *>(&isEffect), sizeof(isEffect));
+
+    MyTimer::MyTimerData noEffectTimer = mEffectTimer[0].serialize();
+    outf.write(reinterpret_cast<const char *>(&noEffectTimer), sizeof(noEffectTimer));
+    MyTimer::MyTimerData effectTimer = mEffectTimer[1].serialize();
+    outf.write(reinterpret_cast<const char *>(&effectTimer), sizeof(effectTimer));
+
     mMapRenderer->saveLanes(outf);
     outf.close();
 
     outf.open(playerStateFilePath, std::ios::binary);
-    mPlayerNode->savePlayerData(outf); 
+    mPlayerNodes[0]->savePlayerData(outf); 
     outf.close();
 }
 
@@ -347,6 +404,21 @@ void GameActivity::loadGameState(const std::string& gameStateFilePath, const std
     inf.read(reinterpret_cast<char *>(&viewCenterY), sizeof(viewCenterY));
 
     mWorldView.setCenter(viewCenterX, viewCenterY);
+
+    bool isEffect;
+    inf.read(reinterpret_cast<char *>(&isEffect), sizeof(isEffect));
+    if (isEffect) {
+        showEffect();
+    } else {
+        hideEffect();
+    }
+
+    MyTimer::MyTimerData noEffectTimer;
+    inf.read(reinterpret_cast<char *>(&noEffectTimer), sizeof(noEffectTimer));
+    mEffectTimer[0].deserialize(noEffectTimer);
+    MyTimer::MyTimerData effectTimer;
+    inf.read(reinterpret_cast<char *>(&effectTimer), sizeof(effectTimer));
+    mEffectTimer[1].deserialize(effectTimer);
 
     mMapRenderer = std::make_unique<MapRenderer>(
         mTextures, *mSceneLayers[Layer::Aboveground],
@@ -376,41 +448,50 @@ void GameActivity::loadPlayer(const std::string& playerStateFilePath)
 {
     std::ifstream inf(playerStateFilePath, std::ios::binary);
 
-    auto player = std::make_unique<PlayerNode>(mTextures, *lanes);
-    mPlayerNode = player.get();
-    mPlayerNode->setOrigin(mPlayerNode->getBoundingRect().getSize() / 2.f);
+    mPlayers.emplace_back(Category::Player_1);
+    mPlayers[0].setActionKeys(ACTION_KEYS[0][0], ACTION_KEYS[0][1], ACTION_KEYS[0][2], ACTION_KEYS[0][3]);
 
-    mPlayerNode->loadPlayerData(inf);
-    mPlayerNode->setTransitionLayer(mSceneLayers[Aboveground]);
+    mPlayerNodes.assign(1, nullptr);
+    auto player = std::make_unique<PlayerNode>(mTextures, *lanes);
+    mPlayerNodes[0] = player.get();
+    mPlayerNodes[0]->setOrigin(mPlayerNodes[0]->getBoundingRect().getSize() / 2.f);
     mSceneLayers[Aboveground]->attachView(std::move(player));
+
+    mPlayerNodes[0]->loadPlayerData(inf);
+    mPlayerNodes[0]->setTransitionLayer(mSceneLayers[Aboveground]);
 
     MapRenderer::LaneList::const_iterator spawnLane;
     float minDistance = std::numeric_limits<float>::max();
     for (auto it = lanes->begin(); it != lanes->end(); ++it) {
-        float distance = (*it)->getNearestDistance(mPlayerNode);
+        float distance = (*it)->getNearestDistance(mPlayerNodes[0]);
         if (distance < minDistance) {
             minDistance = distance;
             spawnLane = it;
         }
     }
 
-    mPlayerNode->setCurrentLane(spawnLane);
-    (*spawnLane)->receivePlayer(mPlayerNode);
+    mPlayerNodes[0]->setCurrentLane(spawnLane);
+    (*spawnLane)->receivePlayer(mPlayerNodes[0]);
 }
 
 void GameActivity::createStatusLayer() {
     AppConfig& config = AppConfig::getInstance();
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
-    TextView::Ptr pointView = std::make_unique<TextView>(
-        this,
-        "0",
-        mFontManager.get(FontID::defaultFont),
-        sf::Vector2f(10, 10),
-        64
-    );
-    pointView->setFillColor(sf::Color::White);
-    scoreText = pointView.get();
+    mScoreTexts.assign(getNumPlayers(), nullptr);
+    for (int i = 0; i < (int)mScoreTexts.size(); ++i) {
+        TextView::Ptr pointView = std::make_unique<TextView>(
+            this,
+            "0",
+            mFontManager.get(FontID::defaultFont),
+            sf::Vector2f(10, 10),
+            48
+        );
+        pointView->setFillColor(sf::Color::White);
+        pointView->setPosition(10, (pointView->getGlobalBounds().getSize().y + 10) * i + 10);
+        mScoreTexts[i] = pointView.get();
+        statusLayer->attachView(std::move(pointView));
+    }
 
     SpriteView::Ptr menuView = std::make_unique<SpriteView>(
         this,
@@ -484,9 +565,14 @@ void GameActivity::createStatusLayer() {
     homeButton->attachView(std::move(settingButton));
     menuView->attachView(std::move(homeButton));
 
-    statusLayer->attachView(std::move(pointView));
     statusLayer->attachView(std::move(pauseButton));
     statusLayer->attachView(std::move(menuView));
+}
+
+void GameActivity::initEffectTimer() {
+    mEffectTimer[0] = MyTimer(RAIN_EFFECT_DURATION[getLevel()][0][0], RAIN_EFFECT_DURATION[getLevel()][0][1]);
+    mEffectTimer[1] = MyTimer(RAIN_EFFECT_DURATION[getLevel()][1][0], RAIN_EFFECT_DURATION[getLevel()][1][1]);
+    mEffectTimer[0].restart();
 }
 
 void GameActivity::createGameOverBanner() {
@@ -513,16 +599,16 @@ void GameActivity::createGameOverBanner() {
         mFontManager.get(FontID::defaultFont),
         sf::Vector2f(0, 0),
         [this](EventListener* listener, const sf::Event& event) {
-            Intent* intent = this->getIntent();
             Intent::Ptr resIntent = Intent::Builder()
                 .setAction(GameActivity::ACTION_NEW_GAME)
-                .putExtra("level", intent->getExtra<int>("level", -1))
+                .putExtra(EXTRA_GAME_LEVEL, this->getLevel())
+                .putExtra(EXTRA_NUM_PLAYERS, this->getNumPlayers())
                 .build();
             this->setResult(RESULT_OK, std::move(resIntent));
             this->finish();
         }
     );
-    replayButton->setOrigin(replayButton->getGlobalBounds().getSize().x, 0);
+    replayButton->setOrigin(replayButton->getGlobalBounds().getSize().x / 2.f, 0);
 
     SpriteButtonView::Ptr homeButton = IconButtonFactory::create(
         this,
@@ -551,20 +637,20 @@ void GameActivity::createEffectLayer() {
     LayerView::Ptr rainLayer = std::make_unique<RainLayer>(windowSize);
     effectLayer->attachView(std::move(rainLayer));
     effectLayer->setVisibility(false);
-
-    mEffectTimer[0] = MyTimer(15, 25.f);
-    mEffectTimer[1] = MyTimer(5, 10.f);
-    mEffectTimer[0].restart();
 }
 
 void GameActivity::showEffect() {
     effectLayer->setVisibility(true);
-    mPlayerNode->slowDown();
+    for (PlayerNode* playerNode : mPlayerNodes) {
+        playerNode->slowDown();
+    }
 }
 
 void GameActivity::hideEffect() {
     effectLayer->setVisibility(false);
-    mPlayerNode->speedUp();
+    for (PlayerNode* playerNode : mPlayerNodes) {
+        playerNode->speedUp();
+    }
 }
 
 void GameActivity::toggleEffect() {
@@ -580,8 +666,13 @@ bool GameActivity::isEffectShown() const {
     return effectLayer->isVisible();
 }
 
-void GameActivity::updateScore(TextView* scoreText, PlayerNode* playerNode) {
-    scoreText->setText(std::to_string(playerNode->getScore()));
+void GameActivity::updateScore() {
+    if (getNumPlayers() == 1) {
+        mScoreTexts[0]->setText(std::to_string(mPlayerNodes[0]->getScore()));
+    } else if (getNumPlayers() == 2) {
+        mScoreTexts[0]->setText("P1: " + std::to_string(mPlayerNodes[0]->getScore()));
+        mScoreTexts[1]->setText("P2: " + std::to_string(mPlayerNodes[1]->getScore()));
+    }
 }
 
 void GameActivity::ensureEnoughLanes() {
@@ -592,8 +683,10 @@ void GameActivity::ensureEnoughLanes() {
         Lane* newLane = mMapRenderer->createNewLane();
         mSceneLayers[Background]->attachView(std::unique_ptr<ViewGroup>(newLane));
         mWorldView.move(0.f, newLane->getSize().y);
-        if (mPlayerNode->isMoving()) {
-            mPlayerNode->move(0.f, newLane->getSize().y);
+        for (PlayerNode* playerNode : mPlayerNodes) {
+            if (playerNode->isMoving()) {
+                playerNode->move(0.f, newLane->getSize().y);
+            }
         }
     }
 }
@@ -619,6 +712,11 @@ sf::FloatRect GameActivity::getViewBounds() const {
 }
 
 void GameActivity::saveGame() {
+    if (getNumPlayers() != 1) {
+        std::cerr << "Only support single player game.\n";
+        return;
+    }
+
     UserSession& userSession = UserSession::getInstance();
     if (!userSession.isLoggedin()) {
         std::cerr << "User not logged in.\n";
@@ -655,6 +753,11 @@ void GameActivity::loadGame() {
 }
 
 void GameActivity::removeSavedGame() {
+    if (getNumPlayers() != 1) {
+        std::cerr << "Only support single player game.\n";
+        return;
+    }
+
     UserSession& userSession = UserSession::getInstance();
     if (!userSession.isLoggedin()) {
         std::cerr << "User not logged in.\n";
@@ -669,6 +772,11 @@ void GameActivity::removeSavedGame() {
 }
 
 void GameActivity::savePlayerScore() {
+    if (getNumPlayers() != 1) {
+        std::cerr << "Only support single player game.\n";
+        return;
+    }
+
     UserSession& userSession = UserSession::getInstance();
     if (!userSession.isLoggedin()) {
         std::cerr << "User not logged in.\n";
@@ -688,12 +796,32 @@ void GameActivity::savePlayerScore() {
         case GameLevel::Hard:
             mode = UserData::GameMode::hard;
         break;
+        case GameLevel::Insane:
+            mode = UserData::GameMode::insane;
+        break;
+        case GameLevel::RainDay:
+            mode = UserData::GameMode::rainday;
+        break;
         case GameLevel::Endless:
             mode = UserData::GameMode::endless;
         break;
+        default:
+            assert(false);
     }
-    user.updateHighscore(mPlayerNode->getScore(), mode);
+
+    user.updateHighscore(mPlayerNodes[0]->getScore(), mode);
 
     UserRepo& userRepo = UserRepo::getInstance();
     userRepo.updateUser(user);
+}
+
+int GameActivity::getLevel() const {
+    if (mMapRenderer == nullptr) {
+        return getIntent()->getExtra<int>(EXTRA_GAME_LEVEL);
+    }
+    return mMapRenderer->getLevel();
+}
+
+int GameActivity::getNumPlayers() const {
+    return getIntent()->getExtra<int>(EXTRA_NUM_PLAYERS);
 }

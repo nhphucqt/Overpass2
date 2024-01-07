@@ -12,6 +12,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <TransitionHandler.hpp>
+
 #include <list>
 
 class Lane;
@@ -31,8 +32,12 @@ public:
         Mounted,
         Free
     };
+
     PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
     PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes);
+
+    PlayerNode(Category::Type category, const TextureManager &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
+    PlayerNode(Category::Type category, const TextureManager &textures, std::list<Lane *> const &lanes);
 
     void moveDestination(sf::Vector2f distance);
     void moveDestination(float vx, float vy);
@@ -71,6 +76,8 @@ public:
 
     int getScore() const;
 
+    void setPlayerName(std::string name, sf::Font &font);
+
 private:
     virtual void drawCurrent(sf::RenderTarget &target,
                              sf::RenderStates states) const;
@@ -108,6 +115,8 @@ private:
     std::queue<sf::Vector2i> actionQueue;
     sf::Time moveDuration;
     bool __isDead;
+
+    Category::Type mCategory;
 
     int currentScore;
     int currentDistance;

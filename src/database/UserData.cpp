@@ -1,6 +1,6 @@
 #include <UserData.hpp>
 
-const char* UserData::gameModeNames[GameMode::GameModeCount] = {"Easy", "Medium", "Hard", "Endless"};
+const char* UserData::gameModeNames[GameMode::GameModeCount] = {"Easy", "Medium", "Hard", "Insane", "Rain Day", "Endless"};
 
 UserData::UserData()
     : username(""), password("")
@@ -10,12 +10,14 @@ UserData::UserData()
     }
 }
 
-UserData::UserData(std::string username, std::string password, int easy, int medium, int hard, int endless)
+UserData::UserData(std::string username, std::string password, int easy, int medium, int hard, int insane, int rainday, int endless)
     : username(username), password(password)
 {
     highscore.at(GameMode::easy) = easy;
     highscore.at(GameMode::medium) = medium;
     highscore.at(GameMode::hard) = hard;
+    highscore.at(GameMode::insane) = insane;
+    highscore.at(GameMode::rainday) = rainday;
     highscore.at(GameMode::endless) = endless;
 }
 
@@ -42,7 +44,7 @@ std::string UserData::getPassword() const
     return password;
 }
 
-std::array<int, 4> UserData::getHighscore() const
+std::array<int, UserData::GameMode::GameModeCount> UserData::getHighscore() const
 {
     return highscore;
 }

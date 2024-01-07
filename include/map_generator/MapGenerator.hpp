@@ -19,10 +19,10 @@ public:
     LaneProperties const &getCurrLane() const;
 
 private:
+    static constexpr unsigned int NUM_LEVELS = 5;
     static constexpr unsigned int MAX_RIVER_WIDTH = 5;
-    static constexpr unsigned int LEVEL_MAX_CONS_NONFIELDS_CNTS[] = {5, 9, 13};
-    static constexpr unsigned int ENDLESS_LEVEL_LANES_CNT[] = {40, 80,
-                                                               UINT_MAX};
+    static constexpr unsigned int LEVEL_MAX_CONS_NONFIELDS_CNTS[NUM_LEVELS] = {5, 5, 9, 13, 5};
+    static constexpr unsigned int ENDLESS_LEVEL_LANES_CNT[NUM_LEVELS] = {40, 40, 80, UINT_MAX, UINT_MAX};
     static constexpr unsigned int INITIAL_FIELDS_CNT = 5;
 
     void updateContext(bool initializing_p);
@@ -48,7 +48,7 @@ private:
     unsigned int m_initial_lanes_cnt;
     unsigned int m_river_width;
     unsigned int m_cons_nonfields_cnt;
-    unsigned int m_level_lanes_cnts[3];
+    unsigned int m_level_lanes_cnts[NUM_LEVELS];
 };
 
 #endif

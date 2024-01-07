@@ -4,16 +4,17 @@
 // Entity/scene node category, used to dispatch commands
 namespace Category {
 	enum Type {
-		None = 0,
-		Player = 1 << 0,
-		Lane = 1 << 1,
-		River = 1 << 2,
-		Vehicle = 1 << 3,
-		Train = 1 << 4,
-		Animal = 1 << 5,
-		Log = 1 << 6,
-		Crocodile = 1 << 7,
-		Green = 1 << 8,
+		None      = 0,
+		Player_1  = 1 << 0,
+		Player_2  = 1 << 1,
+		Lane      = 1 << 2,
+		River     = 1 << 3,
+		Vehicle   = 1 << 4,
+		Train     = 1 << 5,
+		Animal    = 1 << 6,
+		Log       = 1 << 7,
+		Crocodile = 1 << 8,
+		Green     = 1 << 9,
 	};
 }
 

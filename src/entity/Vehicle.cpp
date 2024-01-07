@@ -7,7 +7,14 @@ TextureID toTextureID(Vehicle::Type type)
 	{
 	case Vehicle::Car:
 		return TextureID::Car;
-
+	case Vehicle::Ambulance:
+		return TextureID::Ambulance;
+	case Vehicle::Taxi:
+		return TextureID::Taxi;
+	case Vehicle::Police:
+		return TextureID::Police;
+	case Vehicle::Supercar:
+		return TextureID::Supercar;
 		// other vehicles here
 	}
 	return TextureID::Car;

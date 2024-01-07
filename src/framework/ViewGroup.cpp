@@ -92,9 +92,12 @@ void ViewGroup::updateCurrent(sf::Time delta)
 
 void ViewGroup::updateChildren(sf::Time delta)
 {
-    for (ViewGroup::Ptr &child : childViews)
-    {
-        child->update(delta);
+    // for (ViewGroup::Ptr &child : childViews)
+    // {
+    //     child->update(delta);
+    // }
+    for (int i = 0; i < (int)childViews.size(); ++i) {
+        childViews[i]->update(delta);
     }
 }
 
