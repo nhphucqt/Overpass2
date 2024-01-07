@@ -2,6 +2,8 @@
 #include <Vector2dUtils.hpp>
 #include <iostream>
 
+Entity::Entity() : mIsReverseSprite(false) {}
+
 Entity::Entity(const sf::Texture &texture) : sprite(texture), mIsReverseSprite(false) {}
 
 void Entity::setSize(sf::Vector2f size)
