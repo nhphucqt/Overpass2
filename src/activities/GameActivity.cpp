@@ -178,6 +178,13 @@ void GameActivity::onEventProcessing()
 
 void GameActivity::updateCurrent(sf::Time dt)
 {
+    for (PlayerNode* playerNode : mPlayerNodes) {
+        if (playerNode->isDead()) {
+            gameOver();
+            return;
+        }
+    }
+
     scroll(dt);
     popOutOfViewLanes();
     ensureEnoughLanes();
@@ -267,11 +274,6 @@ void GameActivity::handleCollisions(PlayerNode* playerNode)
         viewBounds.left + viewBounds.width < playerBounds.left ||
         viewBounds.left > playerBounds.left + playerBounds.width) {
         playerNode->setDead();
-    }
-
-    if (playerNode->isDead())
-    {
-        gameOver();
     }
 }
 
