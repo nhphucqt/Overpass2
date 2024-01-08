@@ -91,8 +91,7 @@ void GameActivity::onLoadResources()
 void GameActivity::onCreate() {
     Intent* intent = getIntent();
     assert(intent->hasExtra(EXTRA_NUM_PLAYERS));
-
-    MusicPlayer::getInstance().setVolume(50.f);
+    mIsMutedBefore = MusicPlayer::getInstance().isMuted();
 }
 
 void GameActivity::onAttach()
@@ -151,8 +150,8 @@ void GameActivity::onDestroy()
         savePlayerScore();
     }
 
-    MusicPlayer::getInstance().setVolume(100.f);
     MusicPlayer::getInstance().stop();
+    MusicPlayer::getInstance().setMute(mIsMutedBefore);
     MusicPlayer::getInstance().play(MusicID::backgroundMusic);
 }
 
@@ -303,7 +302,7 @@ void GameActivity::scroll(sf::Time dt)
 void GameActivity::gameOver()
 {
     SoundPlayer::getInstance().play(SoundBufferID::gameOver);
-    MusicPlayer::getInstance().setVolume(0.f);
+    MusicPlayer::getInstance().setMute(true);
 
     mIsGameOver = true;
     statusLayer->setIsListeningAll(false);

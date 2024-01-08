@@ -58,6 +58,8 @@ private:
     };
 
 private:
+    bool mIsMutedBefore;
+
     std::vector<Player> mPlayers;
     std::vector<PlayerNode*> mPlayerNodes;
     std::vector<TextView*> mScoreTexts;
