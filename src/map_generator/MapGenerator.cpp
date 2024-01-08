@@ -57,8 +57,7 @@ Lane::Type MapGenerator::generateLaneType(bool initializing_p) const
         return Lane::Type::Field;
     }
 
-    if (m_cons_nonfields_cnt
-        == LEVEL_MAX_CONS_NONFIELDS_CNTS[static_cast<unsigned int>(m_level)])
+    if (m_cons_nonfields_cnt == LEVEL_MAX_CONS_NONFIELDS_CNTS[getRealLevel()])
     {
         return static_cast<Lane::Type>(MyRandom::random_range(2) + 1);
     }
