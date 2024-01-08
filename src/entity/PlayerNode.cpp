@@ -184,9 +184,14 @@ void PlayerNode::updateMove(sf::Time delta)
                 if (!(*curLane)->receivePlayer(this))
                 {
                     setDead();
+                    if ((*curLane)->getCategory() == Category::River) {
+                        state = State::Drowning;
+                    }
                 }
                 popActionAndUpdateScore();
-                state = State::Idle;
+                if (!isDead()) {
+                    state = State::Idle;
+                }
             }
         }
     }
@@ -220,6 +225,12 @@ void PlayerNode::updateCurrent(sf::Time delta)
     if (state != Idle && state != Free)
     {
         sprite.setTextureRect(sf::IntRect(0, 16 * state, 14, 16));
+    }
+
+    if (state == Dead) {
+        sprite.setTextureRect(sf::IntRect(0, 64, 14, 16));
+    } else if (state == Drowning) {
+        sprite.setTextureRect(sf::IntRect(0, 80, 14, 16));
     }
 
     Entity::updateCurrent(delta);
@@ -368,6 +379,7 @@ bool PlayerNode::isMoving()
 void PlayerNode::setDead()
 {
     __isDead = true;
+    state = State::Dead;
 }
 
 bool PlayerNode::isDead() const

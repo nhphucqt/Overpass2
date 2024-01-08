@@ -30,7 +30,9 @@ public:
         MoveRight,
         Idle,
         Mounted,
-        Free
+        Free,
+        Drowning,
+        Dead
     };
 
     PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);

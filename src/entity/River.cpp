@@ -192,3 +192,7 @@ bool River::isOutofView(Entity *entity, float laneLength) const
            || (!isReverse
                && entity->getPosition().x > laneLength + OUT_OF_VIEW_PADDING);
 }
+
+unsigned int River::getCategory() const {
+    return Category::Type::River;
+}

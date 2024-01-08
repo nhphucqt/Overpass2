@@ -26,6 +26,8 @@ public:
     River(TextureManager *textures, bool isReverse, float velocity, bool isLoad = false);
     void setLogVelocity(float v);
 
+	virtual unsigned int getCategory() const;
+
 private:
     float laneLength;
     float logVelocity;
