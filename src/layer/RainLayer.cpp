@@ -30,7 +30,7 @@ void RainLayer::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) c
 }
 
 void RainLayer::updateCurrent(sf::Time dt) {
-    float angle = DROP_ANGLE * M_PI / 180.f;
+    float angle = DROP_ANGLE * acos(-1) / 180.f;
     float speed = DROP_SPEED * dt.asSeconds();
     for (auto it = mDrops.begin(); it != mDrops.end();) {
         // it->move(0, DROP_SPEED * dt.asSeconds());
@@ -60,7 +60,7 @@ sf::RectangleShape RainLayer::createDrop() {
         MyRandom::random_float(DROP_LENGTH_LOW, DROP_LENGTH_HIG)
     ));
     drop.setPosition(
-        MyRandom::random_float(0, mWorldSize.x + mWorldSize.x * tan(DROP_ANGLE * M_PI / 180.f)),
+        MyRandom::random_float(0, mWorldSize.x + mWorldSize.x * tan(DROP_ANGLE * acos(-1) / 180.f)),
         MyRandom::random_float(-DROP_OFFSET, 0)
     );
     drop.setFillColor(dropColor);

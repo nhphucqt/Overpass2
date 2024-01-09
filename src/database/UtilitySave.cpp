@@ -33,16 +33,3 @@ void UtilitySave::DeleteDirContent(const std::string &dirPath)
         std::cerr << dirPath + "not found.\n";
     }
 }
-
-std::vector<std::string> UtilitySave::getSortedFileNames(const std::string& filepath)
-{
-    std::vector<std::string> loadFiles;
-	for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(filepath))
-	{
-		std::string dir = dirEntry.path().filename();
-		if (dir != "player.dat" && dir != "lane.txt")
-			loadFiles.push_back(dir);
-	}
-	std::sort(loadFiles.begin(), loadFiles.end(), sortDir);
-    return loadFiles;
-}
