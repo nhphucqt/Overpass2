@@ -48,6 +48,7 @@ jobs:
         path: build/bin
   release:
     name: Release for ${{ matrix.platform.name }} ${{ matrix.config.name }}
+    runs-on: ${{ matrix.platform.os }}
     needs: build
     steps:
     - name: Download artifact
