@@ -11,11 +11,11 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows VS2019, os: windows-2019  }
-        - { name: Windows VS2022, os: windows-2022  }
-        - { name: Linux GCC,      os: ubuntu-latest }
-        - { name: Linux Clang,    os: ubuntu-latest, flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS,          os: macos-latest  }
+        - { name: Windows VS2019, os: windows-2019,  tag: windows-2019}
+        - { name: Windows VS2022, os: windows-2022,  tag: windows-2022}
+        - { name: Linux GCC,      os: ubuntu-latest, tag: ubuntu-latest-gcc}
+        - { name: Linux Clang,    os: ubuntu-latest, tag: ubuntu-latest-clang, flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+        - { name: macOS,          os: macos-latest,  tag: macos-latest}
         config:
         - { name: Shared, flags: -DBUILD_SHARED_LIBS=TRUE }
         - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
@@ -44,16 +44,16 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: binary-${{matrix.platform.os}}-${{matrix.config.name}}
+        name: binary-${{matrix.platform.tag}}-${{matrix.config.name}}
         path: build/bin
-  release:
-    name: Release for ${{ matrix.platform.name }} ${{ matrix.config.name }}
-    runs-on: ${{ matrix.platform.os }}
-    needs: build
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with: 
-        name: binary-${{matrix.platform.os}}-${{matrix.config.name}}
-    - name: Test artifact download
-      run: ls -R
+  # release:
+  #   name: Release for ${{ matrix.platform.name }} ${{ matrix.config.name }}
+  #   runs-on: ${{ matrix.platform.os }}
+  #   needs: build
+  #   steps:
+  #   - name: Download artifact
+  #     uses: actions/download-artifact@v4
+  #     with: 
+  #       name: binary-${{matrix.platform.tag}}-${{matrix.config.name}}
+  #   - name: Test artifact download
+  #     run: ls -R
