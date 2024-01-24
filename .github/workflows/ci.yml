@@ -40,3 +40,19 @@ jobs:
     - name: Install
       shell: bash
       run: cmake --install build --config Release
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-${{matrix.platform.os}}-${{matrix.config.name}}
+        path: build/bin
+  release:
+    name: Release for ${{ matrix.platform.name }} ${{ matrix.config.name }}
+    needs: build
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with: 
+        name: binary-${{matrix.platform.os}}-${{matrix.config.name}}
+    - name: Test artifact download
+      run: ls -R
