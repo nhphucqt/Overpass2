@@ -106,7 +106,7 @@ void Entity::checkNodeCollision(const ViewGroup &node, std::set<Pair> &collision
 	{
 		return;
 	}
-	if (this != &node && collision(*this, node) && !isDestroyed() && !node.isDestroyed())
+	if (this != &node && collision(*this, node))
 	{
 		ViewGroup *ptr = (ViewGroup *)&node;
 		collisionPairs.insert(std::minmax((ViewGroup *)this, ptr));

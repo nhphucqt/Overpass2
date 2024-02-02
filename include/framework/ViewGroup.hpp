@@ -45,9 +45,6 @@ public:
 	sf::Vector2f getWorldPosition() const;
 	sf::Transform getWorldTransform() const;
 
-	virtual bool isMarkedForRemoval() const;
-    virtual bool isDestroyed() const;
-
     void setUpdate(bool isUpdate);
     bool isUpdate();
 

@@ -140,18 +140,6 @@ sf::Transform ViewGroup::getWorldTransform() const
     return transform;
 }
 
-bool ViewGroup::isMarkedForRemoval() const
-{
-    // By default, remove node if entity is destroyed
-    return isDestroyed();
-}
-
-bool ViewGroup::isDestroyed() const
-{
-    // By default, scene node needn't be removed
-    return false;
-}
-
 void ViewGroup::setUpdate(bool isUpdate)
 {
     mIsUpdate = isUpdate;
