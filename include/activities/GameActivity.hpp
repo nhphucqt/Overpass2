@@ -10,7 +10,7 @@
 #include <Player.hpp>
 #include <PlayerNode.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <Train.hpp>
 #include <ViewGroup.hpp>
 
@@ -26,7 +26,7 @@ class Lane;
 class GameActivity : public Activity
 {
 public:
-    enum Action {
+    enum class Action {
         ACTION_NEW_GAME,
         ACTION_CONTINUE_GAME
     };
@@ -50,7 +50,7 @@ private:
 
     static const int REQUEST_TITLEBAR_BUTTONS = -1;
 
-    enum Layer
+    enum class Layer
     {
         Background,
         Aboveground,
@@ -69,13 +69,13 @@ private:
     LayerView::Ptr effectLayer, statusLayer;
     SpriteView* pauseMenu;
 
-    FontManager mFontManager;
-    TextureManager mTextures;
+    FontHolder mFontHolder;
+    TextureHolder mTextures;
     MapRenderer::LaneList const *lanes;
 
     std::unique_ptr<MapRenderer> mMapRenderer;
 
-    std::array<ViewGroup *, LayerCount> mSceneLayers;
+    std::array<ViewGroup *, (int)Layer::LayerCount> mSceneLayers;
     CommandQueue mCommandQueue;
 
     sf::View mWorldView;
@@ -98,8 +98,6 @@ protected:
     virtual void onDraw(sf::RenderTarget &target,
                         sf::RenderStates states) const override;
     void updateCurrent(sf::Time dt) override;
-    virtual void onActivityResult(int requestCode, int resultCode,
-                                  Intent::Ptr data) override;
     virtual void drawCurrent(sf::RenderTarget &target,
                              sf::RenderStates states) const override;
 

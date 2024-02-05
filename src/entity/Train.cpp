@@ -1,7 +1,7 @@
 #include <Train.hpp>
 #include <AppConfig.hpp>
 
-Train::Train(const TextureManager &textures) 
+Train::Train(const TextureHolder &textures) 
 	: Entity(textures.get(TextureID::Train))
 {
 	sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
@@ -19,7 +19,7 @@ Train::Train(const TextureManager &textures)
 
 unsigned int Train::getCategory() const
 {
-	return Category::Train;
+	return ViewCategory::Train;
 }
 
 Train::TrainData Train::serialize() const

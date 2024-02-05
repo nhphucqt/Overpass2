@@ -2,7 +2,7 @@
 #define CATEGORY_HPP
 
 // Entity/scene node category, used to dispatch commands
-namespace Category {
+namespace ViewCategory {
 	enum Type {
 		None      = 0,
 		Player_1  = 1 << 0,

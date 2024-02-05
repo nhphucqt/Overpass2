@@ -3,7 +3,7 @@
 
 #include <Entity.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -15,7 +15,7 @@ class Log : public Entity
 public:
     typedef std::unique_ptr<Log> Ptr;
 
-    enum Type
+    enum class Type
     {
         WoodL2,
         WoodL3,
@@ -23,7 +23,7 @@ public:
         Count
     };
 
-    Log(Type mType, const TextureManager &textures);
+    Log(Type mType, const TextureHolder &textures);
     unsigned int getCategory() const;
 
     SeqZone *getSeqZone();
@@ -46,6 +46,9 @@ public:
 
     LogData serialize() const;
     void deserialize(LogData &data);
+
+private:
+    TextureID toTextureID(Type type);
 };
 
 #endif

@@ -7,7 +7,7 @@
 #include <Green.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -20,9 +20,9 @@ public:
     typedef std::vector<std::pair<unsigned int, Green::Type>> Greens;
 
 public:
-    Field(TextureManager *textures, bool isReverse, const Greens &greenSlots,
+    Field(TextureHolder *textures, bool isReverse, const Greens &greenSlots,
           bool isLoad = false);
-    Field(TextureManager *textures, bool isReverse, bool isLoad = false);
+    Field(TextureHolder *textures, bool isReverse, bool isLoad = false);
 
     void add(std::unique_ptr<Green> green, unsigned int index);
 

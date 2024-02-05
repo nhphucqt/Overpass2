@@ -10,7 +10,7 @@ const float Road::ANIMAL_TIMER_HIG = 5.f;
 const float Road::VEHICLE_TIMER_LOW = 1.f;
 const float Road::VEHICLE_TIMER_HIG = 2.f;
 
-Road::Road(TextureManager *textures, bool isReverse, float animalVelo,
+Road::Road(TextureHolder *textures, bool isReverse, float animalVelo,
            float vehicleVelo, bool hasAnimal, bool hasVehicle, bool isLoad)
     : Lane(textures->get(TextureID::Road), textures, isReverse),
       laneLength(AppConfig::getInstance().get<float>(ConfigKey::LANE_LENGTH)),
@@ -31,7 +31,7 @@ Road::Road(TextureManager *textures, bool isReverse, float animalVelo,
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(sf::Vector2f(laneLength, cellSize.y));
     setReverse(true);
-    type = Lane::Road;
+    type = Lane::Type::Road;
     textures->get(TextureID::Road).setRepeated(true);
     sprite.scale(8.f, 8.f);
     sf::IntRect textureRect(0, 0, laneLength, 16);

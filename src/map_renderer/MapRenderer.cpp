@@ -15,7 +15,7 @@
 
 #include <memory>
 
-MapRenderer::MapRenderer(TextureManager &textures, ViewGroup &foreground,
+MapRenderer::MapRenderer(TextureHolder &textures, ViewGroup &foreground,
                          unsigned int map_width, unsigned int map_max_height,
                          unsigned int level, bool isLoad)
     : m_textures(textures),

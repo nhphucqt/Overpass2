@@ -3,7 +3,7 @@
 
 const int VehicleFactory::LOG_LEN[NUM_LEN] = {2, 3};
 
-VehicleFactory::VehicleFactory(TextureManager* textures, bool isReverse, float velocity, float roadLength)
+VehicleFactory::VehicleFactory(TextureHolder* textures, bool isReverse, float velocity, float roadLength)
 : textures(textures), isReverse(isReverse), velocity(velocity), roadLength(roadLength) {
     nextType();
 }

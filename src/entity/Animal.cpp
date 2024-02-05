@@ -1,54 +1,49 @@
 #include <Animal.hpp>
 #include <AppConfig.hpp>
 
-TextureID toTextureID(Animal::Type type) {
+TextureID Animal::toTextureID(Type type) {
 	switch (type) {
-    case Animal::Bear:
+    case Type::Bear:
         return TextureID::Bear;
-
-    case Animal::Boar:
+    case Type::Boar:
         return TextureID::Boar;
-
-    case Animal::Bunny:
+    case Type::Bunny:
         return TextureID::Bunny;
-    
-    case Animal::Deer:
+    case Type::Deer:
         return TextureID::Deer;
-
-    case Animal::Fox:
+    case Type::Fox:
         return TextureID::Fox;
-
-    case Animal::Wolf:
+    case Type::Wolf:
         return TextureID::Wolf;
 	}
 	return TextureID::Fox;
 }
 
-Animal::Animal(Type mType, const TextureManager& textures)
+Animal::Animal(Type mType, const TextureHolder& textures)
     :  type(mType)
     , animation(textures.get(toTextureID(mType)))
 {
-    if (type == Bear) {
+    if (type == Type::Bear) {
         animation.setFrameSize(sf::Vector2i(26, 12));
         animation.setNumFrames(6);
     }
-    else if (type == Boar) {
+    else if (type == Type::Boar) {
         animation.setFrameSize(sf::Vector2i(16 , 10));
         animation.setNumFrames(4);
     }
-    else if (type == Bunny) {
+    else if (type == Type::Bunny) {
         animation.setFrameSize(sf::Vector2i(11 , 9));
         animation.setNumFrames(4);
     }
-    else if (type == Deer) {
+    else if (type == Type::Deer) {
         animation.setFrameSize(sf::Vector2i(17 , 18));
         animation.setNumFrames(4);
     }
-    else if (type == Fox) {
+    else if (type == Type::Fox) {
         animation.setFrameSize(sf::Vector2i(17, 11));
         animation.setNumFrames(4);
     }
-    else if (type == Wolf) {
+    else if (type == Type::Wolf) {
         animation.setFrameSize(sf::Vector2i(19 , 12));
         animation.setNumFrames(6);
     }
@@ -78,7 +73,7 @@ void Animal::updateCurrent(sf::Time dt) {
 }
 
 unsigned int Animal::getCategory() const {
-    return Category::Animal;
+    return ViewCategory::Animal;
 }
 
 Animal::AnimalData Animal::serialize() const {

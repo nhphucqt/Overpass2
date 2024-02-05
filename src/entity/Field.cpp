@@ -5,7 +5,7 @@
 #include <MyRandom.hpp>
 #include <RectangleView.hpp>
 
-Field::Field(TextureManager *textures, bool isReverse, const Greens &greenSlots,
+Field::Field(TextureHolder *textures, bool isReverse, const Greens &greenSlots,
              bool isLoad)
     : Lane(textures->get(TextureID::Field), textures, isReverse),
       greenSlots(greenSlots)
@@ -25,7 +25,7 @@ Field::Field(TextureManager *textures, bool isReverse, const Greens &greenSlots,
     }
 }
 
-Field::Field(TextureManager *textures, bool isReverse, bool isLoad)
+Field::Field(TextureHolder *textures, bool isReverse, bool isLoad)
     : Field(textures, isReverse, {}, isLoad)
 {
 }

@@ -1,5 +1,5 @@
-#ifndef RESOURCE_MANAGER
-#define RESOURCE_MANAGER
+#ifndef RESOURCE_HOLDER_HPP
+#define RESOURCE_HOLDER_HPP
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -9,7 +9,7 @@
 #include <memory>
 
 template <typename Resource, typename Identifier>
-class ResourceManager
+class ResourceHolder
 {
 public:
     void load(Identifier id, const std::string &filename);
@@ -20,6 +20,6 @@ private:
     std::map<Identifier, std::unique_ptr<Resource>> mResourceMap;
 };
 
-#include <ResourceManager.inl>
+#include <ResourceHolder.inl>
 
 #endif

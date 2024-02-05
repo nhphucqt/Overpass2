@@ -8,8 +8,8 @@ class HelpActivity: public Activity {
 private:
     static const int REQUEST_TITLEBAR_BUTTONS = 126;
 
-    FontManager mFontManager;
-    TextureManager mTextureManager;
+    FontHolder mFontHolder;
+    TextureHolder mTextureHolder;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;

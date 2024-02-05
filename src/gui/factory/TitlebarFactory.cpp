@@ -14,14 +14,14 @@
 
 #include <SoundPlayer.hpp>
 
-SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mTextureManager, const sf::Font& font, const std::string& title, TitlebarType titleType, int requestCode) {
+SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureHolder& mTextureHolder, const sf::Font& font, const std::string& title, TitlebarType titleType, int requestCode) {
     AppConfig& config = AppConfig::getInstance();
     sf::Vector2f windowSize = config.get<sf::Vector2f>(ConfigKey::WindowSize);
 
-    sf::Texture& backgroundTexture = mTextureManager.get(TextureID::titleBackgroundTexture);
-    sf::Texture& characterTexture = mTextureManager.get(TextureID::characterTitleBarTexture);
-    sf::Texture& squareButtonsTexture = mTextureManager.get(TextureID::squareButtonsTexture);
-    sf::Texture& iconsTexture = mTextureManager.get(TextureID::iconsTexture);
+    sf::Texture& backgroundTexture = mTextureHolder.get(TextureID::titleBackgroundTexture);
+    sf::Texture& characterTexture = mTextureHolder.get(TextureID::characterTitleBarTexture);
+    sf::Texture& squareButtonsTexture = mTextureHolder.get(TextureID::squareButtonsTexture);
+    sf::Texture& iconsTexture = mTextureHolder.get(TextureID::iconsTexture);
 
     float scale = 3.f;
     float buttonScale = 2.f;
@@ -143,7 +143,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
                 Intent::Ptr resIntent = Intent::Builder()
                     .putExtra("titleType", TitlebarType::SETTINGS)
                     .build();
-                context->setResult(Activity::RESULT_OK, std::move(resIntent));
+                context->setResult(Activity::ResultCode::RESULT_OK, std::move(resIntent));
                 context->finish();
             }
         });
@@ -169,7 +169,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
                 Intent::Ptr resIntent = Intent::Builder()
                     .putExtra("titleType", TitlebarType::PROFILE)
                     .build();
-                context->setResult(Activity::RESULT_OK, std::move(resIntent));
+                context->setResult(Activity::ResultCode::RESULT_OK, std::move(resIntent));
                 context->finish();
             }
         });
@@ -195,7 +195,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureManager& mText
                 Intent::Ptr resIntent = Intent::Builder()
                     .putExtra("titleType", TitlebarType::HELP)
                     .build();
-                context->setResult(Activity::RESULT_OK, std::move(resIntent));
+                context->setResult(Activity::ResultCode::RESULT_OK, std::move(resIntent));
                 context->finish();
             }
         });

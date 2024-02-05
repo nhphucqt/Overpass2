@@ -7,7 +7,7 @@
 class EditTextView : public ViewGroup {
 public:
     typedef std::unique_ptr<EditTextView> Ptr;
-    enum InputType {
+    enum class InputType {
         TEXT,
         PASSWORD
     };

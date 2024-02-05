@@ -3,7 +3,7 @@
 
 const int LogFactory::LOG_LEN[NUM_LEN] = {2, 3};
 
-LogFactory::LogFactory(TextureManager* textures, bool isReverse, float velocity, float riverLength)
+LogFactory::LogFactory(TextureHolder* textures, bool isReverse, float velocity, float riverLength)
 : textures(textures), isReverse(isReverse), velocity(velocity), riverLength(riverLength) {
     nextLen();
 }
@@ -32,10 +32,10 @@ void LogFactory::nextLen() {
 Log::Type LogFactory::toLogType(int len) {
     switch (len) {
     case 2:
-        return Log::WoodL2;
+        return Log::Type::WoodL2;
     case 3:
-        return Log::WoodL3;
+        return Log::Type::WoodL3;
     default:
-        return Log::WoodL2;
+        return Log::Type::WoodL2;
     }
 }

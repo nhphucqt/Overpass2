@@ -15,14 +15,14 @@
 #include <SoundPlayer.hpp>
 
 void SettingsActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
-    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
-    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
-    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
-    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
-    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
-    mTextureManager.load(TextureID::toggleButtonsTexture, "res/textures/ui/UI_Settings_Buttons.png");
-    mTextureManager.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
+    mFontHolder.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureHolder.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureHolder.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureHolder.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureHolder.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureHolder.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
+    mTextureHolder.load(TextureID::toggleButtonsTexture, "res/textures/ui/UI_Settings_Buttons.png");
+    mTextureHolder.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
 }
 
 void SettingsActivity::onCreate() {
@@ -32,37 +32,9 @@ void SettingsActivity::onCreate() {
     createMenu();
 }
 
-void SettingsActivity::onAttach() {
-    // ...
-}
-
-void SettingsActivity::onResume() {
-    // ...
-}
-
-void SettingsActivity::onPause() {
-    // ...
-}
-
-void SettingsActivity::onDestroy() {
-    // ...
-}
-
-void SettingsActivity::onEvent(const sf::Event& event) {
-    // ...
-}
-
-void SettingsActivity::updateCurrent(sf::Time dt) {
-    // ...
-}
-
-void SettingsActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
-    // ...
-}
-
 void SettingsActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(this, mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(this, mTextureHolder.get(TextureID::mainMenuBackgroundTexture))
     );
 }
 
@@ -71,8 +43,8 @@ void SettingsActivity::createTitle() {
     attachView(
         TitlebarFactory::create(
             this,
-            mTextureManager,
-            mFontManager.get(FontID::defaultFont),
+            mTextureHolder,
+            mFontHolder.get(FontID::defaultFont),
             "Settings",
             TitlebarFactory::TitlebarType::SETTINGS,
             requestCode
@@ -84,8 +56,8 @@ void SettingsActivity::createBackButton() {
     attachView(
         BackButtonFactory::create(
             this,
-            mTextureManager.get(TextureID::squareButtonsTexture),
-            mFontManager.get(FontID::defaultFont)
+            mTextureHolder.get(TextureID::squareButtonsTexture),
+            mFontHolder.get(FontID::defaultFont)
         )
     );
 }
@@ -96,7 +68,7 @@ void SettingsActivity::createMenu() {
 
     SpriteView::Ptr menu = std::make_unique<SpriteView>(
         this,
-        mTextureManager.get(TextureID::settingMenuTexture),
+        mTextureHolder.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(106, 122) * 4.f,
         sf::IntRect(139, 12, 106, 122)
@@ -105,8 +77,8 @@ void SettingsActivity::createMenu() {
 
     ToggleButtonView::Ptr musicToggle = SettingToggleFactory::create(
         this,
-        mTextureManager.get(TextureID::toggleButtonsTexture),
-        mFontManager.get(FontID::defaultFont),
+        mTextureHolder.get(TextureID::toggleButtonsTexture),
+        mFontHolder.get(FontID::defaultFont),
         "Music",
         false
     );
@@ -115,8 +87,8 @@ void SettingsActivity::createMenu() {
 
     ToggleButtonView::Ptr soundToggle = SettingToggleFactory::create(
         this,
-        mTextureManager.get(TextureID::toggleButtonsTexture),
-        mFontManager.get(FontID::defaultFont),
+        mTextureHolder.get(TextureID::toggleButtonsTexture),
+        mFontHolder.get(FontID::defaultFont),
         "Sound",
         false
     );
@@ -125,11 +97,6 @@ void SettingsActivity::createMenu() {
     MusicPlayer& musicPlayer = MusicPlayer::getInstance();
     SoundPlayer& soundPlayer = SoundPlayer::getInstance();
 
-    // assert(musicPlayer.getVolume() == 0 || musicPlayer.getVolume() == 100);
-    // assert(soundPlayer.getVolume() == 0 || soundPlayer.getVolume() == 100);
-
-    // musicToggle->setState(musicPlayer.getVolume() != 0);
-    // soundToggle->setState(soundPlayer.getVolume() != 0);
     musicToggle->setState(!musicPlayer.isMuted());
     soundToggle->setState(!soundPlayer.isMuted());
 
@@ -137,10 +104,8 @@ void SettingsActivity::createMenu() {
         ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
         if (button->getState()) {
             musicPlayer.setMute(false);
-            // musicPlayer.setVolume(100);
         } else {
             musicPlayer.setMute(true);
-            // musicPlayer.setVolume(0);
         }
         GameSetting::getInstance().saveSettingState();
     });
@@ -149,10 +114,8 @@ void SettingsActivity::createMenu() {
         ToggleButtonView* button = dynamic_cast<ToggleButtonView*>(listener);
         if (button->getState()) {
             soundPlayer.setMute(false);
-            // soundPlayer.setVolume(100);
         } else {
             soundPlayer.setMute(true);
-            // soundPlayer.setVolume(0);
         }
         GameSetting::getInstance().saveSettingState();
     });

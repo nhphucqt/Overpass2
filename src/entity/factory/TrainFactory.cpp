@@ -1,7 +1,7 @@
 #include <TrainFactory.hpp>
 #include <MyRandom.hpp>
 
-TrainFactory::TrainFactory(TextureManager* textures, bool isReverse, float velocity, float laneLength, float trainOffSet)
+TrainFactory::TrainFactory(TextureHolder* textures, bool isReverse, float velocity, float laneLength, float trainOffSet)
 : textures(textures), isReverse(isReverse), velocity(velocity), laneLength(laneLength), trainOffSet(trainOffSet) {
 }
 

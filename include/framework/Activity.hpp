@@ -18,7 +18,7 @@ public:
     typedef std::unique_ptr<Activity> Ptr;
 
 public:
-    enum ResultCode {
+    enum class ResultCode {
         RESULT_OK,
         RESULT_CANCELED
     };
@@ -26,7 +26,7 @@ public:
 private:
     ActivityManager* mManager;
     Intent::Ptr mIntent;
-    int mResultCode;
+    ResultCode mResultCode;
     Intent::Ptr mResult;
 
 public:
@@ -39,7 +39,7 @@ public:
     void startActivity(Ptr activity);
 
     void finish();
-    void setResult(int resultCode, Intent::Ptr data);
+    void setResult(ResultCode resultCode, Intent::Ptr data);
     
 protected:
     void initialize();
@@ -55,7 +55,7 @@ protected:
     virtual void onDraw(sf::RenderTarget& target, sf::RenderStates states) const;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     virtual void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
-    virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data);
+    virtual void onActivityResult(int requestCode, ResultCode resultCode, Intent::Ptr data);
 
     Intent* getIntent() const; 
 

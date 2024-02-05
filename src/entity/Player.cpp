@@ -11,12 +11,12 @@ void PlayerMover::operator() (PlayerNode& player, sf::Time) const {
 	player.pushAction(direction);
 }
 
-Player::Player(Category::Type category): mTargetCategory(category) {
+Player::Player(ViewCategory::Type category): mTargetCategory(category) {
 	// Set initial key bindings
-	mKeyBinding[sf::Keyboard::Left] = MoveLeft;
-	mKeyBinding[sf::Keyboard::Right] = MoveRight;
-	mKeyBinding[sf::Keyboard::Up] = MoveUp;
-	mKeyBinding[sf::Keyboard::Down] = MoveDown;
+	mKeyBinding[sf::Keyboard::Left] = Action::MoveLeft;
+	mKeyBinding[sf::Keyboard::Right] = Action::MoveRight;
+	mKeyBinding[sf::Keyboard::Up] = Action::MoveUp;
+	mKeyBinding[sf::Keyboard::Down] = Action::MoveDown;
 
 	// Set initial action bindings
 	initializeActions();	
@@ -30,17 +30,17 @@ void Player::setActionKeys(sf::Keyboard::Key left,
 							sf::Keyboard::Key right, 
 							sf::Keyboard::Key up, 
 							sf::Keyboard::Key down) {
-	assignKey(MoveLeft, left);
-	assignKey(MoveRight, right);
-	assignKey(MoveUp, up);
-	assignKey(MoveDown, down);
+	assignKey(Action::MoveLeft, left);
+	assignKey(Action::MoveRight, right);
+	assignKey(Action::MoveUp, up);
+	assignKey(Action::MoveDown, down);
 }
 
-void Player::setTargetCategory(Category::Type category) {
+void Player::setTargetCategory(ViewCategory::Type category) {
 	mTargetCategory = category;
 }
 
-Category::Type Player::getTargetCategory() const {
+ViewCategory::Type Player::getTargetCategory() const {
 	return mTargetCategory;
 }
 
@@ -92,21 +92,20 @@ sf::Keyboard::Key Player::getAssignedKey(Action action) const {
 void Player::initializeActions() {
 	const float playerSpeed = 400.f;
 
-	mActionBinding[MoveLeft].action	 = derivedAction<PlayerNode>(PlayerMover(-1, 0));
-	mActionBinding[MoveRight].action = derivedAction<PlayerNode>(PlayerMover(1, 0));
-	mActionBinding[MoveUp].action    = derivedAction<PlayerNode>(PlayerMover(0, -1));
-	mActionBinding[MoveDown].action  = derivedAction<PlayerNode>(PlayerMover(0, 1));
+	mActionBinding[Action::MoveLeft].action	 = derivedAction<PlayerNode>(PlayerMover(-1, 0));
+	mActionBinding[Action::MoveRight].action = derivedAction<PlayerNode>(PlayerMover(1, 0));
+	mActionBinding[Action::MoveUp].action    = derivedAction<PlayerNode>(PlayerMover(0, -1));
+	mActionBinding[Action::MoveDown].action  = derivedAction<PlayerNode>(PlayerMover(0, 1));
 }
 
 bool Player::isRealtimeAction(Action action) {
 	switch (action)
 	{
-		case MoveLeft:
-		case MoveRight:
-		case MoveDown:
-		case MoveUp:
+		case Action::MoveLeft:
+		case Action::MoveRight:
+		case Action::MoveDown:
+		case Action::MoveUp:
 			return true;
-
 		default:
 			return false;
 	}

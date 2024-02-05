@@ -11,8 +11,8 @@ private:
     static const int REQUEST_SIGN_UP = 1;
     static const int REQUEST_TITLEBAR_BUTTONS = -1;
 
-    FontManager mFontManager;
-    TextureManager mTextureManager;
+    FontHolder mFontHolder;
+    TextureHolder mTextureHolder;
     EditTextView* mUsername;
     EditTextView* mPassword;
     TextView* mError;
@@ -26,7 +26,7 @@ protected:
     virtual void onPause() override;
     virtual void onDestroy() override;
     void updateCurrent(sf::Time dt) override;
-    virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
+    virtual void onActivityResult(int requestCode, ResultCode resultCode, Intent::Ptr data) override;
 
 private:
     void createBackground();

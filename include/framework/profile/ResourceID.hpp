@@ -1,7 +1,7 @@
 #ifndef RESOURCE_ID
 #define RESOURCE_ID
 
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 
 enum class TextureID
 {
@@ -90,9 +90,9 @@ enum class MusicID
     backgroundMusic
 };
 
-typedef ResourceManager<sf::Texture, TextureID> TextureManager;
-typedef ResourceManager<sf::Image, ImageID> ImageManager;
-typedef ResourceManager<sf::Font, FontID> FontManager;
-typedef ResourceManager<sf::SoundBuffer, SoundBufferID> SoundBufferManager;
+typedef ResourceHolder<sf::Texture, TextureID> TextureHolder;
+typedef ResourceHolder<sf::Image, ImageID> ImageHolder;
+typedef ResourceHolder<sf::Font, FontID> FontHolder;
+typedef ResourceHolder<sf::SoundBuffer, SoundBufferID> SoundBufferHolder;
 
 #endif

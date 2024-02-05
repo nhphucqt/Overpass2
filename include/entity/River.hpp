@@ -7,7 +7,7 @@
 #include <Lane.hpp>
 #include <Log.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -23,7 +23,7 @@ public:
     static const float OUT_OF_VIEW_PADDING;
 
 
-    River(TextureManager *textures, bool isReverse, float velocity, bool isLoad = false);
+    River(TextureHolder *textures, bool isReverse, float velocity, bool isLoad = false);
     void setLogVelocity(float v);
 
 	virtual unsigned int getCategory() const;

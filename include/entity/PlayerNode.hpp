@@ -7,7 +7,7 @@
 #include <Entity.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -22,7 +22,7 @@ class PlayerNode : public Entity
 public:
     typedef std::unique_ptr<PlayerNode> Ptr;
 
-    enum State
+    enum class State
     {
         MoveDown,
         MoveUp,
@@ -35,11 +35,11 @@ public:
         Dead
     };
 
-    PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
-    PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanes);
+    PlayerNode(const TextureHolder &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
+    PlayerNode(const TextureHolder &textures, std::list<Lane *> const &lanes);
 
-    PlayerNode(Category::Type category, const TextureManager &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
-    PlayerNode(Category::Type category, const TextureManager &textures, std::list<Lane *> const &lanes);
+    PlayerNode(ViewCategory::Type category, const TextureHolder &textures, std::list<Lane *> const &lanes, MapRenderer::LaneList::const_iterator currentLane);
+    PlayerNode(ViewCategory::Type category, const TextureHolder &textures, std::list<Lane *> const &lanes);
 
     void moveDestination(sf::Vector2f distance);
     void moveDestination(float vx, float vy);
@@ -118,7 +118,7 @@ private:
     sf::Time moveDuration;
     bool __isDead;
 
-    Category::Type mCategory;
+    ViewCategory::Type mCategory;
 
     int currentScore;
     int currentDistance;

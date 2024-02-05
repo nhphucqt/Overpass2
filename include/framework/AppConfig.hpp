@@ -5,29 +5,18 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+
 #include <SFML/System/Vector2.hpp>
 
-enum class ConfigKey
-{
-    DATA_PATH,
-    AppName,
-    WindowSize,
-    FPS,
-    CellSize,
-    NumLaneCells,
-    LANE_LENGTH,
-    ConfigCount
-};
+#include <ConfigKey.hpp>
 
-class ConfigValue
-{
+class ConfigValue {
 public:
     virtual ~ConfigValue() = default;
 };
 
 template <typename T>
-class TypedConfigValue : public ConfigValue
-{
+class TypedConfigValue : public ConfigValue {
 public:
     TypedConfigValue(const T &value);
     T getValue() const;
@@ -36,14 +25,12 @@ private:
     T mValue;
 };
 
-class ConfigNotFound : public std::runtime_error
-{
+class ConfigNotFound : public std::runtime_error {
 public:
     ConfigNotFound(const ConfigKey key);
 };
 
-class AppConfig
-{
+class AppConfig {
 public:
     static AppConfig &getInstance();
 

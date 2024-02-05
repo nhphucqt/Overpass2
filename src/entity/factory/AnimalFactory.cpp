@@ -3,7 +3,7 @@
 
 const int AnimalFactory::LOG_LEN[NUM_LEN] = {2, 3};
 
-AnimalFactory::AnimalFactory(TextureManager* textures, bool isReverse, float velocity, float roadLength)
+AnimalFactory::AnimalFactory(TextureHolder* textures, bool isReverse, float velocity, float roadLength)
 : textures(textures), isReverse(isReverse), velocity(velocity), roadLength(roadLength) {
     nextType();
 }

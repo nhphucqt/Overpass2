@@ -2,7 +2,7 @@
 #define TRAFFICLIGHT_HPP
 #include <Entity.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -20,8 +20,8 @@ public:
         float elapsedTime;
     };
 
-    enum Color{Red, Yellow, Green};
-    TrafficLight(const TextureManager& textures);
+    enum class Color{Red, Yellow, Green};
+    TrafficLight(const TextureHolder& textures);
     Color getCurrentColor();
     void setDuration(int red = 1, int yellow = 1, int green = 1);
 

@@ -1,26 +1,26 @@
 #include <Log.hpp>
 #include <AppConfig.hpp>
 
-TextureID toTextureID(Log::Type type) {
+TextureID Log::toTextureID(Type type) {
 	switch (type) {
-	case Log::WoodL2:
+	case Type::WoodL2:
 		return TextureID::WoodL2;
-	case Log::WoodL3:
+	case Type::WoodL3:
 		return TextureID::WoodL3;
-	case Log::Crocodile:
+	case Type::Crocodile:
 		return TextureID::Crocodile;
 	}
 	return TextureID::WoodL2;
 }
 
-Log::Log(Type mType, const TextureManager &textures) 
+Log::Log(Type mType, const TextureHolder &textures) 
 	: type(mType) 
 	, Entity(textures.get(toTextureID(mType)))
 {
 	int woodLen = 0;
-	if (type == Log::WoodL2) {
+	if (type == Type::WoodL2) {
 		woodLen = 2;
-	} else if (type == Log::WoodL3) {
+	} else if (type == Type::WoodL3) {
 		woodLen = 3;
 	} else {
 		throw std::runtime_error("Invalid log type");
@@ -42,13 +42,13 @@ Log::Log(Type mType, const TextureManager &textures)
 
 unsigned int Log::getCategory() const {
 	switch (type) {
-	case Log::WoodL2:
-	case Log::WoodL3:
-		return Category::Log;
-	case Log::Crocodile:
-		return Category::Crocodile;
+	case Type::WoodL2:
+	case Type::WoodL3:
+		return ViewCategory::Log;
+	case Type::Crocodile:
+		return ViewCategory::Crocodile;
 	default:
-		return Category::Log;
+		return ViewCategory::Log;
 	}
 }
 

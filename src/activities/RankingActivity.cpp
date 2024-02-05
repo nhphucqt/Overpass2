@@ -19,14 +19,14 @@
 #include <SquareButtonFactory.hpp>
 
 void RankingActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
-    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
-    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
-    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
-    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
-    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
-    mTextureManager.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
-    mTextureManager.load(TextureID::rankingTitleTexture, "res/textures/ui/Dialouge UI/dialog box small - editted.png");
+    mFontHolder.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureHolder.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureHolder.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureHolder.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureHolder.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureHolder.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
+    mTextureHolder.load(TextureID::settingMenuTexture, "res/textures/ui/Setting menu.png");
+    mTextureHolder.load(TextureID::rankingTitleTexture, "res/textures/ui/Dialouge UI/dialog box small - editted.png");
 }
 
 void RankingActivity::onCreate() {
@@ -36,33 +36,9 @@ void RankingActivity::onCreate() {
     createBoard();
 }
 
-void RankingActivity::onAttach() {
-    // ...
-}
-
-void RankingActivity::onResume() {
-    updateRanking();
-}
-
-void RankingActivity::onPause() {
-    // ...
-}
-
-void RankingActivity::onDestroy() {
-    // ...
-}
-
-void RankingActivity::onEvent(const sf::Event& event) {
-    // ...
-}
-
-void RankingActivity::updateCurrent(sf::Time dt) {
-    // ...
-}
-
-void RankingActivity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
+void RankingActivity::onActivityResult(int requestCode, ResultCode resultCode, Intent::Ptr data) {
     if (requestCode == REQUEST_TITLEBAR_BUTTONS) {
-        if (resultCode == (int)ResultCode::RESULT_OK) {
+        if (resultCode == ResultCode::RESULT_OK) {
             int titleType = data->getExtra<int>("titleType", -1);
             if (titleType == -1) {
                 return;
@@ -83,7 +59,7 @@ void RankingActivity::onActivityResult(int requestCode, int resultCode, Intent::
 
 void RankingActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(this, mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(this, mTextureHolder.get(TextureID::mainMenuBackgroundTexture))
     );
 }
 
@@ -91,8 +67,8 @@ void RankingActivity::createTitle() {
     attachView(
         TitlebarFactory::create(
             this,
-            mTextureManager,
-            mFontManager.get(FontID::defaultFont),
+            mTextureHolder,
+            mFontHolder.get(FontID::defaultFont),
             "Ranking",
             TitlebarFactory::TitlebarType::NONE,
             REQUEST_TITLEBAR_BUTTONS
@@ -104,8 +80,8 @@ void RankingActivity::createBackButton() {
     attachView(
         BackButtonFactory::create(
             this,
-            mTextureManager.get(TextureID::squareButtonsTexture),
-            mFontManager.get(FontID::defaultFont)
+            mTextureHolder.get(TextureID::squareButtonsTexture),
+            mFontHolder.get(FontID::defaultFont)
         )
     );
 }
@@ -116,7 +92,7 @@ void RankingActivity::createBoard() {
 
     SpriteView::Ptr board = std::make_unique<SpriteView>(
         this,
-        mTextureManager.get(TextureID::settingMenuTexture),
+        mTextureHolder.get(TextureID::settingMenuTexture),
         sf::Vector2f(0, 0),
         sf::Vector2f(122, 122) * 5.f,
         sf::IntRect(139, 12, 106, 122)
@@ -133,13 +109,13 @@ void RankingActivity::createBoard() {
 
     sf::Vector2f rankingTitleSize;
     {
-        sf::Texture& texture = mTextureManager.get(TextureID::rankingTitleTexture);
+        sf::Texture& texture = mTextureHolder.get(TextureID::rankingTitleTexture);
         rankingTitleSize = sf::Vector2f(texture.getSize()) * 2.f;
     }
     ButtonView::Ptr rankingTitleView = std::make_unique<ButtonView>(
         this,
-        mTextureManager.get(TextureID::rankingTitleTexture),
-        mFontManager.get(FontID::defaultFont),
+        mTextureHolder.get(TextureID::rankingTitleTexture),
+        mFontHolder.get(FontID::defaultFont),
         "",
         48,
         sf::Vector2f(0, 0),
@@ -150,23 +126,23 @@ void RankingActivity::createBoard() {
 
     SpriteButtonView::Ptr prevButton = SquareButtonFactory::create(
         this, 
-        mTextureManager.get(TextureID::squareButtonsTexture), 
-        mFontManager.get(FontID::defaultFont), 
+        mTextureHolder.get(TextureID::squareButtonsTexture), 
+        mFontHolder.get(FontID::defaultFont), 
         "<", 
         sf::Vector2f(0, 0), 
         [&](EventListener* listener, const sf::Event& event) {
-            currentGameMode = (currentGameMode - 1 + UserData::GameMode::GameModeCount) % UserData::GameMode::GameModeCount;
+            currentGameMode = (currentGameMode - 1 + (int)UserData::GameMode::GameModeCount) % (int)UserData::GameMode::GameModeCount;
             updateRanking();
         }
     );
     SpriteButtonView::Ptr nextButton = SquareButtonFactory::create(
         this, 
-        mTextureManager.get(TextureID::squareButtonsTexture), 
-        mFontManager.get(FontID::defaultFont), 
+        mTextureHolder.get(TextureID::squareButtonsTexture), 
+        mFontHolder.get(FontID::defaultFont), 
         ">", 
         sf::Vector2f(0, 0), 
         [&](EventListener* listener, const sf::Event& event) {
-            currentGameMode = (currentGameMode + 1) % UserData::GameMode::GameModeCount;
+            currentGameMode = (currentGameMode + 1) % (int)UserData::GameMode::GameModeCount;
             updateRanking();
         }
     );
@@ -194,7 +170,7 @@ void RankingActivity::updateRanking() {
     rankingTitle->setText(UserData::gameModeNames[currentGameMode]);
 
     if (leaderboard.empty()) {
-        TextView::Ptr emptyView = std::make_unique<TextView>(this, "No data", mFontManager.get(FontID::defaultFont), sf::Vector2f(0, 0), 64, sf::Color::White);
+        TextView::Ptr emptyView = std::make_unique<TextView>(this, "No data", mFontHolder.get(FontID::defaultFont), sf::Vector2f(0, 0), 64, sf::Color::White);
         emptyView->setPosition((rankingView->getGlobalBounds().getSize() - emptyView->getGlobalBounds().getSize()) / 2.f);
         rankingView->attachView(std::move(emptyView));
         return;
@@ -202,7 +178,7 @@ void RankingActivity::updateRanking() {
 
     RectangleView::Ptr barView = RankingBarFactory::create(
         this,
-        mFontManager.get(FontID::defaultFont),
+        mFontHolder.get(FontID::defaultFont),
         leaderboard.front().first,
         leaderboard.front().second,
         barSize,
@@ -213,7 +189,7 @@ void RankingActivity::updateRanking() {
     for (int i = 1; i < std::min(limitRanking, (int)leaderboard.size()); ++i) {
         RectangleView::Ptr tmpBarView = RankingBarFactory::create(
             this,
-            mFontManager.get(FontID::defaultFont),
+            mFontHolder.get(FontID::defaultFont),
             leaderboard[i].first,
             leaderboard[i].second,
             barSize,
@@ -236,7 +212,7 @@ void RankingActivity::updateRanking() {
         UserData& userData = userSession.getCurrentUser();
         RectangleView::Ptr userBarView = RankingBarFactory::create(
             this,
-            mFontManager.get(FontID::defaultFont),
+            mFontHolder.get(FontID::defaultFont),
             userData.getUsername(),
             userData.getHighscore(UserData::GameMode(currentGameMode)),
             barSize,

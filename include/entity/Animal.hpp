@@ -4,7 +4,7 @@
 #include <Animation.hpp>
 #include <Entity.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
@@ -13,7 +13,7 @@ class Animal : public Entity
 public:
     typedef std::unique_ptr<Animal> Ptr;
 
-    enum Type
+    enum class Type
     {
         Bear,
         Boar,
@@ -24,7 +24,7 @@ public:
         Count
     };
 
-    Animal(Type mType, const TextureManager &textures);
+    Animal(Type mType, const TextureHolder &textures);
     void drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const;
     unsigned int getCategory() const;
 
@@ -33,7 +33,9 @@ public:
 private:
     Type type;
     Animation animation;
-    void updateCurrent(sf::Time dt);
+
+protected:
+    virtual void updateCurrent(sf::Time dt) override;
 
 public:
     struct AnimalData {
@@ -49,6 +51,9 @@ public:
     
     AnimalData serialize() const;
     void deserialize(AnimalData& data);
+
+private:
+    TextureID toTextureID(Type type);
 };
 
 #endif

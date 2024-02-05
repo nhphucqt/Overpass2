@@ -1,9 +1,9 @@
 #ifndef COMMANDQUEUE_HPP
 #define COMMANDQUEUE_HPP
 
-#include <Command.hpp>
-
 #include <queue>
+
+#include <Command.hpp>
 
 class CommandQueue {
 public:

@@ -9,7 +9,7 @@
 const float PlayerNode::MOVE_DURATION = 0.2f;
 const float PlayerNode::SLOW_MOVE_DURATION = 0.3f;
 
-PlayerNode::PlayerNode(Category::Type type, const TextureManager &textures,
+PlayerNode::PlayerNode(ViewCategory::Type type, const TextureHolder &textures,
                        std::list<Lane *> const &lanesVct,
                        MapRenderer::LaneList::const_iterator currentLane)
     : sprite(textures.get(TextureID::CharacterIdle)),
@@ -26,7 +26,6 @@ PlayerNode::PlayerNode(Category::Type type, const TextureManager &textures,
       currentScore(0),
       currentDistance(0),
       mCategory(type)
-      
 {
     sf::Vector2f cellSize =
         AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
@@ -72,19 +71,16 @@ PlayerNode::PlayerNode(Category::Type type, const TextureManager &textures,
     setHitBox(sprite.getGlobalBounds());
 }
 
-PlayerNode::PlayerNode(Category::Type type, const TextureManager &textures, std::list<Lane *> const &lanesVct)
+PlayerNode::PlayerNode(ViewCategory::Type type, const TextureHolder &textures, std::list<Lane *> const &lanesVct)
 : PlayerNode(type, textures, lanesVct, lanesVct.begin()) {}
 
-PlayerNode::PlayerNode(const TextureManager &textures,
-                       std::list<Lane *> const &lanesVct,
-                       MapRenderer::LaneList::const_iterator currentLane)
-    : PlayerNode(Category::Player_1, textures, lanesVct, currentLane) {}
+PlayerNode::PlayerNode(const TextureHolder &textures, std::list<Lane *> const &lanesVct, MapRenderer::LaneList::const_iterator currentLane)
+: PlayerNode(ViewCategory::Player_1, textures, lanesVct, currentLane) {}
 
-PlayerNode::PlayerNode(const TextureManager &textures, std::list<Lane *> const &lanesVct)
+PlayerNode::PlayerNode(const TextureHolder &textures, std::list<Lane *> const &lanesVct)
 : PlayerNode(textures, lanesVct, lanesVct.begin()) {}
 
-void PlayerNode::moveDestination(sf::Vector2f distance)
-{
+void PlayerNode::moveDestination(sf::Vector2f distance) {
     if (distance.x == 0)
     { // up down
         if (distance.y < 0)
@@ -108,83 +104,58 @@ void PlayerNode::moveDestination(sf::Vector2f distance)
     transitionLayer->attachView(std::move(thisPtr));
 }
 
-void PlayerNode::moveDestination(float vx, float vy)
-{
+void PlayerNode::moveDestination(float vx, float vy) {
     return moveDestination(sf::Vector2f(vx, vy));
 }
 
-PlayerNode::State PlayerNode::getState()
-{
+PlayerNode::State PlayerNode::getState() {
     return state;
 }
 
-void PlayerNode::drawCurrent(sf::RenderTarget &target,
-                             sf::RenderStates states) const
-{
-    if (state == MoveUp)
-    {
-        target.draw(moveUp, states);
+void PlayerNode::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const {
+    switch(state) {
+        case State::MoveUp:
+            target.draw(moveUp, states);
+            break;
+        case State::MoveDown:
+            target.draw(moveDown, states);
+            break;
+        case State::MoveLeft:
+            target.draw(moveLeft, states);
+            break;
+        case State::MoveRight:
+            target.draw(moveRight, states);
+            break;
+        default:
+            target.draw(sprite, states);
     }
-    else if (state == MoveDown)
-    {
-        target.draw(moveDown, states);
-    }
-    else if (state == MoveLeft)
-    {
-        target.draw(moveLeft, states);
-    }
-    else if (state == MoveRight)
-    {
-        target.draw(moveRight, states);
-    }
-    else
-    {
-        target.draw(sprite, states);
-    }
-
     drawBoundingRect(target, states);
 }
 
-void PlayerNode::updateMove(sf::Time delta)
-{
-    if (!isActionQueueEmpty())
-    {
-        if (transitionHandler.isFinished())
-        {
+void PlayerNode::updateMove(sf::Time delta) {
+    if (!isActionQueueEmpty()) {
+        if (transitionHandler.isFinished()) {
             sf::Vector2i action = getCurrentAction();
             runAction(action);
-            if (action.y < 0 && action.x == 0)
-            {
+            if (action.y < 0 && action.x == 0) {
                 state = State::MoveUp;
-            }
-            else if (action.y > 0 && action.x == 0)
-            {
+            } else if (action.y > 0 && action.x == 0) {
                 state = State::MoveDown;
-            }
-            else if (action.x < 0 && action.y == 0)
-            {
+            } else if (action.x < 0 && action.y == 0) {
                 state = State::MoveLeft;
-            }
-            else if (action.x > 0 && action.y == 0)
-            {
+            } else if (action.x > 0 && action.y == 0) {
                 state = State::MoveRight;
-            }
-            else
-            {
+            } else {
                 state = State::Free;
             }
         }
-        if (!transitionHandler.isFinished())
-        {
-            sf::Vector2f velo =
-                ((Entity *)getLastParent())->getAbsoluteVelocity();
+        if (!transitionHandler.isFinished()) {
+            sf::Vector2f velo = ((Entity *)getLastParent())->getAbsoluteVelocity();
             setPosition(transitionHandler.update(delta));
-            if (transitionHandler.isFinished())
-            {
-                if (!(*curLane)->receivePlayer(this))
-                {
+            if (transitionHandler.isFinished()) {
+                if (!(*curLane)->receivePlayer(this)) {
                     setDead();
-                    if ((*curLane)->getCategory() == Category::River) {
+                    if ((*curLane)->getCategory() == ViewCategory::River) {
                         state = State::Drowning;
                     }
                 }
@@ -197,124 +168,97 @@ void PlayerNode::updateMove(sf::Time delta)
     }
 }
 
-void PlayerNode::updateCurrent(sf::Time delta)
-{
+void PlayerNode::updateCurrent(sf::Time delta) {
     updateMove(delta);
 
-    if (state == MoveUp)
-    {
-        moveUp.update(delta);
-        moveUp.setRepeating(true);
-    }
-    else if (state == MoveDown)
-    {
-        moveDown.update(delta);
-        moveDown.setRepeating(true);
-    }
-    else if (state == MoveLeft)
-    {
-        moveLeft.update(delta);
-        moveLeft.setRepeating(true);
-    }
-    else if (state == MoveRight)
-    {
-        moveRight.update(delta);
-        moveRight.setRepeating(true);
+    switch(state) {
+        case State::MoveUp:
+            moveUp.update(delta);
+            moveUp.setRepeating(true);
+            break;
+        case State::MoveDown:
+            moveDown.update(delta);
+            moveDown.setRepeating(true);
+            break;
+        case State::MoveLeft:
+            moveLeft.update(delta);
+            moveLeft.setRepeating(true);
+            break;
+        case State::MoveRight:
+            moveRight.update(delta);
+            moveRight.setRepeating(true);
+            break;
     }
 
-    if (state != Idle && state != Free)
-    {
-        sprite.setTextureRect(sf::IntRect(0, 16 * state, 14, 16));
+    if (state != State::Idle && state != State::Free) {
+        sprite.setTextureRect(sf::IntRect(0, 16 * (int)state, 14, 16));
     }
-
-    if (state == Dead) {
+    if (state == State::Dead) {
         sprite.setTextureRect(sf::IntRect(0, 64, 14, 16));
-    } else if (state == Drowning) {
+    } else if (state == State::Drowning) {
         sprite.setTextureRect(sf::IntRect(0, 80, 14, 16));
     }
 
     Entity::updateCurrent(delta);
 }
 
-unsigned int PlayerNode::getCategory() const
-{
+unsigned int PlayerNode::getCategory() const {
     return mCategory;
 }
 
-void PlayerNode::setCurrentLane(MapRenderer::LaneList::const_iterator lane)
-{
+void PlayerNode::setCurrentLane(MapRenderer::LaneList::const_iterator lane) {
     curLane = lane;
 }
 
-MapRenderer::LaneList::const_iterator PlayerNode::getCurrentLane() const
-{
+MapRenderer::LaneList::const_iterator PlayerNode::getCurrentLane() const {
     return curLane;
 }
 
-void PlayerNode::moveBack()
-{
+void PlayerNode::moveBack() {
     sf::Vector2i action = getCurrentAction();
     clearActionQueue();
     action *= -1;
     pushAction(action);
-    if (action.y < 0)
-    { // go up
+    if (action.y < 0) { // go up
         curLane++;
-    }
-    else if (action.y > 0)
-    {
+    } else if (action.y > 0) {
         curLane--;
     }
     transitionHandler.setIsReversed(true);
 }
 
-void PlayerNode::runAction(const sf::Vector2i &direction)
-{
-    if (direction == sf::Vector2i(0, 0))
-    {
+void PlayerNode::runAction(const sf::Vector2i &direction) {
+    if (direction == sf::Vector2i(0, 0)) {
         return;
     }
-
-    if (direction.y < 0 && direction.x == 0)
-    {
+    if (direction.y < 0 && direction.x == 0) {
         moveDestination(0, -128);
-    }
-    else if (direction.y > 0 && direction.x == 0)
-    {
+    } else if (direction.y > 0 && direction.x == 0) {
         moveDestination(0, 128);
-    }
-    else if (direction.x < 0 && direction.y == 0)
-    {
+    } else if (direction.x < 0 && direction.y == 0) {
         moveDestination(-128, 0);
-    }
-    else if (direction.x > 0 && direction.y == 0)
-    {
+    } else if (direction.x > 0 && direction.y == 0) {
         moveDestination(128, 0);
     }
 }
 
-void PlayerNode::setTransitionLayer(ViewGroup *layer)
-{
+void PlayerNode::setTransitionLayer(ViewGroup *layer) {
     transitionLayer = layer;
 }
 
-void PlayerNode::setLastParent(Entity* parent)
-{
+void PlayerNode::setLastParent(Entity* parent) {
     lastParent = parent;
 }
 
-Entity* PlayerNode::getLastParent()
-{
+Entity* PlayerNode::getLastParent() {
     return lastParent;
 }
 
-void PlayerNode::pushAction(sf::Vector2i action)
-{
+void PlayerNode::pushAction(sf::Vector2i action) {
     actionQueue.push(action);
 }
 
-void PlayerNode::popActionAndUpdateScore()
-{
+void PlayerNode::popActionAndUpdateScore() {
     sf::Vector2i action = getCurrentAction();
     if (action.y < 0) {
         updateScore(1);
@@ -324,26 +268,21 @@ void PlayerNode::popActionAndUpdateScore()
     actionQueue.pop();
 }
 
-sf::Vector2i PlayerNode::getCurrentAction()
-{
+sf::Vector2i PlayerNode::getCurrentAction() {
     return actionQueue.front();
 }
 
-bool PlayerNode::isActionQueueEmpty() const
-{
+bool PlayerNode::isActionQueueEmpty() const {
     return actionQueue.empty();
 }
 
-void PlayerNode::clearActionQueue()
-{
-    while (!actionQueue.empty())
-    {
+void PlayerNode::clearActionQueue() {
+    while (!actionQueue.empty()) {
         actionQueue.pop();
     }
 }
 
-void PlayerNode::setMoveDuration(sf::Time duration)
-{
+void PlayerNode::setMoveDuration(sf::Time duration) {
     moveDuration = duration;
     moveUp.setDuration(duration);
     moveDown.setDuration(duration);
@@ -351,46 +290,37 @@ void PlayerNode::setMoveDuration(sf::Time duration)
     moveRight.setDuration(duration);
 }
 
-void PlayerNode::setMoveDuration(float duration)
-{
+void PlayerNode::setMoveDuration(float duration) {
     setMoveDuration(sf::seconds(duration));
 }
 
-sf::Time PlayerNode::getMoveDuration() const
-{
+sf::Time PlayerNode::getMoveDuration() const {
     return moveDuration;
 }
 
-void PlayerNode::slowDown()
-{
+void PlayerNode::slowDown() {
     setMoveDuration(SLOW_MOVE_DURATION);
 }
 
-void PlayerNode::speedUp()
-{
+void PlayerNode::speedUp() {
     setMoveDuration(MOVE_DURATION);
 }
 
-bool PlayerNode::isMoving()
-{
+bool PlayerNode::isMoving() {
     return getParent() == transitionLayer;
 }
 
-void PlayerNode::setDead()
-{
+void PlayerNode::setDead() {
     __isDead = true;
     state = State::Dead;
 }
 
-bool PlayerNode::isDead() const
-{
+bool PlayerNode::isDead() const {
     return __isDead;
 }
 
-void PlayerNode::savePlayerData(std::ofstream &outf)
-{
-    if (outf.is_open())
-    {
+void PlayerNode::savePlayerData(std::ofstream &outf) {
+    if (outf.is_open()) {
         PlayerData data;
         data.state = static_cast<int>(state);
         if (isMoving()) {
@@ -406,17 +336,13 @@ void PlayerNode::savePlayerData(std::ofstream &outf)
         data.isDead = __isDead;
 
         outf.write(reinterpret_cast<const char *>(&data), sizeof(PlayerData));
-    }
-    else
-    {
+    } else {
         std::runtime_error("PLAYERDATA ERR: \"save.data\" cannot be openned.\n");
     }
 }
 
-void PlayerNode::loadPlayerData(std::ifstream &inf)
-{
-    if (inf.is_open())
-    {
+void PlayerNode::loadPlayerData(std::ifstream &inf) {
+    if (inf.is_open()) {
         int currentLane = std::distance(lanes.begin(), curLane);
         PlayerData data;
         inf.read(reinterpret_cast<char *>(&data), sizeof(data));
@@ -428,20 +354,16 @@ void PlayerNode::loadPlayerData(std::ifstream &inf)
         currentScore = data.currentScore;
         currentDistance = data.currentDistance;
         __isDead = data.isDead;
-    }
-    else
-    {
+    } else {
         std::runtime_error("PLAYERDATA ERR: \"save.data\" not found.\n");
     }
 }
-void PlayerNode::updateScore(int offset)
-{
+void PlayerNode::updateScore(int offset) {
     currentDistance += offset;
     currentScore = std::max(currentScore, currentDistance);
 }
 
-int PlayerNode::getScore() const
-{
+int PlayerNode::getScore() const {
     return currentScore;
 }
 

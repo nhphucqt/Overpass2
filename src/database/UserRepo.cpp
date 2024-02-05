@@ -88,12 +88,12 @@ void UserRepo::addUser(const UserData &user)
 
     SQLite::Statement scoreQuery(db, "INSERT INTO highscores (username, easy, medium, hard, insane, rainday, endless) VALUES (?, ?, ?, ?, ?, ?, ?);");
     scoreQuery.bind(1, user.getUsername());
-    scoreQuery.bind(2, user.getHighscore().at(UserData::GameMode::easy));
-    scoreQuery.bind(3, user.getHighscore().at(UserData::GameMode::medium));
-    scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::hard));
-    scoreQuery.bind(5, user.getHighscore().at(UserData::GameMode::insane));
-    scoreQuery.bind(6, user.getHighscore().at(UserData::GameMode::rainday));
-    scoreQuery.bind(7, user.getHighscore().at(UserData::GameMode::endless));
+    scoreQuery.bind(2, user.getHighscore().at((int)UserData::GameMode::easy));
+    scoreQuery.bind(3, user.getHighscore().at((int)UserData::GameMode::medium));
+    scoreQuery.bind(4, user.getHighscore().at((int)UserData::GameMode::hard));
+    scoreQuery.bind(5, user.getHighscore().at((int)UserData::GameMode::insane));
+    scoreQuery.bind(6, user.getHighscore().at((int)UserData::GameMode::rainday));
+    scoreQuery.bind(7, user.getHighscore().at((int)UserData::GameMode::endless));
 
     userQuery.exec();
     scoreQuery.exec();
@@ -112,12 +112,12 @@ void UserRepo::updateUser(const UserData &user)
     userQuery.bind(2, user.getUsername());
 
     SQLite::Statement scoreQuery(db, "UPDATE highscores SET easy = ?, medium = ?, hard = ?, insane = ?, rainday = ?, endless = ? WHERE username = ?;");
-    scoreQuery.bind(1, user.getHighscore().at(UserData::GameMode::easy));
-    scoreQuery.bind(2, user.getHighscore().at(UserData::GameMode::medium));
-    scoreQuery.bind(3, user.getHighscore().at(UserData::GameMode::hard));
-    scoreQuery.bind(4, user.getHighscore().at(UserData::GameMode::insane));
-    scoreQuery.bind(5, user.getHighscore().at(UserData::GameMode::rainday));
-    scoreQuery.bind(6, user.getHighscore().at(UserData::GameMode::endless));
+    scoreQuery.bind(1, user.getHighscore().at((int)UserData::GameMode::easy));
+    scoreQuery.bind(2, user.getHighscore().at((int)UserData::GameMode::medium));
+    scoreQuery.bind(3, user.getHighscore().at((int)UserData::GameMode::hard));
+    scoreQuery.bind(4, user.getHighscore().at((int)UserData::GameMode::insane));
+    scoreQuery.bind(5, user.getHighscore().at((int)UserData::GameMode::rainday));
+    scoreQuery.bind(6, user.getHighscore().at((int)UserData::GameMode::endless));
     scoreQuery.bind(7, user.getUsername());
 
     userQuery.exec();

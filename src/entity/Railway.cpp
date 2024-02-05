@@ -3,7 +3,7 @@
 
 const float Railway::TRAIN_VELOCITY = 2000.f;
 
-Railway::Railway(TextureManager *textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet, bool isLoad)
+Railway::Railway(TextureHolder *textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet, bool isLoad)
 : Lane(textures->get(TextureID::Rail), textures, isReverse)
 , laneLength(AppConfig::getInstance().get<float>(ConfigKey::LANE_LENGTH))
 , trainVelocity(TRAIN_VELOCITY)

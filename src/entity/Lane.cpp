@@ -1,7 +1,7 @@
 #include <Lane.hpp>
 #include <AppConfig.hpp>
 
-Lane::Lane(const sf::Texture &texture, TextureManager *textures, bool reverse): sprite(texture), laneTextures(textures), isReverse(reverse) {
+Lane::Lane(const sf::Texture &texture, TextureHolder *textures, bool reverse): sprite(texture), laneTextures(textures), isReverse(reverse) {
     AppConfig& config = AppConfig::getInstance();
     int numLaneCells = config.get<int>(ConfigKey::NumLaneCells);
     sf::Vector2f cellSize = config.get<sf::Vector2f>(ConfigKey::CellSize);
@@ -42,7 +42,7 @@ Zone* Lane::getTargetZone(ViewGroup* player, const sf::Vector2f& dest, float dt)
 }
 
 unsigned int Lane::getCategory() const {
-    return Category::Lane;
+    return ViewCategory::Lane;
 }
 
 bool Lane::isOutofView(Entity *entity, float laneLength) const {

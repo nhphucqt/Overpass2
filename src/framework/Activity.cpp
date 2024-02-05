@@ -4,7 +4,7 @@
 Activity::Activity() {
     mManager = nullptr;
     mIntent = nullptr;
-    mResultCode = RESULT_CANCELED;
+    mResultCode = ResultCode::RESULT_CANCELED;
     mResult = nullptr;
 }
 
@@ -70,24 +70,20 @@ void Activity::onDraw(sf::RenderTarget& target, sf::RenderStates states) const {
     // Do nothing
 }
 
-void Activity::onActivityResult(int requestCode, int resultCode, Intent::Ptr data) {
+void Activity::onActivityResult(int requestCode, ResultCode resultCode, Intent::Ptr data) {
     // Do nothing
 }
 
 
 void Activity::finish() {
-    // onPause();
-    // onDestroy();
-    // mManager->popStack();
-    
-    mManager->finishActivity(mIntent->getRequestCode(), mResultCode, std::move(mResult));
+    mManager->finishActivity(mIntent->getRequestCode(), (int)mResultCode, std::move(mResult));
 }
 
 Intent* Activity::getIntent() const {
     return mIntent.get();
 }
 
-void Activity::setResult(int resultCode, Intent::Ptr data) {
+void Activity::setResult(ResultCode resultCode, Intent::Ptr data) {
     mResultCode = resultCode;
     mResult = std::move(data);
 }

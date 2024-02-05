@@ -1,34 +1,32 @@
 #include <Green.hpp>
 #include <AppConfig.hpp>
 
-TextureID toTextureID(Green::Type type) {
+TextureID Green::toTextureID(Type type) {
 	switch (type) {
-	case Green::Tree:
+	case Type::Tree:
 		return TextureID::Tree;
-
-	case Green::Bush:
+	case Type::Bush:
 		return TextureID::Bush;
-
-    case Green::CircleBush:
+    case Type::CircleBush:
         return TextureID::CircleBush;
 	}
 	return TextureID::Tree;
 }
 
-Green::Green(Type mType, const TextureManager &textures)
+Green::Green(Type mType, const TextureHolder &textures)
     : type(mType)
     , Entity(textures.get(toTextureID(mType)))
 {
     sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
     setSize(cellSize);
-    if (type == Green::Tree)
+    if (type == Type::Tree)
         sprite.scale(6, 6);
-    else if (type == Green::Bush)
+    else if (type == Type::Bush)
         sprite.scale(5, 5);
-    else if (type == Green::CircleBush)
+    else if (type == Type::CircleBush)
         sprite.scale(3, 3);
     sf::FloatRect bounds = sprite.getLocalBounds();
-    if (type == Green::Tree)
+    if (type == Type::Tree)
         sprite.setOrigin(bounds.width / 2.f, bounds.height - 10);
     else
         sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
@@ -44,7 +42,7 @@ Green::Green(Type mType, const TextureManager &textures)
 }
 
 unsigned int Green::getCategory() const {
-    return Category::Green;
+    return ViewCategory::Green;
 }
 
 void Green::setVelocity(sf::Vector2f velocity) {

@@ -6,7 +6,7 @@
 
 class MainMenuActivity : public Activity {
 private:
-    enum Request {
+    enum class Request {
         REQUEST_CODE_GAME_LEVEL,
         REQUEST_CODE_CONTINUE_GAME,
         REQUEST_CODE_NEW_GAME,
@@ -14,8 +14,8 @@ private:
         REQUEST_TITLEBAR_BUTTONS
     };
 
-    FontManager mFontManager;
-    TextureManager mTextureManager;
+    FontHolder mFontHolder;
+    TextureHolder mTextureHolder;
 
 protected:
     virtual void onEvent(const sf::Event& event) override;
@@ -26,7 +26,7 @@ protected:
     virtual void onPause() override;
     virtual void onDestroy() override;
     void updateCurrent(sf::Time dt) override;
-    virtual void onActivityResult(int requestCode, int resultCode, Intent::Ptr data) override;
+    virtual void onActivityResult(int requestCode, ResultCode resultCode, Intent::Ptr data) override;
 
 private:
     void createBackground();

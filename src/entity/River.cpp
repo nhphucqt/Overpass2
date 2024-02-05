@@ -8,7 +8,7 @@ const float River::LOG_TIMER_LOW = 0.5f;
 const float River::LOG_TIMER_HIG = 1.5f;
 const float River::OUT_OF_VIEW_PADDING = 300.f;
 
-River::River(TextureManager *textures, bool isReverse, float velocity,
+River::River(TextureHolder *textures, bool isReverse, float velocity,
              bool isLoad)
     : Lane(textures->get(TextureID::River), textures, isReverse),
       laneLength(AppConfig::getInstance().get<float>(ConfigKey::LANE_LENGTH)),
@@ -194,5 +194,5 @@ bool River::isOutofView(Entity *entity, float laneLength) const
 }
 
 unsigned int River::getCategory() const {
-    return Category::Type::River;
+    return ViewCategory::River;
 }

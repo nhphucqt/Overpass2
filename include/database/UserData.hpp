@@ -7,8 +7,8 @@
 class UserData
 {
 public:
-    enum GameMode {easy = 0, medium, hard, insane, rainday, endless, GameModeCount};
-    static const char* gameModeNames[GameMode::GameModeCount];
+    enum class GameMode {easy = 0, medium, hard, insane, rainday, endless, GameModeCount};
+    static const char* gameModeNames[(int)GameMode::GameModeCount];
 
 public:
     UserData();
@@ -18,7 +18,7 @@ public:
 
     std::string getUsername() const;
     std::string getPassword() const;
-    std::array<int, GameMode::GameModeCount> getHighscore() const;
+    std::array<int, (int)GameMode::GameModeCount> getHighscore() const;
     int getHighscore(GameMode mode) const;
 
     void setPassword(const std::string &newPassword);
@@ -29,7 +29,7 @@ public:
 private:
     std::string username;
     std::string password;
-    std::array<int, GameMode::GameModeCount> highscore;
+    std::array<int, (int)GameMode::GameModeCount> highscore;
 };
 
 #endif

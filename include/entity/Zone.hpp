@@ -7,7 +7,7 @@
 class Zone: public Entity {
 public:
     typedef std::unique_ptr<Zone> Ptr;
-    enum Type {
+    enum class Type {
         Dead,
         Safe,
     };

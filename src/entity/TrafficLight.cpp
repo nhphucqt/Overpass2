@@ -1,7 +1,7 @@
 #include <TrafficLight.hpp>
 #include <AppConfig.hpp>
 
-TrafficLight::TrafficLight(const TextureManager& textures)
+TrafficLight::TrafficLight(const TextureHolder& textures)
     : Entity(textures.get(TextureID::TrafficLight))
     , red(Duration::Red)
     , yellow(Duration::Yellow)
@@ -33,7 +33,7 @@ void TrafficLight::setDuration(int red, int yellow, int green) {
 
 void TrafficLight::updateCurrent(sf::Time dt) {
     updateCurrentColor(dt);
-    sprite.setTextureRect(sf::IntRect(rect.width / 3 * current, 0, rect.width / 3, rect.height));
+    sprite.setTextureRect(sf::IntRect(rect.width / 3 * (int)current, 0, rect.width / 3, rect.height));
 }
 
 void TrafficLight::updateCurrentColor(sf::Time dt) {

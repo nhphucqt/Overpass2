@@ -6,7 +6,7 @@
 #include <Train.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -20,7 +20,7 @@ class Railway: public Lane {
 public:
     static const float TRAIN_VELOCITY;
 
-    Railway(TextureManager* textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet, bool isLoad = false);
+    Railway(TextureHolder* textures, bool isReverse, float trainInterval, float trainDelay, float trainOffSet, bool isLoad = false);
     void setTrainVelocity(float v);
 
 private:

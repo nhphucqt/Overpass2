@@ -9,7 +9,7 @@ public:
     typedef std::unique_ptr<VehicleFactory> Ptr;
 
 private:
-    TextureManager* textures;
+    TextureHolder* textures;
     static const int NUM_LEN = 2;
     static const int LOG_LEN[NUM_LEN];
     bool isReverse;
@@ -18,7 +18,7 @@ private:
     int __nextType;
 
 public:
-    VehicleFactory(TextureManager* textures, bool isReverse, float velocity, float riverLength);
+    VehicleFactory(TextureHolder* textures, bool isReverse, float velocity, float riverLength);
     Vehicle::Ptr createVehicle();
 
 private:

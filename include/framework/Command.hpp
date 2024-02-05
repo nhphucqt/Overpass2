@@ -1,12 +1,12 @@
 #ifndef COMMAND_HPP
 #define COMMAND_HPP
 
-#include <Category.hpp>
+#include <functional>
+#include <cassert>
 
 #include <SFML/System/Time.hpp>
 
-#include <functional>
-#include <cassert>
+#include <ViewCategory.hpp>
 
 class ViewGroup;
 

@@ -3,6 +3,6 @@
 
 Command::Command()
 : action()
-, category(Category::None)
+, category(ViewCategory::None)
 , isUsed(false)
 {}

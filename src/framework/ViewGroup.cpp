@@ -122,7 +122,7 @@ void ViewGroup::setReverse(bool reverse)
 
 unsigned int ViewGroup::getCategory() const
 {
-    return Category::None;
+    return ViewCategory::None;
 }
 
 sf::Vector2f ViewGroup::getWorldPosition() const

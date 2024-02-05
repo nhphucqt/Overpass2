@@ -3,7 +3,7 @@
 
 #include <SFML/Audio.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <list>
 #include <cassert>
 
@@ -26,7 +26,7 @@ public:
 private:
     SoundPlayer();
 
-    SoundBufferManager mSoundBuffers;
+    SoundBufferHolder mSoundBuffers;
     std::list<sf::Sound> mSounds;
     float mVolume;
     bool mMuted;

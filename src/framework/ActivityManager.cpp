@@ -1,7 +1,6 @@
 #include <cassert>
 #include <iostream>
 #include <ActivityManager.hpp>
-#include <ActivityFinishReturn.hpp>
 #include <AppConfig.hpp>
 
 ActivityManager::ActivityManager(int windowWidth, int windowHeight, std::string windowTitle)
@@ -36,7 +35,7 @@ void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Pt
     if (!activityStack.empty()) {
         getCurrentActivity()->onResume();
         if (requestCode != Intent::NO_REQUEST_CODE) {
-            getCurrentActivity()->onActivityResult(requestCode, resultCode, std::move(data));
+            getCurrentActivity()->onActivityResult(requestCode, (Activity::ResultCode)resultCode, std::move(data));
         }
     }
 }

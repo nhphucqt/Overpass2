@@ -23,7 +23,7 @@ class MapRenderer : public sf::NonCopyable
 public:
     using LaneList = std::list<Lane *>;
 
-    MapRenderer(TextureManager &textures, ViewGroup &foreground,
+    MapRenderer(TextureHolder &textures, ViewGroup &foreground,
                 unsigned int map_width, unsigned int map_max_height,
                 unsigned int level, bool isLoad = false);
 
@@ -49,7 +49,7 @@ private:
 
     River *convertPropertiesToLane(RiverProperties const &properties) const;
 
-    TextureManager &m_textures;
+    TextureHolder &m_textures;
     ViewGroup &m_foreground;
     std::unique_ptr<MapGenerator> m_map_generator;
     LaneList m_lanes;

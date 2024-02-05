@@ -3,7 +3,7 @@
 
 #include <Entity.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -13,7 +13,7 @@ class Vehicle : public Entity
 public:
     typedef std::unique_ptr<Vehicle> Ptr;
 
-    enum Type
+    enum class Type
     {
         Car,
         Taxi,
@@ -23,7 +23,7 @@ public:
         Count
     };
 
-    Vehicle(Type mType, const TextureManager &textures);
+    Vehicle(Type mType, const TextureHolder &textures);
     unsigned int getCategory() const;
 
 private:
@@ -43,6 +43,9 @@ public:
     
     VehicleData serialize() const;
     void deserialize(VehicleData& data);
+
+private:
+    TextureID toTextureID(Type type);
 };
 
 #endif

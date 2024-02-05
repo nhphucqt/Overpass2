@@ -1,26 +1,25 @@
 #include <Vehicle.hpp>
 #include <AppConfig.hpp>
 
-TextureID toTextureID(Vehicle::Type type)
-{
+TextureID Vehicle::toTextureID(Type type) {
 	switch (type)
 	{
-	case Vehicle::Car:
+	case Type::Car:
 		return TextureID::Car;
-	case Vehicle::Ambulance:
+	case Type::Ambulance:
 		return TextureID::Ambulance;
-	case Vehicle::Taxi:
+	case Type::Taxi:
 		return TextureID::Taxi;
-	case Vehicle::Police:
+	case Type::Police:
 		return TextureID::Police;
-	case Vehicle::Supercar:
+	case Type::Supercar:
 		return TextureID::Supercar;
 		// other vehicles here
 	}
 	return TextureID::Car;
 }
 
-Vehicle::Vehicle(Type mType, const TextureManager &textures)
+Vehicle::Vehicle(Type mType, const TextureHolder &textures)
 	: type(mType), Entity(textures.get(toTextureID(mType)))
 {
 	sf::Vector2f cellSize = AppConfig::getInstance().get<sf::Vector2f>(ConfigKey::CellSize);
@@ -34,7 +33,7 @@ Vehicle::Vehicle(Type mType, const TextureManager &textures)
 
 unsigned int Vehicle::getCategory() const
 {
-	return Category::Vehicle;
+	return ViewCategory::Vehicle;
 }
 
 Vehicle::VehicleData Vehicle::serialize() const

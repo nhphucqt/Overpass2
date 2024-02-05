@@ -80,7 +80,7 @@ sf::Vector2f Entity::getAbsoluteVelocity() const
 	sf::Vector2f velocity;
 	for (const ViewGroup *node = this; node != nullptr; node = node->getParent())
 	{
-		if (node->getCategory() != Category::None)
+		if (node->getCategory() != ViewCategory::None)
 		{
 			velocity += ((Entity *)node)->getVelocity();
 		}
@@ -90,7 +90,7 @@ sf::Vector2f Entity::getAbsoluteVelocity() const
 
 void Entity::checkSceneCollision(const ViewGroup &sceneGraph, std::set<Pair> &collisionPairs)
 {
-	if (sceneGraph.getCategory() == Category::None)
+	if (sceneGraph.getCategory() == ViewCategory::None)
 	{
 		return;
 	}
@@ -102,7 +102,7 @@ void Entity::checkSceneCollision(const ViewGroup &sceneGraph, std::set<Pair> &co
 
 void Entity::checkNodeCollision(const ViewGroup &node, std::set<Pair> &collisionPairs)
 {
-	if (node.getCategory() == Category::None)
+	if (node.getCategory() == ViewCategory::None)
 	{
 		return;
 	}
@@ -118,7 +118,7 @@ void Entity::checkNodeCollision(const ViewGroup &node, std::set<Pair> &collision
 
 bool collision(const ViewGroup &lhs, const ViewGroup &rhs)
 {
-	if (lhs.getCategory() == Category::None || rhs.getCategory() == Category::None)
+	if (lhs.getCategory() == ViewCategory::None || rhs.getCategory() == ViewCategory::None)
 		return false;
 	return ((Entity &)lhs).getHitBox().intersects(((Entity &)rhs).getHitBox());
 }

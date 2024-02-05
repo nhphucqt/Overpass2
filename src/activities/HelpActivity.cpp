@@ -4,12 +4,12 @@
 #include <BackButtonFactory.hpp>
 
 void HelpActivity::onLoadResources() {
-    mFontManager.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
-    mTextureManager.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
-    mTextureManager.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
-    mTextureManager.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
-    mTextureManager.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
-    mTextureManager.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
+    mFontHolder.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
+    mTextureHolder.load(TextureID::mainMenuBackgroundTexture, "res/textures/bg/sprout-valley.png");
+    mTextureHolder.load(TextureID::titleBackgroundTexture, "res/textures/ui/Dialouge UI/Premade dialog box small reversed.png");
+    mTextureHolder.load(TextureID::characterTitleBarTexture, "res/textures/ui/Dialouge UI/Emotes/idle-emote.png");
+    mTextureHolder.load(TextureID::squareButtonsTexture, "res/textures/ui/buttons/Square Buttons 26x26.png");
+    mTextureHolder.load(TextureID::iconsTexture, "res/textures/ui/Icons/white icons.png");
 }
 
 void HelpActivity::onCreate() {
@@ -46,15 +46,15 @@ void HelpActivity::createBackButton() {
     attachView(
         BackButtonFactory::create(
             this,
-            mTextureManager.get(TextureID::squareButtonsTexture),
-            mFontManager.get(FontID::defaultFont)
+            mTextureHolder.get(TextureID::squareButtonsTexture),
+            mFontHolder.get(FontID::defaultFont)
         )
     );
 }
 
 void HelpActivity::createBackground() {
     attachView(
-        BackgroundFactory::create(this, mTextureManager.get(TextureID::mainMenuBackgroundTexture))
+        BackgroundFactory::create(this, mTextureHolder.get(TextureID::mainMenuBackgroundTexture))
     );
 }
 
@@ -62,8 +62,8 @@ void HelpActivity::createTitle() {
     attachView(
         TitlebarFactory::create(
             this,
-            mTextureManager,
-            mFontManager.get(FontID::defaultFont),
+            mTextureHolder,
+            mFontHolder.get(FontID::defaultFont),
             "Help",
             TitlebarFactory::TitlebarType::HELP,
             REQUEST_TITLEBAR_BUTTONS

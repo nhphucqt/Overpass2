@@ -8,7 +8,7 @@
 #include <Animal.hpp>
 #include <Lane.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -29,7 +29,7 @@ public:
     static const float VEHICLE_TIMER_LOW;
     static const float VEHICLE_TIMER_HIG;
 
-    Road(TextureManager *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle, bool isLoad = false);
+    Road(TextureHolder *textures, bool isReverse, float animalVelo, float vehicleVelo, bool hasAnimal, bool hasVehicle, bool isLoad = false);
 
     void setVehicleVelocity(float v);
     void setVehicleSlowVelocity(float v);

@@ -2,7 +2,7 @@
 #define GREEN_HPP
 #include <Entity.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -10,7 +10,7 @@
 class Green : public Entity
 {
 public:
-    enum Type
+    enum class Type
     {
         Tree,
         Bush,
@@ -18,7 +18,7 @@ public:
         Count
     };
 
-    Green(Type mType, const TextureManager &textures);
+    Green(Type mType, const TextureHolder &textures);
     unsigned int getCategory() const;
     // dummy overide methods to prevent tree from moving
     void setVelocity(sf::Vector2f velocity);
@@ -38,6 +38,9 @@ public:
 
     GreenData serialize() const;
     void deserialize(GreenData& data);
+
+private:
+    TextureID toTextureID(Type type);
 };
 
 #endif

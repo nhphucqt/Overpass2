@@ -1,7 +1,7 @@
 #include <RailwayLight.hpp>
 #include <AppConfig.hpp>
 
-RailwayLight::RailwayLight(TextureManager& textures):
+RailwayLight::RailwayLight(TextureHolder& textures):
     onTexture(textures.get(TextureID::RailwayLightOn)),
     offTexture(textures.get(TextureID::RailwayLightOff)) 
 {

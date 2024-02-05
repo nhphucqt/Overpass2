@@ -14,7 +14,7 @@ public:
 
     typedef std::unique_ptr<RailwayLight> Ptr;
 
-    RailwayLight(TextureManager& textures);
+    RailwayLight(TextureHolder& textures);
     void turnOn();
     void turnOff();
 

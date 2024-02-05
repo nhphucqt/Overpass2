@@ -9,7 +9,7 @@ public:
     typedef std::unique_ptr<AnimalFactory> Ptr;
 
 private:
-    TextureManager* textures;
+    TextureHolder* textures;
     static const int NUM_LEN = 2;
     static const int LOG_LEN[NUM_LEN];
     bool isReverse;
@@ -18,7 +18,7 @@ private:
     int __nextType;
 
 public:
-    AnimalFactory(TextureManager* textures, bool isReverse, float velocity, float riverLength);
+    AnimalFactory(TextureHolder* textures, bool isReverse, float velocity, float riverLength);
     Animal::Ptr createAnimal();
 
 private:

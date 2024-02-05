@@ -15,7 +15,7 @@ public:
         HELP
     };
 
-    static SpriteView::Ptr create(Activity* context, TextureManager& mTextureManager,  const sf::Font& font, const std::string& title, TitlebarType titleType, int requestCode);
+    static SpriteView::Ptr create(Activity* context, TextureHolder& mTextureHolder,  const sf::Font& font, const std::string& title, TitlebarType titleType, int requestCode);
 };
 
 #endif

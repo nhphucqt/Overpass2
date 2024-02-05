@@ -3,7 +3,7 @@
 
 #include <ViewGroup.hpp>
 #include <ResourceID.hpp>
-#include <ResourceManager.hpp>
+#include <ResourceHolder.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -14,7 +14,7 @@ class SeqZone;
 
 class Lane: public Entity {
 public:
-    enum Type {
+    enum class Type {
         Road = 0,
         Field,
         River,
@@ -22,7 +22,7 @@ public:
         Count
     };
     
-    Lane(const sf::Texture &texture, TextureManager* textures, bool reverse = false);
+    Lane(const sf::Texture &texture, TextureHolder* textures, bool reverse = false);
 	virtual sf::FloatRect getBoundingRect() const;
     virtual bool receivePlayer(ViewGroup* player);
     virtual bool spawnPlayer(ViewGroup::Ptr player, int index);
@@ -32,7 +32,7 @@ public:
     virtual unsigned int getCategory() const;
 
 protected:
-    TextureManager* laneTextures;
+    TextureHolder* laneTextures;
     sf::Sprite sprite;
     bool isReverse;
     Type type;

@@ -10,11 +10,9 @@
 
 class CommandQueue;
 
-class Player
-{
+class Player {
 public:
-	enum Action
-	{
+	enum class Action {
 		MoveLeft,
 		MoveRight,
 		MoveUp,
@@ -23,14 +21,14 @@ public:
 	};
 
 public:
-	Player(Category::Type category);
+	Player(ViewCategory::Type category);
 
 	void setActionKeys(sf::Keyboard::Key left, 
 						sf::Keyboard::Key right, 
 						sf::Keyboard::Key up, 
 						sf::Keyboard::Key down);
-	void setTargetCategory(Category::Type category);
-	Category::Type getTargetCategory() const;
+	void setTargetCategory(ViewCategory::Type category);
+	ViewCategory::Type getTargetCategory() const;
 
 	void handleEvent(const sf::Event &event, CommandQueue &commands);
 	void handleRealtimeInput(CommandQueue &commands);
@@ -43,7 +41,7 @@ private:
 	static bool isRealtimeAction(Action action);
 
 private:
-	Category::Type mTargetCategory;
+	ViewCategory::Type mTargetCategory;
 	std::map<sf::Keyboard::Key, Action> mKeyBinding;
 	std::map<Action, Command> mActionBinding;
 };
