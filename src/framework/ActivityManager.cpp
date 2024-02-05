@@ -31,24 +31,19 @@ void ActivityManager::finishActivity(int requestCode, int resultCode, Intent::Pt
     getCurrentActivity()->onPause();
     // may do something
     getCurrentActivity()->onDestroy();
+    finishedActivityQueue.push(std::move(activityStack.top()));
     activityStack.pop();
     if (!activityStack.empty()) {
         getCurrentActivity()->onResume();
-        if (requestCode != Intent::NO_REQUEST_CODE)
-        {
+        if (requestCode != Intent::NO_REQUEST_CODE) {
             getCurrentActivity()->onActivityResult(requestCode, resultCode, std::move(data));
         }
     }
-    throw ActivityFinishReturn();
 }
 
 void ActivityManager::clearStack() {
     while (!activityStack.empty()) {
-        try {
-            getCurrentActivity()->finish();
-        } catch (ActivityFinishReturn& e) {
-            // do nothing
-        }
+        getCurrentActivity()->finish();
     }
 }
 
@@ -64,22 +59,29 @@ void ActivityManager::run() {
     if (isEmpty()) {
         throw std::runtime_error("Activity stack is empty");
     }
+
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
     sf::Time timePerFrame = sf::seconds(1.f / AppConfig::getInstance().get<int>(ConfigKey::FPS));
-    while (mWindow.isOpen())
-    {
+
+    while (mWindow.isOpen()) {
         timeSinceLastUpdate += clock.restart();
+
+        while (!finishedActivityQueue.empty()) {
+            finishedActivityQueue.pop();
+        }
+
         sf::Event event;
         while (mWindow.pollEvent(event)) {
-            try {
-                getCurrentActivity()->publish(event);
-                getCurrentActivity()->onEvent(event);
-            } catch (ActivityFinishReturn& e) {
-                if (isEmpty()) {
-                    mWindow.close();
-                    return;
-                }
+            getCurrentActivity()->publish(event);
+            if (isEmpty()) {
+                mWindow.close();
+                return;
+            }
+            getCurrentActivity()->onEvent(event);
+            if (isEmpty()) {
+                mWindow.close();
+                return;
             }
             if (event.type == sf::Event::Closed) {
                 std::cout << " >> Window closed" << std::endl;
@@ -89,12 +91,13 @@ void ActivityManager::run() {
             }
         }
         getCurrentActivity()->onEventProcessing();
-        while (timeSinceLastUpdate > timePerFrame)
-        {
+
+        while (timeSinceLastUpdate > timePerFrame) {
             getCurrentActivity()->update(timePerFrame);
             assert(!activityStack.empty());
             timeSinceLastUpdate -= timePerFrame;
         }
+
         mWindow.clear(sf::Color::White);
         mWindow.draw(*getCurrentActivity());
         mWindow.display();

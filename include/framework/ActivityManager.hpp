@@ -18,6 +18,7 @@ public:
 
 private:
     std::stack<ActivityPtr> activityStack;
+    std::queue<ActivityPtr> finishedActivityQueue;
     sf::RenderWindow mWindow;
 
 public:
