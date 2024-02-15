@@ -40,6 +40,10 @@ if(NOT SQLiteCpp_POPULATED)
     add_subdirectory(${sqlitecpp_SOURCE_DIR} ${sqlitecpp_BINARY_DIR})
 endif()
 
+# Fetch json
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/src/framework/*.cpp
@@ -48,6 +52,8 @@ file(GLOB SRCS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/gui/factory/*.cpp
     ${CMAKE_SOURCE_DIR}/src/entity/*.cpp
     ${CMAKE_SOURCE_DIR}/src/entity/factory/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/entity/animals/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/entity/vehicles/*.cpp
     ${CMAKE_SOURCE_DIR}/src/map_generator/*.cpp
     ${CMAKE_SOURCE_DIR}/src/database/*.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/*.cpp
@@ -59,7 +65,7 @@ file(GLOB SRCS CONFIGURE_DEPENDS
 # option(CMAKE_USE_WIN32_THREADS_INIT "using WIN32 threads" ON)
 
 add_executable(game ${SRCS})
-target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system sfml-audio SQLiteCpp sqlite3)
+target_link_libraries(game PRIVATE sfml-graphics sfml-window sfml-system sfml-audio SQLiteCpp sqlite3 nlohmann_json::nlohmann_json)
 if (UNIX)
     target_link_libraries(game PRIVATE pthread dl)
 endif()
@@ -73,6 +79,8 @@ target_include_directories(game PRIVATE
     ${CMAKE_SOURCE_DIR}/include/gui/factory
     ${CMAKE_SOURCE_DIR}/include/entity
     ${CMAKE_SOURCE_DIR}/include/entity/factory
+    ${CMAKE_SOURCE_DIR}/include/entity/animals
+    ${CMAKE_SOURCE_DIR}/include/entity/vehicles
     ${CMAKE_SOURCE_DIR}/include/map_generator
     ${CMAKE_SOURCE_DIR}/include/database
     ${CMAKE_SOURCE_DIR}/include/utils

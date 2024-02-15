@@ -1,11 +1,7 @@
 #include <TitlebarFactory.hpp>
 #include <AppConfig.hpp>
 
-#include <Activity.hpp>
-#include <ActivityFactory.hpp>
-#include <SettingsActivity.hpp>
-#include <ProfileActivity.hpp>
-#include <HelpActivity.hpp>
+#include <ActivityProfile.hpp>
 
 #include <SpriteButtonView.hpp>
 #include <TextView.hpp>
@@ -138,7 +134,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureHolder& mTextu
                 Intent::Ptr intent = Intent::Builder()
                     .setRequestCode(requestCode)
                     .build();
-                context->startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+                context->startActivity(ActivityID::Settings, std::move(intent));
             } else {
                 Intent::Ptr resIntent = Intent::Builder()
                     .putExtra("titleType", TitlebarType::SETTINGS)
@@ -164,7 +160,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureHolder& mTextu
                 Intent::Ptr intent = Intent::Builder()
                     .setRequestCode(requestCode)
                     .build();
-                context->startActivity(ActivityFactory<ProfileActivity>::createInstance(), std::move(intent));
+                context->startActivity(ActivityID::Profile, std::move(intent));
             } else {
                 Intent::Ptr resIntent = Intent::Builder()
                     .putExtra("titleType", TitlebarType::PROFILE)
@@ -190,7 +186,7 @@ SpriteView::Ptr TitlebarFactory::create(Activity* context, TextureHolder& mTextu
                 Intent::Ptr intent = Intent::Builder()
                     .setRequestCode(requestCode)
                     .build();
-                context->startActivity(ActivityFactory<HelpActivity>::createInstance(), std::move(intent));
+                context->startActivity(ActivityID::Help, std::move(intent));
             } else {
                 Intent::Ptr resIntent = Intent::Builder()
                     .putExtra("titleType", TitlebarType::HELP)

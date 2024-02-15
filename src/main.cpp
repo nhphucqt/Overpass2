@@ -1,10 +1,7 @@
 #include <Application.hpp>
-#include <ActivityFactory.hpp>
-#include <MainMenuActivity.hpp>
 #include <AppConfig.hpp>
-#include <GameSetting.hpp>
-#include <UserSession.hpp>
 #include <UtilitySave.hpp>
+#include <ActivityID.hpp>
 
 int main()
 {
@@ -22,8 +19,7 @@ int main()
     UtilitySave::CreateDirectoryRecursive(dataPath, err);
 
 	Application app(windowSize.x, windowSize.y, windowTitle);
-	Activity::Ptr launcher = std::make_unique<MainMenuActivity>();
-	app.addLauncher(std::move(launcher));
+	app.addLauncher(ActivityID::MainMenu);
 	app.run();
 
 	return 0;

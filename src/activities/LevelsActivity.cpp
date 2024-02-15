@@ -1,15 +1,12 @@
 #include <LevelsActivity.hpp>
+
 #include <AppConfig.hpp>
 
 #include <TextView.hpp>
 #include <ButtonView.hpp>
 #include <SpriteButtonView.hpp>
-#include <ActivityFactory.hpp>
 
-#include <GameActivity.hpp>
-#include <SettingsActivity.hpp>
-#include <ProfileActivity.hpp>
-#include <HelpActivity.hpp>
+#include <ActivityProfile.hpp>
 
 #include <TitlebarFactory.hpp>
 #include <BackgroundFactory.hpp>
@@ -45,11 +42,11 @@ void LevelsActivity::onActivityResult(int requestCode, ResultCode resultCode, In
                 .setRequestCode(REQUEST_TITLEBAR_BUTTONS)
                 .build();
             if (titleType == (int)TitlebarFactory::TitlebarType::SETTINGS) {
-                startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+                startActivity(ActivityID::Settings, std::move(intent));
             } else if (titleType == (int)TitlebarFactory::TitlebarType::HELP) {
-                startActivity(ActivityFactory<HelpActivity>::createInstance(), std::move(intent));
+                startActivity(ActivityID::Help, std::move(intent));
             } else if (titleType == (int)TitlebarFactory::TitlebarType::PROFILE) {
-                startActivity(ActivityFactory<ProfileActivity>::createInstance(), std::move(intent));
+                startActivity(ActivityID::Profile, std::move(intent));
             }
         }
     }

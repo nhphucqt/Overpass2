@@ -1,18 +1,19 @@
 #include <LoginActivity.hpp>
-#include <ActivityFactory.hpp>
+
 #include <AppConfig.hpp>
 #include <ResourceID.hpp>
 #include <TextView.hpp>
 #include <EditTextView.hpp>
 #include <ButtonView.hpp>
 #include <UserRepo.hpp>
-#include <SignupActivity.hpp>
 
 #include <BackgroundFactory.hpp>
 #include <TitlebarFactory.hpp>
 #include <BackButtonFactory.hpp>
 #include <InputFieldFactory.hpp>
 #include <MenuButtonFactory.hpp>
+
+#include <ActivityProfile.hpp>
 
 void LoginActivity::onLoadResources() {
     mFontHolder.load(FontID::defaultFont, "res/fonts/retro-pixel-thick.ttf");
@@ -144,7 +145,7 @@ void LoginActivity::createDialog() {
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode(REQUEST_SIGN_UP)
             .build();
-        startActivity(ActivityFactory<SignupActivity>::createInstance(), std::move(intent));
+        startActivity(ActivityID::Signup, std::move(intent));
     });
     registerView->setPosition((submitButton->getGlobalBounds().getSize() - registerView->getGlobalBounds().getSize()) / 2.f);
     registerView->move(0, 80);

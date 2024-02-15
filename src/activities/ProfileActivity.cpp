@@ -1,9 +1,11 @@
 #include <ProfileActivity.hpp>
+
 #include <TitlebarFactory.hpp>
 #include <BackgroundFactory.hpp>
 #include <BackButtonFactory.hpp>
 #include <MenuButtonFactory.hpp>
-#include <ActivityFactory.hpp>
+
+#include <ActivityProfile.hpp>
 
 #include <RectangleView.hpp>
 #include <TextView.hpp>
@@ -115,7 +117,7 @@ void ProfileActivity::createGuessProfile(SpriteView *dialog) {
             Intent::Ptr intent = Intent::Builder()
                                      .setRequestCode(REQUEST_LOG_IN)
                                      .build();
-            this->startActivity(ActivityFactory<LoginActivity>::createInstance(), std::move(intent));
+            this->startActivity(ActivityID::Login, std::move(intent));
         });
     loginButton->setPosition((dialog->get().getGlobalBounds().getSize() - loginButton->getGlobalBounds().getSize()) / 2.f);
 

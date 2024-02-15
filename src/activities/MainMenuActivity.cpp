@@ -12,16 +12,9 @@
 #include <BackgroundFactory.hpp>
 #include <MenuButtonFactory.hpp>
 
-#include <ActivityFactory.hpp>
-#include <LevelsActivity.hpp>
-
-#include <RankingActivity.hpp>
-#include <SettingsActivity.hpp>
-#include <ProfileActivity.hpp>
-#include <HelpActivity.hpp>
+#include <ActivityProfile.hpp>
 
 #include <MusicPlayer.hpp>
-
 #include <GameSetting.hpp>
 
 void MainMenuActivity::onLoadResources() {
@@ -72,7 +65,7 @@ void MainMenuActivity::onActivityResult(int requestCode, ResultCode resultCode, 
         if (resultCode == ResultCode::RESULT_OK) {
             if (data->getAction() == (int)GameActivity::Action::ACTION_NEW_GAME) {
                 data->setRequestCode((int)Request::REQUEST_CODE_NEW_GAME);
-                startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(data));
+                startActivity(ActivityID::Game, std::move(data));
             }
         }
     } else if (requestCode == (int)Request::REQUEST_TITLEBAR_BUTTONS) {
@@ -85,11 +78,11 @@ void MainMenuActivity::onActivityResult(int requestCode, ResultCode resultCode, 
                 .setRequestCode((int)Request::REQUEST_TITLEBAR_BUTTONS)
                 .build();
             if (titleType == (int)TitlebarFactory::TitlebarType::SETTINGS) {
-                startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+                startActivity(ActivityID::Settings, std::move(intent));
             } else if (titleType == (int)TitlebarFactory::TitlebarType::HELP) {
-                startActivity(ActivityFactory<HelpActivity>::createInstance(), std::move(intent));
+                startActivity(ActivityID::Help, std::move(intent));
             } else if (titleType == (int)TitlebarFactory::TitlebarType::PROFILE) {
-                startActivity(ActivityFactory<ProfileActivity>::createInstance(), std::move(intent));
+                startActivity(ActivityID::Profile, std::move(intent));
             }
         }
     }
@@ -128,7 +121,7 @@ void MainMenuActivity::createPlayButtons() {
         Intent::Ptr intent = Intent::Builder()
             .setRequestCode((int)Request::REQUEST_CODE_GAME_LEVEL)
             .build();
-        this->startActivity(ActivityFactory<LevelsActivity>::createInstance(), std::move(intent));
+        this->startActivity(ActivityID::Levels, std::move(intent));
     });
 
     SpriteButtonView::Ptr continueButton = MenuButtonFactory::create(this, buttonTexture, mFontHolder.get(FontID::defaultFont), "Continue", spacing, [this](EventListener* listener, const sf::Event& event) {
@@ -140,11 +133,11 @@ void MainMenuActivity::createPlayButtons() {
             .setAction((int)GameActivity::Action::ACTION_CONTINUE_GAME)
             .putExtra(GameActivity::EXTRA_NUM_PLAYERS, 1)
             .build();
-        this->startActivity(ActivityFactory<GameActivity>::createInstance(), std::move(intent));
+        this->startActivity(ActivityID::Game, std::move(intent));
     });
 
     SpriteButtonView::Ptr rankingsButton = MenuButtonFactory::create(this, buttonTexture, mFontHolder.get(FontID::defaultFont), "Rankings", spacing, [this](EventListener* listener, const sf::Event& event) {
-        this->startActivity(ActivityFactory<RankingActivity>::createInstance());
+        this->startActivity(ActivityID::Ranking);
     });
 
     SpriteButtonView::Ptr exitButton = MenuButtonFactory::create(this, buttonTexture, mFontHolder.get(FontID::defaultFont), "Exit", spacing, [&](EventListener* listener, const sf::Event& event) {

@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <Activity.hpp>
 #include <Intent.hpp>
+#include <ActivityID.hpp>
 
 class Activity;
 
@@ -24,7 +25,9 @@ private:
 public:
     ActivityManager(int windowWidth, int windowHeight, std::string windowTitle);
 
+    void registerActivities();
     void startActivity(ActivityPtr activity, Intent::Ptr intent);
+    void startActivity(ActivityID activityID, Intent::Ptr intent);
     void attachActivity(ActivityPtr activity);
     void finishActivity(int requestCode, int resultCode, Intent::Ptr data);
     bool isEmpty() const;

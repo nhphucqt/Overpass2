@@ -7,6 +7,7 @@
 #include <Intent.hpp>
 #include <ActivityManager.hpp>
 #include <EventPublisher.hpp>
+#include <ActivityID.hpp>
 
 class ActivityManager;
 
@@ -35,8 +36,8 @@ public:
 
     ActivityManager* getActivityManager();
 
-    void startActivity(Ptr activity, Intent::Ptr intent);
-    void startActivity(Ptr activity);
+    void startActivity(ActivityID activityID, Intent::Ptr intent);
+    void startActivity(ActivityID activityID);
 
     void finish();
     void setResult(ResultCode resultCode, Intent::Ptr data);

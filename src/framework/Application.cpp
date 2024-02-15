@@ -1,23 +1,20 @@
-#include <memory>
-#include <string>
-#include <iostream>
 #include <Application.hpp>
 
+#include <string>
+
 Application::Application(int windowWidth, int windowHeight, std::string windowTitle)
-    : activityManager(windowWidth, windowHeight, windowTitle) {
+: activityManager(windowWidth, windowHeight, windowTitle) {
+    // do nothing
 }
 
-void Application::addLauncher(Activity::Ptr launcher, Intent::Ptr intent)
-{
-    activityManager.startActivity(std::move(launcher), std::move(intent));
+void Application::addLauncher(ActivityID launcher, Intent::Ptr intent) {
+    activityManager.startActivity(launcher, std::move(intent));
 }
 
-void Application::addLauncher(Activity::Ptr launcher)
-{
-    activityManager.startActivity(std::move(launcher), Intent::Builder().build());
+void Application::addLauncher(ActivityID launcher) {
+    activityManager.startActivity(launcher, Intent::Builder().build());
 }
 
-void Application::run()
-{
+void Application::run() {
     activityManager.run();
 }

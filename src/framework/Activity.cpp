@@ -25,12 +25,12 @@ void Activity::setActivityManager(ActivityManager* manager) {
     mManager = manager;
 }
 
-void Activity::startActivity(Ptr activity, Intent::Ptr intent) {
-    mManager->startActivity(std::move(activity), std::move(intent));
+void Activity::startActivity(ActivityID activityID, Intent::Ptr intent) {
+    mManager->startActivity(activityID, std::move(intent));
 }
 
-void Activity::startActivity(Ptr activity) {
-    startActivity(std::move(activity), Intent::Builder().build());
+void Activity::startActivity(ActivityID activityID) {
+    startActivity(activityID, Intent::Builder().build());
 }
 
 void Activity::draw(sf::RenderTarget& target, sf::RenderStates states) const {

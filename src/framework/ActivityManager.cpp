@@ -1,14 +1,38 @@
+#include <ActivityManager.hpp>
+
 #include <cassert>
 #include <iostream>
-#include <ActivityManager.hpp>
+
 #include <AppConfig.hpp>
+#include <ActivityGenerator.hpp>
+#include <ActivityProfile.hpp>
 
 ActivityManager::ActivityManager(int windowWidth, int windowHeight, std::string windowTitle)
 : mWindow(sf::VideoMode(windowWidth, windowHeight), windowTitle) {
-    // do nothing
+    registerActivities();
+}
+
+void ActivityManager::registerActivities() {
+    ActivityGenerator& generator = ActivityGenerator::getInstance();
+    generator.registerActivity<GameActivity>(ActivityID::Game);
+    generator.registerActivity<HelpActivity>(ActivityID::Help);
+    generator.registerActivity<LevelsActivity>(ActivityID::Levels);
+    generator.registerActivity<LoginActivity>(ActivityID::Login);
+    generator.registerActivity<MainMenuActivity>(ActivityID::MainMenu);
+    generator.registerActivity<ProfileActivity>(ActivityID::Profile);
+    generator.registerActivity<RankingActivity>(ActivityID::Ranking);
+    generator.registerActivity<SettingsActivity>(ActivityID::Settings);
+    generator.registerActivity<SignupActivity>(ActivityID::Signup);
 }
 
 void ActivityManager::startActivity(ActivityPtr activity, Intent::Ptr intent) {
+    activity->setIntent(std::move(intent));
+    activity->initialize();
+    attachActivity(std::move(activity));
+}
+
+void ActivityManager::startActivity(ActivityID activityID, Intent::Ptr intent) {
+    Activity::Ptr activity = ActivityGenerator::getInstance().create(activityID);
     activity->setIntent(std::move(intent));
     activity->initialize();
     attachActivity(std::move(activity));

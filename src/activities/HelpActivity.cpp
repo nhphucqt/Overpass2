@@ -1,4 +1,5 @@
 #include <HelpActivity.hpp>
+
 #include <TitlebarFactory.hpp>
 #include <BackgroundFactory.hpp>
 #include <BackButtonFactory.hpp>

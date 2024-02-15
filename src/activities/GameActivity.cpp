@@ -1,9 +1,8 @@
-#include <ActivityFactory.hpp>
+#include <GameActivity.hpp>
+
 #include <AppConfig.hpp>
 #include <ButtonView.hpp>
 #include <Field.hpp>
-#include <GameActivity.hpp>
-#include <SettingsActivity.hpp>
 #include <Railway.hpp>
 #include <River.hpp>
 #include <Road.hpp>
@@ -19,6 +18,8 @@
 
 #include <MusicPlayer.hpp>
 #include <SoundPlayer.hpp>
+
+#include <ActivityProfile.hpp>
 
 const std::string GameActivity::EXTRA_GAME_LEVEL = "level";
 const std::string GameActivity::EXTRA_NUM_PLAYERS = "num_players";
@@ -550,7 +551,7 @@ void GameActivity::createStatusLayer() {
             Intent::Ptr intent = Intent::Builder()
                     .setAction(SettingsActivity::ACTION_INGAME)
                     .build();
-            this->startActivity(ActivityFactory<SettingsActivity>::createInstance(), std::move(intent));
+            this->startActivity(ActivityID::Settings, std::move(intent));
         }
     );
 
